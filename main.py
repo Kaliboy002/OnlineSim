@@ -11,6 +11,7 @@ import json
 import random
 import time
 from typing import ClassVar, NoReturn, Any, Union, List, Dict
+from pymongo import MongoClient
 
 # Related third-party module imports
 import telebot
@@ -27,12 +28,15 @@ from src.vneng import VNEngine
 # Initialize the bot token
 bot: ClassVar[Any] = telebot.TeleBot(utils.get_token())
 print(f"\33[1;36m::\33[m Bot is running with ID: {bot.get_me().id}")
+
 # Replace 'yourchannel' with the actual channel username
 REQUIRED_CHANNEL = "SHMMHS1"
 
-# List to hold user IDs
-user_ids: List[int] = []  # This should be persistent, consider using a database or file to store it
-total_users: int = 0  # Counter for total users who have started the bot
+# MongoDB setup
+MONGO_URI = "mongodb+srv://Kali:SHM14002022SHM@cluster0.bxsct.mongodb.net/myDatabase?retryWrites=true&w=majority"  # Replace with your MongoDB connection string
+client = MongoClient(MONGO_URI)
+db = client["myDatabase"]  # Replace with your MongoDB database name
+users_collection = db["users"]  # Collection to store user IDs
 
 # Define your admin user ID here
 ADMIN_USER_ID = 7046488481  # Replace with the actual admin ID
@@ -49,8 +53,6 @@ def start_command_handler(message: ClassVar[Any]) -> NoReturn:
     Returns:
         None (typing.NoReturn)
     """
-
-    global total_users  # Use the global counter
 
     # Check if the user is a member of the required channel
     user_status = bot.get_chat_member(chat_id=f"@{REQUIRED_CHANNEL}", user_id=message.from_user.id).status
@@ -81,27 +83,26 @@ def start_command_handler(message: ClassVar[Any]) -> NoReturn:
         )
     )
 
-    # Store user ID for broadcasting later
-    if message.from_user.id not in user_ids:
-        user_ids.append(message.from_user.id)
-        total_users += 1  # Increment the total user count
-
+    # Store user ID in MongoDB if not already stored
+    if not users_collection.find_one({"user_id": message.from_user.id}):
+        users_collection.insert_one({"user_id": message.from_user.id, "username": message.from_user.username})
+        
         # Notify admin of the new user starting the bot
-        notify_admin(message.from_user.id, message.from_user.username, total_users)
+        notify_admin(message.from_user.id, message.from_user.username)
 
 # Function to notify admin about new user
-def notify_admin(user_id: int, username: str, total_users: int):
+def notify_admin(user_id: int, username: str):
     """
     Sends a notification to the admin when a new user starts the bot.
 
     Parameters:
         user_id (int): The ID of the user.
         username (str): The username of the user.
-        total_users (int): The total count of users.
 
     Returns:
         None
     """
+    total_users = users_collection.count_documents({})  # Count total users
     notification_message = (
         f"👤 New User Started the Bot:\n"
         f"User ID: {user_id}\n"
@@ -143,15 +144,15 @@ def help_command_handler(message: ClassVar[Any]) -> NoReturn:
         message=message,
         text=(
            "·ᴥ· Virtual Number Bot\n\n"
-           "This bot is using api from onlinesim.io and fetches "
-           "online and active number.\n"
-           "All you need is sending few commands to bot and it will "
+           "This bot is using API from onlinesim.io and fetches "
+           "online and active numbers.\n"
+           "All you need is to send a few commands to the bot and it will "
            "find a random number for you.\n\n══════════════\n"
-           "★ To get new number you can simply send /number command "
-           "or you can use inline button (Renew) to re-new your number.\n\n"
-           "★ To get inbox messages use (inbox) inline button. this will show you "
-           "last 5 messages.\n\n"
-           "★ You can also check number's telegram profile using inline button "
+           "★ To get a new number you can simply send /number command "
+           "or you can use inline button (Renew) to renew your number.\n\n"
+           "★ To get inbox messages use the (inbox) inline button. This will show you "
+           "the last 5 messages.\n\n"
+           "★ You can also check the number's Telegram profile using the inline button "
            "(check phone number's profile)\n══════════════\n\n"
            "This is all you need to know about this bot!"
         )
@@ -178,8 +179,10 @@ def broadcast_message_handler(message: ClassVar[Any]) -> NoReturn:
     reply_message = message.reply_to_message
 
     # Send the message or file to all users
-    try:
-        for user_id in user_ids:
+    user_cursor = users_collection.find()  # Get all users from the MongoDB collection
+    for user in user_cursor:
+        user_id = user['user_id']
+        try:
             if reply_message.text:
                 bot.send_message(user_id, reply_message.text)
             elif reply_message.photo:
@@ -195,11 +198,13 @@ def broadcast_message_handler(message: ClassVar[Any]) -> NoReturn:
             elif reply_message.sticker:
                 bot.send_sticker(user_id, reply_message.sticker.file_id)
             # Add more media types as needed
-    except Exception as e:
-        print(f"Failed to send message to user {user_id}: {e}")
+        except Exception as e:
+            print(f"Failed to send message to user {user_id}: {e}")
 
     bot.reply_to(message, "✅ Broadcast message sent to all users.")
 
+# Start polling to handle messages
+bot.polling(none_stop=True)
 
 
 # Start polling to handle messages
