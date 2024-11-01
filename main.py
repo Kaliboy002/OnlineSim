@@ -245,7 +245,7 @@ def number_command_handler(message: ClassVar[Any]) -> NoReturn:
         return 0
 
 
-@bot.callback_query_handler(func=lambda x:x.data.startswith("msg"))
+@bot.callback_query_handler(func=lambda x: x.data.startswith("msg"))
 def number_inbox_handler(call: ClassVar[Any]) -> NoReturn:
     """
     Callback query handler to handle inbox messages
@@ -260,10 +260,29 @@ def number_inbox_handler(call: ClassVar[Any]) -> NoReturn:
     # Initialize the Virtual Number engine
     engine: ClassVar[Any] = VNEngine()
 
-    # Get country name and number from call's data
-    country: str
-    number: str
-    _, country, number = call.data.split("&")
+    try:
+        # Get country name and number from call's data
+        _, country, number = call.data.split("&")
+        
+        # Fetch last 5 messages from the inbox (this is an example; you need to implement this)
+        messages = engine.get_last_messages(country, number, limit=5)  # Ensure this method exists
+        
+        # Prepare the response message
+        if messages:
+            response_message = "\n".join(messages)
+        else:
+            response_message = "No messages found."
+
+        # Send response back to the user
+        bot.send_message(call.message.chat.id, response_message)
+
+    except ValueError:
+        # Handle the case where call.data does not split correctly
+        bot.send_message(call.message.chat.id, "Error: Invalid data format.")
+    except Exception as e:
+        # General exception handling
+        bot.send_message(call.message.chat.id, f"An error occurred: {str(e)}")
+
 
     # Get all messages and select last 5 messages
     messages: List[Dict[str, str]] = engine.get_number_inbox(
