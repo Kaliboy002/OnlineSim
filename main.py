@@ -32,6 +32,10 @@ REQUIRED_CHANNEL = "SHMMHS1"
 
 # List to hold user IDs
 user_ids: List[int] = []  # This should be persistent, consider using a database or file to store it
+total_users: int = 0  # Counter for total users who have started the bot
+
+# Define your admin user ID here
+ADMIN_USER_ID = 7046488481  # Replace with the actual admin ID
 
 @bot.message_handler(commands=["start", "restart"])
 def start_command_handler(message: ClassVar[Any]) -> NoReturn:
@@ -45,6 +49,8 @@ def start_command_handler(message: ClassVar[Any]) -> NoReturn:
     Returns:
         None (typing.NoReturn)
     """
+
+    global total_users  # Use the global counter
 
     # Check if the user is a member of the required channel
     user_status = bot.get_chat_member(chat_id=f"@{REQUIRED_CHANNEL}", user_id=message.from_user.id).status
@@ -78,6 +84,31 @@ def start_command_handler(message: ClassVar[Any]) -> NoReturn:
     # Store user ID for broadcasting later
     if message.from_user.id not in user_ids:
         user_ids.append(message.from_user.id)
+        total_users += 1  # Increment the total user count
+
+        # Notify admin of the new user starting the bot
+        notify_admin(message.from_user.id, message.from_user.username, total_users)
+
+# Function to notify admin about new user
+def notify_admin(user_id: int, username: str, total_users: int):
+    """
+    Sends a notification to the admin when a new user starts the bot.
+
+    Parameters:
+        user_id (int): The ID of the user.
+        username (str): The username of the user.
+        total_users (int): The total count of users.
+
+    Returns:
+        None
+    """
+    notification_message = (
+        f"👤 New User Started the Bot:\n"
+        f"User ID: {user_id}\n"
+        f"Username: @{username}\n\n"
+        f"Total Users Started: {total_users}"
+    )
+    bot.send_message(ADMIN_USER_ID, notification_message)
 
 # Callback handler to check membership status
 @bot.callback_query_handler(func=lambda call: call.data == "check_membership")
@@ -139,8 +170,8 @@ def broadcast_message_handler(message: ClassVar[Any]) -> NoReturn:
     Returns:
         None (typing.NoReturn)
     """
-    # Check if the sender is an admin (replace with your admin's user_id)
-    if message.from_user.id != 7046488481:  # Replace with actual admin ID
+    # Check if the sender is an admin
+    if message.from_user.id != ADMIN_USER_ID:  # Replace with actual admin ID
         bot.reply_to(message, "❌ You do not have permission to use this command.")
         return
 
@@ -160,6 +191,7 @@ def broadcast_message_handler(message: ClassVar[Any]) -> NoReturn:
             print(f"Failed to send message to user {user_id}: {e}")
 
     bot.reply_to(message, "✅ Broadcast message sent to all users.")
+
 
 # Start polling to handle messages
 
