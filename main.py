@@ -123,7 +123,6 @@ def help_command_handler(message: ClassVar[Any]) -> NoReturn:
     )
 
 
-# Add other bot functions and command handlers here if needed
 
 @bot.message_handler(commands=["number"])
 def number_command_handler(message: ClassVar[Any]) -> NoReturn:
@@ -131,9 +130,34 @@ def number_command_handler(message: ClassVar[Any]) -> NoReturn:
     Function to handle number commands in bot
     Finds and sends new virtual number to user
 
-    atus
+    Parameters:
+        message (typing.ClassVar[Any]): Incoming message object
+
+    Returns:
+        None (typing.NoReturn)
+    """
+
+    # Send waiting prompt
+    bot.send_chat_action(chat_id=message.chat.id, action="typing")
+    prompt: ClassVar[Any] = bot.reply_to(
+        message=message,
+        text=(
+            "Getting a random number for you...\n\n"
+            "⁀➴ Fetching online countries:"
+        ),
+    )
+
+    # Initialize the Virtual Number engine
+    engine: ClassVar[Any] = VNEngine()
+
+    # Get the countries and shuffle them
+    countries: List[Dict[str, str]] = engine.get_online_countries()
+    random.shuffle(countries)
+
+    # Update prompt based on current status
     bot.edit_message_text(
-        chat_id=message.chat.2e_id,
+        chat_id=message.chat.id,
+        message_id=prompt.message_id,
         text=(
             "Getting a random number for you...\n\n"
             "⁀➴ Fetching online countries:\n"
@@ -245,7 +269,7 @@ def number_command_handler(message: ClassVar[Any]) -> NoReturn:
         return 0
 
 
-@bot.callback_query_handler(func=lambda x: x.data.startswith("msg"))
+@bot.callback_query_handler(func=lambda x:x.data.startswith("msg"))
 def number_inbox_handler(call: ClassVar[Any]) -> NoReturn:
     """
     Callback query handler to handle inbox messages
@@ -260,29 +284,10 @@ def number_inbox_handler(call: ClassVar[Any]) -> NoReturn:
     # Initialize the Virtual Number engine
     engine: ClassVar[Any] = VNEngine()
 
-    try:
-        # Get country name and number from call's data
-        _, country, number = call.data.split("&")
-        
-        # Fetch last 5 messages from the inbox (this is an example; you need to implement this)
-        messages = engine.get_last_messages(country, number, limit=5)  # Ensure this method exists
-        
-        # Prepare the response message
-        if messages:
-            response_message = "\n".join(messages)
-        else:
-            response_message = "No messages found."
-
-        # Send response back to the user
-        bot.send_message(call.message.chat.id, response_message)
-
-    except ValueError:
-        # Handle the case where call.data does not split correctly
-        bot.send_message(call.message.chat.id, "Error: Invalid data format.")
-    except Exception as e:
-        # General exception handling
-        bot.send_message(call.message.chat.id, f"An error occurred: {str(e)}")
-
+    # Get country name and number from call's data
+    country: str
+    number: str
+    _, country, number = call.data.split("&")
 
     # Get all messages and select last 5 messages
     messages: List[Dict[str, str]] = engine.get_number_inbox(
