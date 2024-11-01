@@ -12,10 +12,11 @@ import random
 import time
 from typing import ClassVar, NoReturn, Any, Union, List, Dict
 
-# Related third party module imports
+# Related third-party module imports
 import telebot
 import phonenumbers
 import countryflag
+from telebot import types
 
 # Local application module imports
 from src import utils
@@ -25,9 +26,62 @@ from src.vneng import VNEngine
 # Initialize the bot token
 bot: ClassVar[Any] = telebot.TeleBot(utils.get_token())
 print(f"\33[1;36m::\33[m Bot is running with ID: {bot.get_me().id}")
+# Replace 'yourchannel' with the actual channel username
+REQUIRED_CHANNEL = "SHMMHS1"  
+
+@bot.message_handler(commands=['start'])
+def start_command(message):
+    user_id = message.from_user.id
+
+    # Check if the user is a member of the required channel
+    if is_user_member(user_id):
+        bot.send_message(user_id, "Welcome! You have successfully joined the channel.")
+        # Call the /star command functionality here
+        star_command(message)
+    else:
+        # If user is not a member, prompt them to join
+        markup = types.InlineKeyboardMarkup()
+        join_button = types.InlineKeyboardButton("Join Channel", url=f"https://t.me/{REQUIRED_CHANNEL}")
+        check_button = types.InlineKeyboardButton("Check", callback_data="check_membership")
+        markup.add(join_button, check_button)
+        
+        bot.send_message(user_id, "Please join our channel first, then click 'Check'.", reply_markup=markup)
+
+@bot.callback_query_handler(func=lambda call: call.data == "check_membership")
+def check_membership(call):
+    user_id = call.from_user.id
+
+    # Check if the user is a member of the required channel
+    if is_user_member(user_id):
+        bot.send_message(user_id, "Thank you for joining! You may now use the bot.")
+        # Call the /star command functionality here
+        star_command(call.message)
+    else:
+        bot.send_message(user_id, "It seems you haven't joined the channel. Please join and click 'Check' again.")
+
+def is_user_member(user_id):
+    try:
+        # Check if the user is a member of the channel
+        member = bot.get_chat_member(f"@{REQUIRED_CHANNEL}", user_id)
+        return member.status in ["member", "administrator", "creator"]
+    except Exception:
+        return False
+
+# Define your /star command functionality here
+def star_command(message):
+    bot.send_message(message.chat.id, "Running the /star command...")
+
+# Additional Virtual Number functionality
+def send_random_virtual_number(message):
+    # Simulating sending a random virtual number
+    virtual_number = VNEngine.get_random_number()
+    bot.send_message(message.chat.id, f"Your virtual number is: {virtual_number}")
+
+# Run the bot
+bot.polling()
 
 
-@bot.message_handler(commands=["start", "restart"])
+@bot.message_handler(commands=["star", "restart"])
 def start_command_handler(message: ClassVar[Any]) -> NoReturn:
     """
     Function to handle start commands in bot
