@@ -30,7 +30,7 @@ print(f"\33[1;36m::\33[m Bot is running with ID: {bot.get_me().id}")
 REQUIRED_CHANNEL = "SHMMHS1"
 
 # Admin user ID for accessing statistics
-ADMIN_ID = 7046488481  # Replace with the actual admin ID
+ADMIN_ID = 123456789  # Replace with the actual admin ID
 
 # Track unique users
 user_ids = set()  # Using a set to store unique user IDs
@@ -148,6 +148,7 @@ def stat_command_handler(message: ClassVar[Any]) -> NoReturn:
             chat_id=message.chat.id,
             text="❌ You are not authorized to view statistics."
         )
+
 
 
 # Add other bot functions and command handlers here if needed
