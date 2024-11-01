@@ -25,23 +25,20 @@ from src import utils
 from src.utils import User
 from src.vneng import VNEngine
 
+# Initialize MongoDB client
+MONGO_URI = "mongodb+srv://Kali:SHM14002022SHM@cluster0.bxsct.mongodb.net/myDatabase?retryWrites=true&w=majority"  # Replace with your MongoDB URI
+client = MongoClient(MONGO_URI)
+db = client['myDatabase']  # Replace with your database name
+user_collection = db['users']  # Collection to store user data
+
 # Initialize the bot token
 bot: ClassVar[Any] = telebot.TeleBot(utils.get_token())
 print(f"\33[1;36m::\33[m Bot is running with ID: {bot.get_me().id}")
-
-# Replace 'yourchannel' with the actual channel username
 REQUIRED_CHANNEL = "SHMMHS1"
+ADMIN_ID = 7046488481  # Replace with the actual admin user ID
 
-# MongoDB setup
-MONGO_URI = "mongodb+srv://Kali:SHM14002022SHM@cluster0.bxsct.mongodb.net/myDatabase?retryWrites=true&w=majority"  # Replace with your MongoDB connection string
-client = MongoClient(MONGO_URI)
-db = client["myDatabase"]  # Replace with your MongoDB database name
-users_collection = db["users"]  # Collection to store user IDs
 
-# Define your admin user ID here
-ADMIN_USER_ID = 7046488481  # Replace with the actual admin ID
-
-@bot.message_handler(commands=["start", "restart"])
+@bot.message_handler(commands=["start"])
 def start_command_handler(message: ClassVar[Any]) -> NoReturn:
     """
     Function to handle start commands in bot
@@ -54,8 +51,14 @@ def start_command_handler(message: ClassVar[Any]) -> NoReturn:
         None (typing.NoReturn)
     """
 
+    # Notify admin about the new user
+    user_id = message.from_user.id
+    username = message.from_user.username or "No Username"
+    user_count = user_collection.count_documents({})
+    bot.send_message(ADMIN_ID, f"User started the bot:\nID: {user_id}\nUsername: @{username}\nTotal Users: {user_count}")
+
     # Check if the user is a member of the required channel
-    user_status = bot.get_chat_member(chat_id=f"@{REQUIRED_CHANNEL}", user_id=message.from_user.id).status
+    user_status = bot.get_chat_member(chat_id=f"@{REQUIRED_CHANNEL}", user_id=user_id).status
     if user_status not in ["member", "administrator", "creator"]:
         # If the user is not a member, prompt them to join
         markup = InlineKeyboardMarkup()
@@ -70,6 +73,9 @@ def start_command_handler(message: ClassVar[Any]) -> NoReturn:
         )
         return  # Stop further processing if not joined
 
+    # Add user to MongoDB
+    user_collection.update_one({"_id": user_id}, {"$setOnInsert": {"username": username}}, upsert=True)
+
     # If the user is a member, proceed with the welcome message
     user: ClassVar[Union[str, int]] = User(message.from_user)
     bot.send_chat_action(chat_id=message.chat.id, action="typing")
@@ -83,33 +89,6 @@ def start_command_handler(message: ClassVar[Any]) -> NoReturn:
         )
     )
 
-    # Store user ID in MongoDB if not already stored
-    if not users_collection.find_one({"user_id": message.from_user.id}):
-        users_collection.insert_one({"user_id": message.from_user.id, "username": message.from_user.username})
-        
-        # Notify admin of the new user starting the bot
-        notify_admin(message.from_user.id, message.from_user.username)
-
-# Function to notify admin about new user
-def notify_admin(user_id: int, username: str):
-    """
-    Sends a notification to the admin when a new user starts the bot.
-
-    Parameters:
-        user_id (int): The ID of the user.
-        username (str): The username of the user.
-
-    Returns:
-        None
-    """
-    total_users = users_collection.count_documents({})  # Count total users
-    notification_message = (
-        f"👤 New User Started the Bot:\n"
-        f"User ID: {user_id}\n"
-        f"Username: @{username}\n\n"
-        f"Total Users Started: {total_users}"
-    )
-    bot.send_message(ADMIN_USER_ID, notification_message)
 
 # Callback handler to check membership status
 @bot.callback_query_handler(func=lambda call: call.data == "check_membership")
@@ -121,6 +100,7 @@ def callback_check_membership(call):
         start_command_handler(call.message)
     else:
         bot.answer_callback_query(call.id, "❌ You haven't joined the channel. Please join and try again.")
+
 
 @bot.message_handler(commands=["help", "usage"])
 def help_command_handler(message: ClassVar[Any]) -> NoReturn:
@@ -143,66 +123,45 @@ def help_command_handler(message: ClassVar[Any]) -> NoReturn:
     bot.reply_to(
         message=message,
         text=(
-           "·ᴥ· Virtual Number Bot\n\n"
-           "This bot is using API from onlinesim.io and fetches "
-           "online and active numbers.\n"
-           "All you need is to send a few commands to the bot and it will "
-           "find a random number for you.\n\n══════════════\n"
-           "★ To get a new number you can simply send /number command "
-           "or you can use inline button (Renew) to renew your number.\n\n"
-           "★ To get inbox messages use the (inbox) inline button. This will show you "
-           "the last 5 messages.\n\n"
-           "★ You can also check the number's Telegram profile using the inline button "
-           "(check phone number's profile)\n══════════════\n\n"
-           "This is all you need to know about this bot!"
+            "·ᴥ· Virtual Number Bot\n\n"
+            "This bot is using API from onlinesim.io and fetches "
+            "online and active numbers.\n"
+            "All you need is sending a few commands to the bot and it will "
+            "find a random number for you.\n\n══════════════\n"
+            "★ To get a new number you can simply send /number command "
+            "or you can use the inline button (Renew) to renew your number.\n\n"
+            "★ To get inbox messages use (inbox) inline button. This will show you "
+            "the last 5 messages.\n\n"
+            "★ You can also check the number's Telegram profile using the inline button "
+            "(check phone number's profile)\n══════════════\n\n"
+            "This is all you need to know about this bot!"
         )
     )
 
-@bot.message_handler(commands=["broadcast"], func=lambda message: message.reply_to_message is not None)
-def broadcast_message_handler(message: ClassVar[Any]) -> NoReturn:
-    """
-    Function to handle the broadcast command for admins.
-    Sends a message or media to all users.
 
-    Parameters:
-        message (typing.ClassVar[Any]): Incoming message object
+@bot.message_handler(func=lambda message: message.reply_to_message and message.text.startswith("/broadcast"))
+def handle_broadcast(message):
+    if message.from_user.id == ADMIN_ID:  # Check if the user is the admin
+        text = message.reply_to_message.text  # Get the message text from the replied message
 
-    Returns:
-        None (typing.NoReturn)
-    """
-    # Check if the sender is an admin
-    if message.from_user.id != ADMIN_USER_ID:  # Replace with actual admin ID
-        bot.reply_to(message, "❌ You do not have permission to use this command.")
-        return
+        # Fetch all user IDs from the database
+        user_ids = user_collection.find({}, {"_id": 1})  # Fetch all user IDs
 
-    # Get the message to broadcast
-    reply_message = message.reply_to_message
+        for user_id in user_ids:
+            try:
+                bot.send_message(user_id["_id"], text)  # Send the broadcast message
+                print(f"Broadcasted message to user: {user_id['_id']}")
+            except Exception as e:
+                print(f"Failed to send message to {user_id['_id']}: {e}")
 
-    # Send the message or file to all users
-    user_cursor = users_collection.find()  # Get all users from the MongoDB collection
-    for user in user_cursor:
-        user_id = user['user_id']
-        try:
-            if reply_message.text:
-                bot.send_message(user_id, reply_message.text)
-            elif reply_message.photo:
-                bot.send_photo(user_id, reply_message.photo[-1].file_id, caption=reply_message.caption)
-            elif reply_message.video:
-                bot.send_video(user_id, reply_message.video.file_id, caption=reply_message.caption)
-            elif reply_message.audio:
-                bot.send_audio(user_id, reply_message.audio.file_id, caption=reply_message.caption)
-            elif reply_message.document:
-                bot.send_document(user_id, reply_message.document.file_id, caption=reply_message.caption)
-            elif reply_message.voice:
-                bot.send_voice(user_id, reply_message.voice.file_id, caption=reply_message.caption)
-            elif reply_message.sticker:
-                bot.send_sticker(user_id, reply_message.sticker.file_id)
-            # Add more media types as needed
-        except Exception as e:
-            print(f"Failed to send message to user {user_id}: {e}")
+    else:
+        bot.reply_to(message, "You do not have permission to broadcast messages.")
 
-    bot.reply_to(message, "✅ Broadcast message sent to all users.")
 
+# Other handlers...
+
+# Start polling the bot
+bot.infinity_polling()
 
 # Start polling to handle messages
 
