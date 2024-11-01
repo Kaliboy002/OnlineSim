@@ -1,39 +1,25 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Virtual Number bot for Telegram
-# Sends random virtual numbers to user
-# Service: OnlineSim.io
-# SourceCode (https://github.com/Kourva/OnlineSimBot)
-
-# Standard library imports
+# Import necessary libraries
 import json
 import random
-import time
-from typing import ClassVar, NoReturn, Any, Union, List, Dict
+from typing import ClassVar, NoReturn, Any
 from pymongo import MongoClient
-
-# Related third-party module imports
 import telebot
-import phonenumbers
-import countryflag
 from telebot import types
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-# Local application module imports
-from src import utils
-from src.utils import User
-from src.vneng import VNEngine
-
-# Initialize MongoDB client
+# MongoDB connection details
 MONGO_URI = "mongodb+srv://Kali:SHM14002022SHM@cluster0.bxsct.mongodb.net/myDatabase?retryWrites=true&w=majority"  # Replace with your MongoDB URI
 client = MongoClient(MONGO_URI)
 db = client['myDatabase']  # Replace with your database name
 user_collection = db['users']  # Collection to store user data
 
 # Initialize the bot token
-bot: ClassVar[Any] = telebot.TeleBot(utils.get_token())
+bot: ClassVar[Any] = telebot.TeleBot("your_bot_token")  # Replace with your bot token
 print(f"\33[1;36m::\33[m Bot is running with ID: {bot.get_me().id}")
+
 REQUIRED_CHANNEL = "SHMMHS1"
 ADMIN_ID = 7046488481  # Replace with the actual admin user ID
 
@@ -41,7 +27,7 @@ ADMIN_ID = 7046488481  # Replace with the actual admin user ID
 @bot.message_handler(commands=["start"])
 def start_command_handler(message: ClassVar[Any]) -> NoReturn:
     """
-    Function to handle start commands in bot
+    Function to handle start commands in bot.
     Shows welcome messages to users or prompts them to join the required channel.
 
     Parameters:
@@ -51,11 +37,8 @@ def start_command_handler(message: ClassVar[Any]) -> NoReturn:
         None (typing.NoReturn)
     """
 
-    # Notify admin about the new user
     user_id = message.from_user.id
     username = message.from_user.username or "No Username"
-    user_count = user_collection.count_documents({})
-    bot.send_message(ADMIN_ID, f"User started the bot:\nID: {user_id}\nUsername: @{username}\nTotal Users: {user_count}")
 
     # Check if the user is a member of the required channel
     user_status = bot.get_chat_member(chat_id=f"@{REQUIRED_CHANNEL}", user_id=user_id).status
@@ -73,16 +56,20 @@ def start_command_handler(message: ClassVar[Any]) -> NoReturn:
         )
         return  # Stop further processing if not joined
 
-    # Add user to MongoDB
-    user_collection.update_one({"_id": user_id}, {"$setOnInsert": {"username": username}}, upsert=True)
+    # Check if the user is already in the database
+    if user_collection.count_documents({"_id": user_id}) == 0:
+        # Add user to MongoDB
+        user_collection.insert_one({"_id": user_id, "username": username})
+
+        # Notify admin about the new user only the first time
+        bot.send_message(ADMIN_ID, f"New user started the bot:\nID: {user_id}\nUsername: @{username}")
 
     # If the user is a member, proceed with the welcome message
-    user: ClassVar[Union[str, int]] = User(message.from_user)
     bot.send_chat_action(chat_id=message.chat.id, action="typing")
     bot.reply_to(
         message=message,
         text=(
-            f"⁀➴ Hello {user.pn}\n"
+            f"⁀➴ Hello {username}\n"
             "Welcome to Virtual Number Bot\n\n"
             "Send /help to get help message\n"
             "Send /number to get a virtual number"
@@ -90,7 +77,6 @@ def start_command_handler(message: ClassVar[Any]) -> NoReturn:
     )
 
 
-# Callback handler to check membership status
 @bot.callback_query_handler(func=lambda call: call.data == "check_membership")
 def callback_check_membership(call):
     user_status = bot.get_chat_member(chat_id=f"@{REQUIRED_CHANNEL}", user_id=call.from_user.id).status
@@ -105,8 +91,8 @@ def callback_check_membership(call):
 @bot.message_handler(commands=["help", "usage"])
 def help_command_handler(message: ClassVar[Any]) -> NoReturn:
     """
-    Function to handle help commands in bot
-    Shows help messages to users
+    Function to handle help commands in bot.
+    Shows help messages to users.
 
     Parameters:
         message (typing.ClassVar[Any]): Incoming message object
@@ -114,9 +100,6 @@ def help_command_handler(message: ClassVar[Any]) -> NoReturn:
     Returns:
         None (typing.NoReturn)
     """
-
-    # Fetch user's data
-    user: ClassVar[Union[str, int]] = User(message.from_user)
 
     # Send Help message
     bot.send_chat_action(chat_id=message.chat.id, action="typing")
@@ -142,20 +125,31 @@ def help_command_handler(message: ClassVar[Any]) -> NoReturn:
 @bot.message_handler(func=lambda message: message.reply_to_message and message.text.startswith("/broadcast"))
 def handle_broadcast(message):
     if message.from_user.id == ADMIN_ID:  # Check if the user is the admin
-        text = message.reply_to_message.text  # Get the message text from the replied message
-
-        # Fetch all user IDs from the database
+        # Get the replied message
+        replied_message = message.reply_to_message
         user_ids = user_collection.find({}, {"_id": 1})  # Fetch all user IDs
 
         for user_id in user_ids:
             try:
-                bot.send_message(user_id["_id"], text)  # Send the broadcast message
+                # Determine the type of the message to send
+                if replied_message.content_type == "text":
+                    bot.send_message(user_id["_id"], replied_message.text)  # Send text message
+                elif replied_message.content_type in ["photo", "video", "document"]:
+                    bot.send_document(user_id["_id"], replied_message.document.file_id)  # Send document (can be used for videos)
+                    if replied_message.content_type == "photo":
+                        bot.send_photo(user_id["_id"], replied_message.photo[-1].file_id)  # Send the highest quality photo
+                    elif replied_message.content_type == "video":
+                        bot.send_video(user_id["_id"], replied_message.video.file_id)  # Send video
                 print(f"Broadcasted message to user: {user_id['_id']}")
             except Exception as e:
                 print(f"Failed to send message to {user_id['_id']}: {e}")
 
     else:
         bot.reply_to(message, "You do not have permission to broadcast messages.")
+
+
+# Start polling the bot
+bot.infinity_polling()
 
 # Start polling to handle messages
 
