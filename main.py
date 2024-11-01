@@ -121,7 +121,6 @@ def callback_check_membership(call):
     else:
         bot.answer_callback_query(call.id, "❌ You haven't joined the channel. Please join and try again.")
 
-
 @bot.message_handler(commands=["help", "usage"])
 def help_command_handler(message: ClassVar[Any]) -> NoReturn:
     """
@@ -158,11 +157,11 @@ def help_command_handler(message: ClassVar[Any]) -> NoReturn:
         )
     )
 
-@bot.message_handler(commands=["broadcast"])
+@bot.message_handler(commands=["broadcast"], func=lambda message: message.reply_to_message is not None)
 def broadcast_message_handler(message: ClassVar[Any]) -> NoReturn:
     """
     Function to handle the broadcast command for admins.
-    Sends a message to all users.
+    Sends a message or media to all users.
 
     Parameters:
         message (typing.ClassVar[Any]): Incoming message object
@@ -175,22 +174,35 @@ def broadcast_message_handler(message: ClassVar[Any]) -> NoReturn:
         bot.reply_to(message, "❌ You do not have permission to use this command.")
         return
 
-    # Check if there is any text after the command
-    if not message.text.strip():
-        bot.reply_to(message, "Please provide a message to broadcast.")
-        return
+    # Get the message to broadcast
+    reply_message = message.reply_to_message
 
-    # Get the message text
-    broadcast_message = message.text[len("/broadcast "):]
-
-    # Send the message to all users
-    for user_id in user_ids:
-        try:
-            bot.send_message(user_id, broadcast_message)
-        except Exception as e:
-            print(f"Failed to send message to user {user_id}: {e}")
+    # Send the message or file to all users
+    try:
+        for user_id in user_ids:
+            if reply_message.text:
+                bot.send_message(user_id, reply_message.text)
+            elif reply_message.photo:
+                bot.send_photo(user_id, reply_message.photo[-1].file_id, caption=reply_message.caption)
+            elif reply_message.video:
+                bot.send_video(user_id, reply_message.video.file_id, caption=reply_message.caption)
+            elif reply_message.audio:
+                bot.send_audio(user_id, reply_message.audio.file_id, caption=reply_message.caption)
+            elif reply_message.document:
+                bot.send_document(user_id, reply_message.document.file_id, caption=reply_message.caption)
+            elif reply_message.voice:
+                bot.send_voice(user_id, reply_message.voice.file_id, caption=reply_message.caption)
+            elif reply_message.sticker:
+                bot.send_sticker(user_id, reply_message.sticker.file_id)
+            # Add more media types as needed
+    except Exception as e:
+        print(f"Failed to send message to user {user_id}: {e}")
 
     bot.reply_to(message, "✅ Broadcast message sent to all users.")
+
+# Start polling to handle messages
+bot.polling(none_stop=True)
+
 
 
 # Start polling to handle messages
