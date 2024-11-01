@@ -16,3 +16,5 @@ tzdata==2023.4
 urllib3==2.2.2
 pymongo==4.0.1
 dnspython
+telebot
+pymongo[srv]
