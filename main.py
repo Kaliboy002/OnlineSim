@@ -30,8 +30,10 @@ print(f"\33[1;36m::\33[m Bot is running with ID: {bot.get_me().id}")
 # Replace 'yourchannel' with the actual channel username
 REQUIRED_CHANNEL = "SHMMHS1"
 
+# List to hold user IDs
+user_ids: List[int] = []  # This should be persistent, consider using a database or file to store it
 
-@bot.message_handler(commands=["start", "restart"])
+@bot.message_handler(commands=["star", "restart"])
 def start_command_handler(message: ClassVar[Any]) -> NoReturn:
     """
     Function to handle start commands in bot
@@ -73,6 +75,9 @@ def start_command_handler(message: ClassVar[Any]) -> NoReturn:
         )
     )
 
+    # Store user ID for broadcasting later
+    if message.from_user.id not in user_ids:
+        user_ids.append(message.from_user.id)
 
 # Callback handler to check membership status
 @bot.callback_query_handler(func=lambda call: call.data == "check_membership")
@@ -121,6 +126,44 @@ def help_command_handler(message: ClassVar[Any]) -> NoReturn:
            "This is all you need to know about this bot!"
         )
     )
+
+@bot.message_handler(commands=["broadcast"])
+def broadcast_message_handler(message: ClassVar[Any]) -> NoReturn:
+    """
+    Function to handle the broadcast command for admins.
+    Sends a message to all users.
+
+    Parameters:
+        message (typing.ClassVar[Any]): Incoming message object
+
+    Returns:
+        None (typing.NoReturn)
+    """
+    # Check if the sender is an admin (replace with your admin's user_id)
+    if message.from_user.id != 7046488481:  # Replace with actual admin ID
+        bot.reply_to(message, "❌ You do not have permission to use this command.")
+        return
+
+    # Check if there is any text after the command
+    if not message.text.strip():
+        bot.reply_to(message, "Please provide a message to broadcast.")
+        return
+
+    # Get the message text
+    broadcast_message = message.text[len("/broadcast "):]
+
+    # Send the message to all users
+    for user_id in user_ids:
+        try:
+            bot.send_message(user_id, broadcast_message)
+        except Exception as e:
+            print(f"Failed to send message to user {user_id}: {e}")
+
+    bot.reply_to(message, "✅ Broadcast message sent to all users.")
+
+# Start polling to handle messages
+bot.polling(none_stop=True)
+
 
 
 
