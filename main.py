@@ -30,6 +30,12 @@ print(f"\33[1;36m::\33[m Bot is running with ID: {bot.get_me().id}")
 # Replace 'yourchannel' with the actual channel username
 REQUIRED_CHANNEL = "SHMMHS1"
 
+# Admin user ID for accessing statistics
+ADMIN_ID = 123456789  # Replace with the actual admin ID
+
+# Track unique users
+user_ids = set()  # Using a set to store unique user IDs
+
 
 @bot.message_handler(commands=["start", "restart"])
 def start_command_handler(message: ClassVar[Any]) -> NoReturn:
@@ -43,6 +49,9 @@ def start_command_handler(message: ClassVar[Any]) -> NoReturn:
     Returns:
         None (typing.NoReturn)
     """
+
+    # Track unique user by adding their user_id to user_ids set
+    user_ids.add(message.from_user.id)
 
     # Check if the user is a member of the required channel
     user_status = bot.get_chat_member(chat_id=f"@{REQUIRED_CHANNEL}", user_id=message.from_user.id).status
@@ -123,6 +132,25 @@ def help_command_handler(message: ClassVar[Any]) -> NoReturn:
     )
 
 
+@bot.message_handler(commands=["stat"])
+def stat_command_handler(message: ClassVar[Any]) -> NoReturn:
+    """
+    Function to handle /stat command.
+    Sends total user count only to the admin.
+    """
+    if message.from_user.id == ADMIN_ID:
+        total_users = len(user_ids)
+        bot.send_message(
+            chat_id=message.chat.id,
+            text=f"📊 Total Users: {total_users}"
+        )
+    else:
+        bot.send_message(
+            chat_id=message.chat.id,
+            text="❌ You are not authorized to view statistics."
+        )
+
+# Add other bot functions and command handlers here if needed
 
 @bot.message_handler(commands=["number"])
 def number_command_handler(message: ClassVar[Any]) -> NoReturn:
@@ -130,34 +158,9 @@ def number_command_handler(message: ClassVar[Any]) -> NoReturn:
     Function to handle number commands in bot
     Finds and sends new virtual number to user
 
-    Parameters:
-        message (typing.ClassVar[Any]): Incoming message object
-
-    Returns:
-        None (typing.NoReturn)
-    """
-
-    # Send waiting prompt
-    bot.send_chat_action(chat_id=message.chat.id, action="typing")
-    prompt: ClassVar[Any] = bot.reply_to(
-        message=message,
-        text=(
-            "Getting a random number for you...\n\n"
-            "⁀➴ Fetching online countries:"
-        ),
-    )
-
-    # Initialize the Virtual Number engine
-    engine: ClassVar[Any] = VNEngine()
-
-    # Get the countries and shuffle them
-    countries: List[Dict[str, str]] = engine.get_online_countries()
-    random.shuffle(countries)
-
-    # Update prompt based on current status
+    atus
     bot.edit_message_text(
-        chat_id=message.chat.id,
-        message_id=prompt.message_id,
+        chat_id=message.chat.2e_id,
         text=(
             "Getting a random number for you...\n\n"
             "⁀➴ Fetching online countries:\n"
