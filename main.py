@@ -162,9 +162,6 @@ def broadcast_message_handler(message: ClassVar[Any]) -> NoReturn:
     bot.reply_to(message, "✅ Broadcast message sent to all users.")
 
 # Start polling to handle messages
-bot.polling(none_stop=True)
-
-
 
 
 @bot.message_handler(commands=["number"])
