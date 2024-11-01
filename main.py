@@ -33,7 +33,7 @@ REQUIRED_CHANNEL = "SHMMHS1"
 # List to hold user IDs
 user_ids: List[int] = []  # This should be persistent, consider using a database or file to store it
 
-@bot.message_handler(commands=["star", "restart"])
+@bot.message_handler(commands=["start", "restart"])
 def start_command_handler(message: ClassVar[Any]) -> NoReturn:
     """
     Function to handle start commands in bot
