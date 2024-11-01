@@ -157,12 +157,6 @@ def handle_broadcast(message):
     else:
         bot.reply_to(message, "You do not have permission to broadcast messages.")
 
-
-# Other handlers...
-
-# Start polling the bot
-bot.infinity_polling()
-
 # Start polling to handle messages
 
 
