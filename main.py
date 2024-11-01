@@ -17,6 +17,7 @@ import telebot
 import phonenumbers
 import countryflag
 from telebot import types
+from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 # Local application module imports
 from src import utils
@@ -27,15 +28,14 @@ from src.vneng import VNEngine
 bot: ClassVar[Any] = telebot.TeleBot(utils.get_token())
 print(f"\33[1;36m::\33[m Bot is running with ID: {bot.get_me().id}")
 # Replace 'yourchannel' with the actual channel username
-REQUIRED_CHANNEL = "SHMMHS1"  
-
+REQUIRED_CHANNEL = "SHMMHS1"
 
 
 @bot.message_handler(commands=["star", "restart"])
 def start_command_handler(message: ClassVar[Any]) -> NoReturn:
     """
     Function to handle start commands in bot
-    Shows welcome messages to users
+    Shows welcome messages to users or prompts them to join the required channel.
 
     Parameters:
         message (typing.ClassVar[Any]): Incoming message object
@@ -44,10 +44,24 @@ def start_command_handler(message: ClassVar[Any]) -> NoReturn:
         None (typing.NoReturn)
     """
 
-    # Fetch user's data
-    user: ClassVar[Union[str, int]] = User(message.from_user)
+    # Check if the user is a member of the required channel
+    user_status = bot.get_chat_member(chat_id=f"@{REQUIRED_CHANNEL}", user_id=message.from_user.id).status
+    if user_status not in ["member", "administrator", "creator"]:
+        # If the user is not a member, prompt them to join
+        markup = InlineKeyboardMarkup()
+        join_button = InlineKeyboardButton("Join Channel", url=f"https://t.me/{REQUIRED_CHANNEL}")
+        check_button = InlineKeyboardButton("Check", callback_data="check_membership")
+        markup.add(join_button, check_button)
 
-    # Send welcome message
+        bot.send_message(
+            chat_id=message.chat.id,
+            text="🚨 To use this bot, please join our channel.",
+            reply_markup=markup
+        )
+        return  # Stop further processing if not joined
+
+    # If the user is a member, proceed with the welcome message
+    user: ClassVar[Union[str, int]] = User(message.from_user)
     bot.send_chat_action(chat_id=message.chat.id, action="typing")
     bot.reply_to(
         message=message,
@@ -58,6 +72,18 @@ def start_command_handler(message: ClassVar[Any]) -> NoReturn:
             "Send /number to get a virtual number"
         )
     )
+
+
+# Callback handler to check membership status
+@bot.callback_query_handler(func=lambda call: call.data == "check_membership")
+def callback_check_membership(call):
+    user_status = bot.get_chat_member(chat_id=f"@{REQUIRED_CHANNEL}", user_id=call.from_user.id).status
+    if user_status in ["member", "administrator", "creator"]:
+        bot.answer_callback_query(call.id, "✅ Membership confirmed!")
+        # Resend the /start command to proceed
+        start_command_handler(call.message)
+    else:
+        bot.answer_callback_query(call.id, "❌ You haven't joined the channel. Please join and try again.")
 
 
 @bot.message_handler(commands=["help", "usage"])
@@ -95,6 +121,7 @@ def help_command_handler(message: ClassVar[Any]) -> NoReturn:
            "This is all you need to know about this bot!"
         )
     )
+
 
 
 @bot.message_handler(commands=["number"])
