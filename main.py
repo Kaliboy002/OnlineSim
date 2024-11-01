@@ -31,7 +31,7 @@ print(f"\33[1;36m::\33[m Bot is running with ID: {bot.get_me().id}")
 REQUIRED_CHANNEL = "SHMMHS1"
 
 
-@bot.message_handler(commands=["star", "restart"])
+@bot.message_handler(commands=["start", "restart"])
 def start_command_handler(message: ClassVar[Any]) -> NoReturn:
     """
     Function to handle start commands in bot
@@ -121,7 +121,6 @@ def help_command_handler(message: ClassVar[Any]) -> NoReturn:
            "This is all you need to know about this bot!"
         )
     )
-
 
 
 # Add other bot functions and command handlers here if needed
