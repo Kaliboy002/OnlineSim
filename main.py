@@ -4,7 +4,6 @@
 # Virtual Number bot for Telegram
 # Sends random virtual numbers to user
 # Service: OnlineSim.io
-# SourceCode (https://github.com/Kourva/OnlineSimBot)
 
 # Standard library imports
 import json
@@ -149,6 +148,7 @@ def stat_command_handler(message: ClassVar[Any]) -> NoReturn:
             chat_id=message.chat.id,
             text="❌ You are not authorized to view statistics."
         )
+
 
 # Add other bot functions and command handlers here if needed
 
