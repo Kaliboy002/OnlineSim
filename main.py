@@ -668,7 +668,8 @@ def number_command_handler(message: ClassVar[Any]) -> NoReturn:
                 ),
             ) 
 
-
+# Return the function
+                return 1
 
 
 
