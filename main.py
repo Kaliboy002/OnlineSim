@@ -199,8 +199,6 @@ def broadcast_message_handler(message: ClassVar[Any]) -> NoReturn:
         bot.reply_to(message, f"❌ Error occurred: {e}")
         print(f"Error in broadcasting: {e}")
 
-    bot.reply_to(message, "✅ Broadcast message sent to all users.")
-
 
 
 # Start polling to handle messages
