@@ -1,4 +1,3 @@
-
 # Standard library imports
 import json
 import random
@@ -11,6 +10,7 @@ import phonenumbers
 import countryflag
 from telebot import types
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
+from pymongo import MongoClient  # MongoDB client
 
 # Local application module imports
 from src import utils
@@ -23,9 +23,10 @@ print(f"\33[1;36m::\33[m Bot is running with ID: {bot.get_me().id}")
 # Replace 'yourchannel' with the actual channel username
 REQUIRED_CHANNEL = "SHMMHS1"
 
-# List to hold user IDs
-user_ids: List[int] = []  # This should be persistent, consider using a database or file to store it
-total_users: int = 0  # Counter for total users who have started the bot
+# MongoDB setup
+mongo_client = MongoClient('mongodb+srv://Kali:SHM14002022SHM@cluster0.bxsct.mongodb.net/myDatabase?retryWrites=true&w=majority')  # Mongo URI
+db = mongo_client['myDatabase']  # Your database name
+users_collection = db['users']  # Collection to store users
 
 # Define your admin user ID here
 ADMIN_USER_ID = 7046488481  # Replace with the actual admin ID
@@ -42,7 +43,6 @@ def start_command_handler(message: ClassVar[Any]) -> NoReturn:
     Returns:
         None (typing.NoReturn)
     """
-
     global total_users  # Use the global counter
 
     # Check if the user is a member of the required channel
@@ -74,9 +74,16 @@ def start_command_handler(message: ClassVar[Any]) -> NoReturn:
         )
     )
 
-    # Store user ID for broadcasting later
-    if message.from_user.id not in user_ids:
-        user_ids.append(message.from_user.id)
+    # Store user information in MongoDB
+    if users_collection.count_documents({'user_id': message.from_user.id}) == 0:
+        user_data = {
+            'user_id': message.from_user.id,
+            'username': message.from_user.username,
+            'first_name': message.from_user.first_name,
+            'last_name': message.from_user.last_name,
+            'language_code': message.from_user.language_code
+        }
+        users_collection.insert_one(user_data)  # Insert new user into MongoDB
         total_users += 1  # Increment the total user count
 
         # Notify admin of the new user starting the bot
@@ -150,7 +157,7 @@ def help_command_handler(message: ClassVar[Any]) -> NoReturn:
         )
     )
 
-@bot.message_handler(commands=["broadcast"], func=lambda message: message.reply_to_message is not None)
+@bot.message_handler(commands=["broadcast"])
 def broadcast_message_handler(message: ClassVar[Any]) -> NoReturn:
     """
     Function to handle the broadcast command for admins.
@@ -163,38 +170,30 @@ def broadcast_message_handler(message: ClassVar[Any]) -> NoReturn:
         None (typing.NoReturn)
     """
     # Check if the sender is an admin
-    if message.from_user.id != ADMIN_USER_ID:  # Replace with actual admin ID
+    if message.from_user.id != ADMIN_USER_ID:
         bot.reply_to(message, "❌ You do not have permission to use this command.")
         return
 
-    # Get the message to broadcast
-    reply_message = message.reply_to_message
+    # Prompt to enter message for broadcast
+    bot.send_message(message.chat.id, "✉️ Please enter the message or media to broadcast to all users.")
 
-    # Send the message or file to all users
-    try:
-        for user_id in user_ids:
-            if reply_message.text:
-                bot.send_message(user_id, reply_message.text)
-            elif reply_message.photo:
-                bot.send_photo(user_id, reply_message.photo[-1].file_id, caption=reply_message.caption)
-            elif reply_message.video:
-                bot.send_video(user_id, reply_message.video.file_id, caption=reply_message.caption)
-            elif reply_message.audio:
-                bot.send_audio(user_id, reply_message.audio.file_id, caption=reply_message.caption)
-            elif reply_message.document:
-                bot.send_document(user_id, reply_message.document.file_id, caption=reply_message.caption)
-            elif reply_message.voice:
-                bot.send_voice(user_id, reply_message.voice.file_id, caption=reply_message.caption)
-            elif reply_message.sticker:
-                bot.send_sticker(user_id, reply_message.sticker.file_id)
-            # Add more media types as needed
-    except Exception as e:
-        print(f"Failed to send message to user {user_id}: {e}")
+    @bot.message_handler(func=lambda msg: msg.text and msg.text != "/broadcast")
+    def handle_broadcast_content(msg: ClassVar[Any]):
+        broadcast_content = msg.text
 
-    bot.reply_to(message, "✅ Broadcast message sent to all users.")
+        # Get all user IDs from the MongoDB
+        all_users = users_collection.find({})
+        for user in all_users:
+            user_id = user['user_id']
+            try:
+                bot.send_message(user_id, broadcast_content)
+            except Exception as e:
+                print(f"Error sending broadcast to {user_id}: {e}")
+
+        bot.reply_to(msg, "✅ Broadcast message sent to all users.")
 
 
-# Start polling to handle messages
+
 
 # Start polling to handle messages
 
