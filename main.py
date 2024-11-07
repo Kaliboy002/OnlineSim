@@ -1,16 +1,13 @@
-# Standard library imports
 import json
 import random
 import time
 from typing import ClassVar, NoReturn, Any, Union, List, Dict
-
-# Related third-party module imports
 import telebot
 import phonenumbers
 import countryflag
 from telebot import types
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
-from pymongo import MongoClient  # MongoDB client
+from pymongo import MongoClient  # MongoDB import
 
 # Local application module imports
 from src import utils
@@ -23,10 +20,10 @@ print(f"\33[1;36m::\33[m Bot is running with ID: {bot.get_me().id}")
 # Replace 'yourchannel' with the actual channel username
 REQUIRED_CHANNEL = "SHMMHS1"
 
-# MongoDB setup
-mongo_client = MongoClient('mongodb+srv://Kali:SHM14002022SHM@cluster0.bxsct.mongodb.net/myDatabase?retryWrites=true&w=majority')  # Mongo URI
-db = mongo_client['myDatabase']  # Your database name
-users_collection = db['users']  # Collection to store users
+# Initialize MongoDB client and database
+client = MongoClient("mongodb+srv://Kali:SHM14002022SHM@cluster0.bxsct.mongodb.net/myDatabase?retryWrites=true&w=majority")  # Replace with your MongoDB URI
+db = client['myDatabase']  # Use your desired database name
+users_collection = db['users']  # Collection to store user IDs
 
 # Define your admin user ID here
 ADMIN_USER_ID = 7046488481  # Replace with the actual admin ID
@@ -74,18 +71,11 @@ def start_command_handler(message: ClassVar[Any]) -> NoReturn:
         )
     )
 
-    # Store user information in MongoDB
-    if users_collection.count_documents({'user_id': message.from_user.id}) == 0:
-        user_data = {
-            'user_id': message.from_user.id,
-            'username': message.from_user.username,
-            'first_name': message.from_user.first_name,
-            'last_name': message.from_user.last_name,
-            'language_code': message.from_user.language_code
-        }
-        users_collection.insert_one(user_data)  # Insert new user into MongoDB
+    # Check if user has started the bot for the first time
+    if not users_collection.find_one({"user_id": message.from_user.id}):
+        # Store user ID for first-time users
+        users_collection.insert_one({"user_id": message.from_user.id})
         total_users += 1  # Increment the total user count
-
         # Notify admin of the new user starting the bot
         notify_admin(message.from_user.id, message.from_user.username, total_users)
 
@@ -133,7 +123,6 @@ def help_command_handler(message: ClassVar[Any]) -> NoReturn:
     Returns:
         None (typing.NoReturn)
     """
-
     # Fetch user's data
     user: ClassVar[Union[str, int]] = User(message.from_user)
 
@@ -157,7 +146,7 @@ def help_command_handler(message: ClassVar[Any]) -> NoReturn:
         )
     )
 
-@bot.message_handler(commands=["broadcast"])
+@bot.message_handler(commands=["broadcast"], func=lambda message: message.reply_to_message is not None)
 def broadcast_message_handler(message: ClassVar[Any]) -> NoReturn:
     """
     Function to handle the broadcast command for admins.
@@ -170,28 +159,69 @@ def broadcast_message_handler(message: ClassVar[Any]) -> NoReturn:
         None (typing.NoReturn)
     """
     # Check if the sender is an admin
+    if message.from_user.id != ADMIN_USER_ID:  # Replace with actual admin ID
+        bot.reply_to(message, "❌ You do not have permission to use this command.")
+        return
+
+    # Get the message to broadcast
+    reply_message = message.reply_to_message
+
+    # Send the message or file to all users
+    try:
+        for user_id in user_ids:
+            if reply_message.text:
+                bot.send_message(user_id, reply_message.text)
+            elif reply_message.photo:
+                bot.send_photo(user_id, reply_message.photo[-1].file_id, caption=reply_message.caption)
+            elif reply_message.video:
+                bot.send_video(user_id, reply_message.video.file_id, caption=reply_message.caption)
+            elif reply_message.audio:
+                bot.send_audio(user_id, reply_message.audio.file_id, caption=reply_message.caption)
+            elif reply_message.document:
+                bot.send_document(user_id, reply_message.document.file_id, caption=reply_message.caption)
+            elif reply_message.voice:
+                bot.send_voice(user_id, reply_message.voice.file_id, caption=reply_message.caption)
+            elif reply_message.sticker:
+                bot.send_sticker(user_id, reply_message.sticker.file_id)
+            # Add more media types as needed
+    except Exception as e:
+        print(f"Failed to send message to user {user_id}: {e}")
+
+    bot.reply_to(message, "✅ Broadcast message sent to all users.")
+
+
+# Command to send all user IDs to admin
+@bot.message_handler(commands=["alluser"])
+def send_all_users(message: ClassVar[Any]) -> NoReturn:
+    """
+    Sends a list of all user IDs who have started the bot to the admin as a text file.
+    """
+
+    # Only allow admin to use this command
     if message.from_user.id != ADMIN_USER_ID:
         bot.reply_to(message, "❌ You do not have permission to use this command.")
         return
 
-    # Prompt to enter message for broadcast
-    bot.send_message(message.chat.id, "✉️ Please enter the message or media to broadcast to all users.")
+    # Fetch all user IDs from the database
+    user_data = users_collection.find()
+    user_ids_list = [str(user["user_id"]) for user in user_data]
 
-    @bot.message_handler(func=lambda msg: msg.text and msg.text != "/broadcast")
-    def handle_broadcast_content(msg: ClassVar[Any]):
-        broadcast_content = msg.text
+    # Create a text file with the list of user IDs
+    file_content = "\n".join(user_ids_list)
+    file_name = "user_ids.txt"
 
-        # Get all user IDs from the MongoDB
-        all_users = users_collection.find({})
-        for user in all_users:
-            user_id = user['user_id']
-            try:
-                bot.send_message(user_id, broadcast_content)
-            except Exception as e:
-                print(f"Error sending broadcast to {user_id}: {e}")
+    # Send the file to the admin
+    with open(file_name, "w") as file:
+        file.write(file_content)
 
-        bot.reply_to(msg, "✅ Broadcast message sent to all users.")
+    bot.send_document(
+        message.chat.id,
+        open(file_name, "rb"),
+        caption="Here is the list of all user IDs."
+    )
 
+    # Clean up the file after sending
+    os.remove(file_name)
 
 
 
