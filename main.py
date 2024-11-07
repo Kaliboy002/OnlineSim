@@ -1,34 +1,54 @@
+
+# Standard library imports
 import json
 import random
 import time
 from typing import ClassVar, NoReturn, Any, Union, List, Dict
 
+# Related third-party module imports
 import telebot
+import phonenumbers
+import countryflag
 from telebot import types
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
+
+# Local application module imports
+from src import utils
+from src.utils import User
+from src.vneng import VNEngine
 
 # Initialize the bot token
 bot: ClassVar[Any] = telebot.TeleBot(utils.get_token())
 print(f"\33[1;36m::\33[m Bot is running with ID: {bot.get_me().id}")
+# Replace 'yourchannel' with the actual channel username
 REQUIRED_CHANNEL = "SHMMHS1"
 
-# List to hold user data
-user_data: Dict[int, Dict[str, Any]] = {}  # Stores user info, including invites
+# List to hold user IDs
+user_ids: List[int] = []  # This should be persistent, consider using a database or file to store it
+total_users: int = 0  # Counter for total users who have started the bot
 
 # Define your admin user ID here
-ADMIN_USER_ID = 7046488481
+ADMIN_USER_ID = 7046488481  # Replace with the actual admin ID
 
 @bot.message_handler(commands=["start", "restart"])
 def start_command_handler(message: ClassVar[Any]) -> NoReturn:
     """
     Function to handle start commands in bot
     Shows welcome messages to users or prompts them to join the required channel.
+
+    Parameters:
+        message (typing.ClassVar[Any]): Incoming message object
+
+    Returns:
+        None (typing.NoReturn)
     """
-    global total_users
+
+    global total_users  # Use the global counter
 
     # Check if the user is a member of the required channel
     user_status = bot.get_chat_member(chat_id=f"@{REQUIRED_CHANNEL}", user_id=message.from_user.id).status
     if user_status not in ["member", "administrator", "creator"]:
+        # If the user is not a member, prompt them to join
         markup = InlineKeyboardMarkup()
         join_button = InlineKeyboardButton("Join Channel", url=f"https://t.me/{REQUIRED_CHANNEL}")
         check_button = InlineKeyboardButton("Check", callback_data="check_membership")
@@ -42,37 +62,38 @@ def start_command_handler(message: ClassVar[Any]) -> NoReturn:
         return  # Stop further processing if not joined
 
     # If the user is a member, proceed with the welcome message
-    user_id = message.from_user.id
-
-    # If the user is new, initialize their data
-    if user_id not in user_data:
-        user_data[user_id] = {
-            "invites": 0,  # Track number of invites
-            "referral_link": f"https://t.me/{bot.get_me().username}?start={user_id}"  # Referral link
-        }
-        total_users += 1  # Increment the total user count
-
-    user = user_data[user_id]
+    user: ClassVar[Union[str, int]] = User(message.from_user)
     bot.send_chat_action(chat_id=message.chat.id, action="typing")
     bot.reply_to(
         message=message,
         text=(
-            f"⁀➴ Hello {message.from_user.first_name}\n"
+            f"⁀➴ Hello {user.pn}\n"
             "Welcome to Virtual Number Bot\n\n"
             "Send /help to get help message\n"
-            "Send /number to get a virtual number\n\n"
-            f"Your Total Invites: {user['invites']}\n"
-            "Send /invite to get your referral link."
+            "Send /number to get a virtual number"
         )
     )
 
-    # Notify admin about the new user starting the bot
-    notify_admin(message.from_user.id, message.from_user.username, total_users)
+    # Store user ID for broadcasting later
+    if message.from_user.id not in user_ids:
+        user_ids.append(message.from_user.id)
+        total_users += 1  # Increment the total user count
+
+        # Notify admin of the new user starting the bot
+        notify_admin(message.from_user.id, message.from_user.username, total_users)
 
 # Function to notify admin about new user
 def notify_admin(user_id: int, username: str, total_users: int):
     """
     Sends a notification to the admin when a new user starts the bot.
+
+    Parameters:
+        user_id (int): The ID of the user.
+        username (str): The username of the user.
+        total_users (int): The total count of users.
+
+    Returns:
+        None
     """
     notification_message = (
         f"👤 New User Started the Bot:\n"
@@ -82,19 +103,41 @@ def notify_admin(user_id: int, username: str, total_users: int):
     )
     bot.send_message(ADMIN_USER_ID, notification_message)
 
+# Callback handler to check membership status
+@bot.callback_query_handler(func=lambda call: call.data == "check_membership")
+def callback_check_membership(call):
+    user_status = bot.get_chat_member(chat_id=f"@{REQUIRED_CHANNEL}", user_id=call.from_user.id).status
+    if user_status in ["member", "administrator", "creator"]:
+        bot.answer_callback_query(call.id, "✅ Membership confirmed!")
+        # Resend the /start command to proceed
+        start_command_handler(call.message)
+    else:
+        bot.answer_callback_query(call.id, "❌ You haven't joined the channel. Please join and try again.")
+
 @bot.message_handler(commands=["help", "usage"])
 def help_command_handler(message: ClassVar[Any]) -> NoReturn:
     """
     Function to handle help commands in bot
     Shows help messages to users
+
+    Parameters:
+        message (typing.ClassVar[Any]): Incoming message object
+
+    Returns:
+        None (typing.NoReturn)
     """
+
+    # Fetch user's data
+    user: ClassVar[Union[str, int]] = User(message.from_user)
+
+    # Send Help message
     bot.send_chat_action(chat_id=message.chat.id, action="typing")
     bot.reply_to(
         message=message,
         text=(
            "·ᴥ· Virtual Number Bot\n\n"
            "This bot is using api from onlinesim.io and fetches "
-           "online and active numbers.\n"
+           "online and active number.\n"
            "All you need is sending few commands to bot and it will "
            "find a random number for you.\n\n══════════════\n"
            "★ To get new number you can simply send /number command "
@@ -107,58 +150,51 @@ def help_command_handler(message: ClassVar[Any]) -> NoReturn:
         )
     )
 
-@bot.message_handler(commands=["invite"])
-def invite_command_handler(message: ClassVar[Any]) -> NoReturn:
+@bot.message_handler(commands=["broadcast"], func=lambda message: message.reply_to_message is not None)
+def broadcast_message_handler(message: ClassVar[Any]) -> NoReturn:
     """
-    Function to handle invite command.
-    Sends the total number of invites and the referral link.
-    """
-    user_id = message.from_user.id
+    Function to handle the broadcast command for admins.
+    Sends a message or media to all users.
 
-    # Check if the user exists in the user data
-    if user_id not in user_data:
-        bot.reply_to(message, "You haven't started the bot yet. Please type /start.")
+    Parameters:
+        message (typing.ClassVar[Any]): Incoming message object
+
+    Returns:
+        None (typing.NoReturn)
+    """
+    # Check if the sender is an admin
+    if message.from_user.id != ADMIN_USER_ID:  # Replace with actual admin ID
+        bot.reply_to(message, "❌ You do not have permission to use this command.")
         return
 
-    user = user_data[user_id]
-    invites = user['invites']
-    referral_link = user['referral_link']
+    # Get the message to broadcast
+    reply_message = message.reply_to_message
 
-    bot.send_chat_action(chat_id=message.chat.id, action="typing")
-    bot.reply_to(
-        message=message,
-        text=(
-            f"Your total invites: {invites}\n\n"
-            f"Your referral link: {referral_link}"
-        )
-    )
+    # Send the message or file to all users
+    try:
+        for user_id in user_ids:
+            if reply_message.text:
+                bot.send_message(user_id, reply_message.text)
+            elif reply_message.photo:
+                bot.send_photo(user_id, reply_message.photo[-1].file_id, caption=reply_message.caption)
+            elif reply_message.video:
+                bot.send_video(user_id, reply_message.video.file_id, caption=reply_message.caption)
+            elif reply_message.audio:
+                bot.send_audio(user_id, reply_message.audio.file_id, caption=reply_message.caption)
+            elif reply_message.document:
+                bot.send_document(user_id, reply_message.document.file_id, caption=reply_message.caption)
+            elif reply_message.voice:
+                bot.send_voice(user_id, reply_message.voice.file_id, caption=reply_message.caption)
+            elif reply_message.sticker:
+                bot.send_sticker(user_id, reply_message.sticker.file_id)
+            # Add more media types as needed
+    except Exception as e:
+        print(f"Failed to send message to user {user_id}: {e}")
 
-@bot.message_handler(commands=["start"])
-def handle_start_link(message: ClassVar[Any]) -> NoReturn:
-    """
-    Handle the referral link and reward the inviter.
-    """
-    if message.text.startswith("/start"):
-        referral_id = message.text.split("start=")[-1]
-        
-        if referral_id.isdigit():
-            referral_id = int(referral_id)
+    bot.reply_to(message, "✅ Broadcast message sent to all users.")
 
-            if referral_id in user_data:
-                inviter = user_data[referral_id]
-                inviter['invites'] += 1  # Increment invites for the person who referred
-
-                bot.send_message(
-                    message.chat.id,
-                    "Welcome! You have successfully used a referral link. Your inviter has received 1 point!"
-                )
-                bot.send_message(
-                    referral_id,
-                    f"Congrats! You have gained 1 invite point. Total invites: {inviter['invites']}"
-                )
 
 # Start polling to handle messages
-bot.polling()
 
 
 
