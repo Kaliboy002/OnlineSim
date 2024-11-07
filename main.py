@@ -1,4 +1,5 @@
-# Standard library importss
+
+# Standard library imports
 import json
 import random
 import time
@@ -10,7 +11,6 @@ import phonenumbers
 import countryflag
 from telebot import types
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
-from pymongo import MongoClient
 
 # Local application module imports
 from src import utils
@@ -23,10 +23,9 @@ print(f"\33[1;36m::\33[m Bot is running with ID: {bot.get_me().id}")
 # Replace 'yourchannel' with the actual channel username
 REQUIRED_CHANNEL = "SHMMHS1"
 
-# MongoDB client setup for broadcast storage
-mongo_client = MongoClient('mongodb+srv://Kali:SHM14002022SHM@cluster0.bxsct.mongodb.net/myDatabase?retryWrites=true&w=majority')  # Replace with your MongoDB URI
-db = mongo_client['myDatabase']
-users_collection = db['users']
+# List to hold user IDs
+user_ids: List[int] = []  # This should be persistent, consider using a database or file to store it
+total_users: int = 0  # Counter for total users who have started the bot
 
 # Define your admin user ID here
 ADMIN_USER_ID = 7046488481  # Replace with the actual admin ID
@@ -43,6 +42,9 @@ def start_command_handler(message: ClassVar[Any]) -> NoReturn:
     Returns:
         None (typing.NoReturn)
     """
+
+    global total_users  # Use the global counter
+
     # Check if the user is a member of the required channel
     user_status = bot.get_chat_member(chat_id=f"@{REQUIRED_CHANNEL}", user_id=message.from_user.id).status
     if user_status not in ["member", "administrator", "creator"]:
@@ -72,21 +74,23 @@ def start_command_handler(message: ClassVar[Any]) -> NoReturn:
         )
     )
 
-    # Store user ID in MongoDB for broadcasting later
-    user_data = {"user_id": message.from_user.id, "username": message.from_user.username}
-    if not users_collection.find_one({"user_id": message.from_user.id}):
-        users_collection.insert_one(user_data)
+    # Store user ID for broadcasting later
+    if message.from_user.id not in user_ids:
+        user_ids.append(message.from_user.id)
+        total_users += 1  # Increment the total user count
+
         # Notify admin of the new user starting the bot
-        notify_admin(message.from_user.id, message.from_user.username)
+        notify_admin(message.from_user.id, message.from_user.username, total_users)
 
 # Function to notify admin about new user
-def notify_admin(user_id: int, username: str):
+def notify_admin(user_id: int, username: str, total_users: int):
     """
     Sends a notification to the admin when a new user starts the bot.
 
     Parameters:
         user_id (int): The ID of the user.
         username (str): The username of the user.
+        total_users (int): The total count of users.
 
     Returns:
         None
@@ -94,7 +98,8 @@ def notify_admin(user_id: int, username: str):
     notification_message = (
         f"👤 New User Started the Bot:\n"
         f"User ID: {user_id}\n"
-        f"Username: @{username}"
+        f"Username: @{username}\n\n"
+        f"Total Users Started: {total_users}"
     )
     bot.send_message(ADMIN_USER_ID, notification_message)
 
@@ -149,7 +154,7 @@ def help_command_handler(message: ClassVar[Any]) -> NoReturn:
 def broadcast_message_handler(message: ClassVar[Any]) -> NoReturn:
     """
     Function to handle the broadcast command for admins.
-    Sends a message or media to all users stored in MongoDB.
+    Sends a message or media to all users.
 
     Parameters:
         message (typing.ClassVar[Any]): Incoming message object
@@ -158,48 +163,38 @@ def broadcast_message_handler(message: ClassVar[Any]) -> NoReturn:
         None (typing.NoReturn)
     """
     # Check if the sender is an admin
-    if message.from_user.id != ADMIN_USER_ID:
+    if message.from_user.id != ADMIN_USER_ID:  # Replace with actual admin ID
         bot.reply_to(message, "❌ You do not have permission to use this command.")
         return
 
     # Get the message to broadcast
     reply_message = message.reply_to_message
 
-    # Fetch all users from MongoDB for broadcasting
-    users = users_collection.find({})  # This will fetch all users
-    sent_count = 0  # Counter for the number of sent messages
-
+    # Send the message or file to all users
     try:
-        for user in users:
-            user_id = user['user_id']
-            try:
-                # Send message to the user
-                if reply_message.text:
-                    bot.send_message(user_id, reply_message.text)
-                elif reply_message.photo:
-                    bot.send_photo(user_id, reply_message.photo[-1].file_id, caption=reply_message.caption)
-                elif reply_message.video:
-                    bot.send_video(user_id, reply_message.video.file_id, caption=reply_message.caption)
-                elif reply_message.audio:
-                    bot.send_audio(user_id, reply_message.audio.file_id, caption=reply_message.caption)
-                elif reply_message.document:
-                    bot.send_document(user_id, reply_message.document.file_id, caption=reply_message.caption)
-                elif reply_message.voice:
-                    bot.send_voice(user_id, reply_message.voice.file_id, caption=reply_message.caption)
-                elif reply_message.sticker:
-                    bot.send_sticker(user_id, reply_message.sticker.file_id)
-                # Add more media types as needed
-
-                sent_count += 1
-            except Exception as e:
-                print(f"Failed to send message to user {user_id}: {e}")
-
-        bot.reply_to(message, f"✅ Broadcast message sent to {sent_count} users.")
+        for user_id in user_ids:
+            if reply_message.text:
+                bot.send_message(user_id, reply_message.text)
+            elif reply_message.photo:
+                bot.send_photo(user_id, reply_message.photo[-1].file_id, caption=reply_message.caption)
+            elif reply_message.video:
+                bot.send_video(user_id, reply_message.video.file_id, caption=reply_message.caption)
+            elif reply_message.audio:
+                bot.send_audio(user_id, reply_message.audio.file_id, caption=reply_message.caption)
+            elif reply_message.document:
+                bot.send_document(user_id, reply_message.document.file_id, caption=reply_message.caption)
+            elif reply_message.voice:
+                bot.send_voice(user_id, reply_message.voice.file_id, caption=reply_message.caption)
+            elif reply_message.sticker:
+                bot.send_sticker(user_id, reply_message.sticker.file_id)
+            # Add more media types as needed
     except Exception as e:
-        bot.reply_to(message, f"❌ Error occurred: {e}")
-        print(f"Error in broadcasting: {e}")
+        print(f"Failed to send message to user {user_id}: {e}")
+
+    bot.reply_to(message, "✅ Broadcast message sent to all users.")
 
 
+# Start polling to handle messages
 
 # Start polling to handle messages
 
