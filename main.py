@@ -422,97 +422,7 @@ def number_inbox_handler(call: ClassVar[Any]) -> NoReturn:
         ),
         show_alert=True
     )
-#
-Persian
-@bot.message_handler(commands=["numberss"])
-def number_command_handler(message: ClassVar[Any]) -> NoReturn:
-    """
-    Function to handle number commands in bot
-    Finds and sends new virtual number to user
 
-    Parameters:
-        message (typing.ClassVar[Any]): Incoming message object
-
-    Returns:
-        None (typing.NoReturn)
-    """
-
-    # Send waiting prompt
-    bot.send_chat_action(chat_id=message.chat.id, action="typing")
-    prompt: ClassVar[Any] = bot.reply_to(
-        message=message,
-        text=(
-            "Getting a random number for you...\n\n"
-            "⁀➴ Fetching online countries:"
-        ),
-    )
-
-    # Initialize the Virtual Number engine
-    engine: ClassVar[Any] = VNEngine()
-
-    # Get the countries and shuffle them
-    countries: List[Dict[str, str]] = engine.get_online_countries()
-    random.shuffle(countries)
-
-    # Update prompt based on current status
-    bot.edit_message_text(
-        chat_id=message.chat.id,
-        message_id=prompt.message_id,
-        text=(
-            "Getting a random number for you...\n\n"
-            "⁀➴ Fetching online countries:\n"
-            f"Got {len(countries)} countries\n\n"
-            "⁀➴ Testing active numbers:\n"
-        ),
-    )
-
-    # Find online and active number
-    for country in countries:
-        # Get numbers in country
-        numbers: List[Dict[str, str]] = engine.get_country_numbers(
-            country=country['name']
-        )
-        
-        # Format country name
-        country_name: str = country["name"].replace("_", " ").title()
-    
-        # Check numbers for country and find first valid one
-        for number in numbers:
-            # Parse the country to find it's details
-            parsed_number: ClassVar[Union[str, int]] = phonenumbers.parse(
-                number=f"+{number[1]}"
-            )
-
-            # Format number to make it readable for user
-            formatted_number: str = phonenumbers.format_number(
-                numobj=parsed_number,
-                num_format=phonenumbers.PhoneNumberFormat.NATIONAL
-            )
-
-            # Find flag emoji for number
-            flag: str = countryflag.getflag(
-                [
-                    phonenumbers.region_code_for_country_code(
-                        country_code=parsed_number.country_code
-                    )
-                ]
-            )
-
-            # Update prompt based on current status
-            bot.edit_message_text(
-                chat_id=message.chat.id,
-                message_id=prompt.message_id,
-                text=(
-                    "Getting a random number for you...\n\n"
-                    "⁀➴ Fetching online countries:\n"
-                    f"Got {len(countries)} countries\n\n"
-                    "⁀➴ Testing active numbers:\n"
-                    f"Trying {country_name} ({formatted_number})"
-                ),
-            ) 
-
-
-#
 
 
 
@@ -669,6 +579,97 @@ def new_number_handler(call):
 
         # Return the function
         return 0
+
+#hi
+@bot.message_handler(commands=["numberss"])
+def number_command_handler(message: ClassVar[Any]) -> NoReturn:
+    """
+    Function to handle number commands in bot
+    Finds and sends new virtual number to user
+
+    Parameters:
+        message (typing.ClassVar[Any]): Incoming message object
+
+    Returns:
+        None (typing.NoReturn)
+    """
+
+    # Send waiting prompt
+    bot.send_chat_action(chat_id=message.chat.id, action="typing")
+    prompt: ClassVar[Any] = bot.reply_to(
+        message=message,
+        text=(
+            "Getting a random number for you...\n\n"
+            "⁀➴ Fetching online countries:"
+        ),
+    )
+
+    # Initialize the Virtual Number engine
+    engine: ClassVar[Any] = VNEngine()
+
+    # Get the countries and shuffle them
+    countries: List[Dict[str, str]] = engine.get_online_countries()
+    random.shuffle(countries)
+
+    # Update prompt based on current status
+    bot.edit_message_text(
+        chat_id=message.chat.id,
+        message_id=prompt.message_id,
+        text=(
+            "Getting a random number for you...\n\n"
+            "⁀➴ Fetching online countries:\n"
+            f"Got {len(countries)} countries\n\n"
+            "⁀➴ Testing active numbers:\n"
+        ),
+    )
+
+    # Find online and active number
+    for country in countries:
+        # Get numbers in country
+        numbers: List[Dict[str, str]] = engine.get_country_numbers(
+            country=country['name']
+        )
+        
+        # Format country name
+        country_name: str = country["name"].replace("_", " ").title()
+    
+        # Check numbers for country and find first valid one
+        for number in numbers:
+            # Parse the country to find it's details
+            parsed_number: ClassVar[Union[str, int]] = phonenumbers.parse(
+                number=f"+{number[1]}"
+            )
+
+            # Format number to make it readable for user
+            formatted_number: str = phonenumbers.format_number(
+                numobj=parsed_number,
+                num_format=phonenumbers.PhoneNumberFormat.NATIONAL
+            )
+
+            # Find flag emoji for number
+            flag: str = countryflag.getflag(
+                [
+                    phonenumbers.region_code_for_country_code(
+                        country_code=parsed_number.country_code
+                    )
+                ]
+            )
+
+            # Update prompt based on current status
+            bot.edit_message_text(
+                chat_id=message.chat.id,
+                message_id=prompt.message_id,
+                text=(
+                    "Getting a random number for you...\n\n"
+                    "⁀➴ Fetching online countries:\n"
+                    f"Got {len(countries)} countries\n\n"
+                    "⁀➴ Testing active numbers:\n"
+                    f"Trying {country_name} ({formatted_number})"
+                ),
+            ) 
+
+
+
 
 
 # Run the bot on polling mode
