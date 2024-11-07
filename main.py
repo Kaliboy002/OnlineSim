@@ -28,10 +28,9 @@ total_users: int = 0  # Counter for total users who have started the bot
 
 # Define your admin user ID here
 ADMIN_USER_ID = 7046488481  # Replace with the actual admin ID
-# Ensure the user referrals are properly stored and counted
 
-# This dictionary stores the referrer IDs with the users they have referred
-user_referrals: Dict[int, List[int]] = {}
+# Dictionary to hold user referrals
+user_referrals: Dict[int, List[int]] = {}  # This stores user ids that referred other users
 
 @bot.message_handler(commands=["start", "restart"])
 def start_command_handler(message: ClassVar[Any]) -> NoReturn:
@@ -89,14 +88,9 @@ def start_command_handler(message: ClassVar[Any]) -> NoReturn:
     referrer_id = message.text.split('start=')[1] if 'start=' in message.text else None
     if referrer_id:
         referrer_id = int(referrer_id)
-        # Check if the referral ID exists in the dictionary
         if referrer_id not in user_referrals:
             user_referrals[referrer_id] = []
-        # Add the new user to the referrer's referral list
         user_referrals[referrer_id].append(message.from_user.id)
-
-        # Optionally, you can send the referrer a message to let them know they gained a referral
-        bot.send_message(referrer_id, f"🎉 You have successfully referred a new user!")
 
 # Function to notify admin about new user
 def notify_admin(user_id: int, username: str, total_users: int):
@@ -166,25 +160,71 @@ def help_command_handler(message: ClassVar[Any]) -> NoReturn:
         )
     )
 
+@bot.message_handler(commands=["broadcast"], func=lambda message: message.reply_to_message is not None)
+def broadcast_message_handler(message: ClassVar[Any]) -> NoReturn:
+    """
+    Function to handle the broadcast command for admins.
+    Sends a message or media to all users.
+
+    Parameters:
+        message (typing.ClassVar[Any]): Incoming message object
+
+    Returns:
+        None (typing.NoReturn)
+    """
+    # Check if the sender is an admin
+    if message.from_user.id != ADMIN_USER_ID:  # Replace with actual admin ID
+        bot.reply_to(message, "❌ You do not have permission to use this command.")
+        return
+
+    # Get the message to broadcast
+    reply_message = message.reply_to_message
+
+    # Send the message or file to all users
+    try:
+        for user_id in user_ids:
+            if reply_message.text:
+                bot.send_message(user_id, reply_message.text)
+            elif reply_message.photo:
+                bot.send_photo(user_id, reply_message.photo[-1].file_id, caption=reply_message.caption)
+            elif reply_message.video:
+                bot.send_video(user_id, reply_message.video.file_id, caption=reply_message.caption)
+            elif reply_message.audio:
+                bot.send_audio(user_id, reply_message.audio.file_id, caption=reply_message.caption)
+            elif reply_message.document:
+                bot.send_document(user_id, reply_message.document.file_id, caption=reply_message.caption)
+            elif reply_message.voice:
+                bot.send_voice(user_id, reply_message.voice.file_id, caption=reply_message.caption)
+            elif reply_message.sticker:
+                bot.send_sticker(user_id, reply_message.sticker.file_id)
+            # Add more media types as needed
+    except Exception as e:
+        print(f"Failed to send message to user {user_id}: {e}")
+
+    bot.reply_to(message, "✅ Broadcast message sent to all users.")
+
 @bot.message_handler(commands=["invite"])
 def invite_command_handler(message: ClassVar[Any]) -> NoReturn:
     """
     Handle the /invite command to show the number of invited users and generate a referral link.
     """
     user_id = message.from_user.id
+
+    # Get the number of users referred by this user
     ref_count = len(user_referrals.get(user_id, []))
 
     # Generate a referral link
     referral_link = f"https://t.me/{bot.get_me().username}?start={user_id}"
 
+    # Send the response to the user
     bot.reply_to(
         message,
         f"👥 You have invited {ref_count} users using your referral link.\n"
         f"Your referral link: {referral_link}"
     )
 
+# Start polling to handle messages
 
-# Start polling to handle message
 
 
 # Start polling to handle messages
