@@ -1,4 +1,3 @@
-
 # Standard library imports
 import json
 import random
@@ -29,6 +28,9 @@ total_users: int = 0  # Counter for total users who have started the bot
 
 # Define your admin user ID here
 ADMIN_USER_ID = 7046488481  # Replace with the actual admin ID
+
+# Dictionary to hold user referrals
+user_referrals: Dict[int, List[int]] = {}  # This stores user ids that referred other users
 
 @bot.message_handler(commands=["start", "restart"])
 def start_command_handler(message: ClassVar[Any]) -> NoReturn:
@@ -81,6 +83,14 @@ def start_command_handler(message: ClassVar[Any]) -> NoReturn:
 
         # Notify admin of the new user starting the bot
         notify_admin(message.from_user.id, message.from_user.username, total_users)
+
+    # Handle referral link
+    referrer_id = message.text.split('start=')[1] if 'start=' in message.text else None
+    if referrer_id:
+        referrer_id = int(referrer_id)
+        if referrer_id not in user_referrals:
+            user_referrals[referrer_id] = []
+        user_referrals[referrer_id].append(message.from_user.id)
 
 # Function to notify admin about new user
 def notify_admin(user_id: int, username: str, total_users: int):
@@ -193,8 +203,22 @@ def broadcast_message_handler(message: ClassVar[Any]) -> NoReturn:
 
     bot.reply_to(message, "✅ Broadcast message sent to all users.")
 
+@bot.message_handler(commands=["invite"])
+def invite_command_handler(message: ClassVar[Any]) -> NoReturn:
+    """
+    Handle the /invite command to show the number of invited users and generate a referral link.
+    """
+    user_id = message.from_user.id
+    ref_count = len(user_referrals.get(user_id, []))
 
-# Start polling to handle messages
+    # Generate a referral link
+    referral_link = f"https://t.me/{bot.get_me().username}?start={user_id}"
+
+    bot.reply_to(
+        message,
+        f"👥 You have invited {ref_count} users using your referral link.\n"
+        f"Your referral link: {referral_link}"
+    )
 
 
 
