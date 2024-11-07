@@ -1,11 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
-# Virtual Number bot for Telegram
-# Sends random virtual numbers to user
-# Service: OnlineSim.io
-# SourceCode (https://github.com/Kourva/OnlineSimBot)
-
 # Standard library imports
 import json
 import random
@@ -18,6 +10,7 @@ import phonenumbers
 import countryflag
 from telebot import types
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
+from pymongo import MongoClient
 
 # Local application module imports
 from src import utils
@@ -30,9 +23,10 @@ print(f"\33[1;36m::\33[m Bot is running with ID: {bot.get_me().id}")
 # Replace 'yourchannel' with the actual channel username
 REQUIRED_CHANNEL = "SHMMHS1"
 
-# List to hold user IDs
-user_ids: List[int] = []  # This should be persistent, consider using a database or file to store it
-total_users: int = 0  # Counter for total users who have started the bot
+# MongoDB client setup for broadcast storage
+mongo_client = MongoClient('mongodb+srv://Kali:SHM14002022SHM@cluster0.bxsct.mongodb.net/myDatabase?retryWrites=true&w=majority')  # Replace with your MongoDB URI
+db = mongo_client['myDatabase']
+users_collection = db['users']
 
 # Define your admin user ID here
 ADMIN_USER_ID = 7046488481  # Replace with the actual admin ID
@@ -49,9 +43,6 @@ def start_command_handler(message: ClassVar[Any]) -> NoReturn:
     Returns:
         None (typing.NoReturn)
     """
-
-    global total_users  # Use the global counter
-
     # Check if the user is a member of the required channel
     user_status = bot.get_chat_member(chat_id=f"@{REQUIRED_CHANNEL}", user_id=message.from_user.id).status
     if user_status not in ["member", "administrator", "creator"]:
@@ -81,23 +72,21 @@ def start_command_handler(message: ClassVar[Any]) -> NoReturn:
         )
     )
 
-    # Store user ID for broadcasting later
-    if message.from_user.id not in user_ids:
-        user_ids.append(message.from_user.id)
-        total_users += 1  # Increment the total user count
-
+    # Store user ID in MongoDB for broadcasting later
+    user_data = {"user_id": message.from_user.id, "username": message.from_user.username}
+    if not users_collection.find_one({"user_id": message.from_user.id}):
+        users_collection.insert_one(user_data)
         # Notify admin of the new user starting the bot
-        notify_admin(message.from_user.id, message.from_user.username, total_users)
+        notify_admin(message.from_user.id, message.from_user.username)
 
 # Function to notify admin about new user
-def notify_admin(user_id: int, username: str, total_users: int):
+def notify_admin(user_id: int, username: str):
     """
     Sends a notification to the admin when a new user starts the bot.
 
     Parameters:
         user_id (int): The ID of the user.
         username (str): The username of the user.
-        total_users (int): The total count of users.
 
     Returns:
         None
@@ -105,8 +94,7 @@ def notify_admin(user_id: int, username: str, total_users: int):
     notification_message = (
         f"👤 New User Started the Bot:\n"
         f"User ID: {user_id}\n"
-        f"Username: @{username}\n\n"
-        f"Total Users Started: {total_users}"
+        f"Username: @{username}"
     )
     bot.send_message(ADMIN_USER_ID, notification_message)
 
@@ -161,7 +149,7 @@ def help_command_handler(message: ClassVar[Any]) -> NoReturn:
 def broadcast_message_handler(message: ClassVar[Any]) -> NoReturn:
     """
     Function to handle the broadcast command for admins.
-    Sends a message or media to all users.
+    Sends a message or media to all users stored in MongoDB.
 
     Parameters:
         message (typing.ClassVar[Any]): Incoming message object
@@ -170,16 +158,18 @@ def broadcast_message_handler(message: ClassVar[Any]) -> NoReturn:
         None (typing.NoReturn)
     """
     # Check if the sender is an admin
-    if message.from_user.id != ADMIN_USER_ID:  # Replace with actual admin ID
+    if message.from_user.id != ADMIN_USER_ID:
         bot.reply_to(message, "❌ You do not have permission to use this command.")
         return
 
     # Get the message to broadcast
     reply_message = message.reply_to_message
 
-    # Send the message or file to all users
+    # Fetch all users from MongoDB for broadcasting
+    users = users_collection.find({})
     try:
-        for user_id in user_ids:
+        for user in users:
+            user_id = user['user_id']
             if reply_message.text:
                 bot.send_message(user_id, reply_message.text)
             elif reply_message.photo:
@@ -199,6 +189,9 @@ def broadcast_message_handler(message: ClassVar[Any]) -> NoReturn:
         print(f"Failed to send message to user {user_id}: {e}")
 
     bot.reply_to(message, "✅ Broadcast message sent to all users.")
+
+# Start polling to handle messages
+bot.polling()
 
 
 # Start polling to handle messages
