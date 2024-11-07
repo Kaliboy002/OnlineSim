@@ -166,27 +166,38 @@ def broadcast_message_handler(message: ClassVar[Any]) -> NoReturn:
     reply_message = message.reply_to_message
 
     # Fetch all users from MongoDB for broadcasting
-    users = users_collection.find({})
+    users = users_collection.find({})  # This will fetch all users
+    sent_count = 0  # Counter for the number of sent messages
+
     try:
         for user in users:
             user_id = user['user_id']
-            if reply_message.text:
-                bot.send_message(user_id, reply_message.text)
-            elif reply_message.photo:
-                bot.send_photo(user_id, reply_message.photo[-1].file_id, caption=reply_message.caption)
-            elif reply_message.video:
-                bot.send_video(user_id, reply_message.video.file_id, caption=reply_message.caption)
-            elif reply_message.audio:
-                bot.send_audio(user_id, reply_message.audio.file_id, caption=reply_message.caption)
-            elif reply_message.document:
-                bot.send_document(user_id, reply_message.document.file_id, caption=reply_message.caption)
-            elif reply_message.voice:
-                bot.send_voice(user_id, reply_message.voice.file_id, caption=reply_message.caption)
-            elif reply_message.sticker:
-                bot.send_sticker(user_id, reply_message.sticker.file_id)
-            # Add more media types as needed
+            try:
+                # Send message to the user
+                if reply_message.text:
+                    bot.send_message(user_id, reply_message.text)
+                elif reply_message.photo:
+                    bot.send_photo(user_id, reply_message.photo[-1].file_id, caption=reply_message.caption)
+                elif reply_message.video:
+                    bot.send_video(user_id, reply_message.video.file_id, caption=reply_message.caption)
+                elif reply_message.audio:
+                    bot.send_audio(user_id, reply_message.audio.file_id, caption=reply_message.caption)
+                elif reply_message.document:
+                    bot.send_document(user_id, reply_message.document.file_id, caption=reply_message.caption)
+                elif reply_message.voice:
+                    bot.send_voice(user_id, reply_message.voice.file_id, caption=reply_message.caption)
+                elif reply_message.sticker:
+                    bot.send_sticker(user_id, reply_message.sticker.file_id)
+                # Add more media types as needed
+
+                sent_count += 1
+            except Exception as e:
+                print(f"Failed to send message to user {user_id}: {e}")
+
+        bot.reply_to(message, f"✅ Broadcast message sent to {sent_count} users.")
     except Exception as e:
-        print(f"Failed to send message to user {user_id}: {e}")
+        bot.reply_to(message, f"❌ Error occurred: {e}")
+        print(f"Error in broadcasting: {e}")
 
     bot.reply_to(message, "✅ Broadcast message sent to all users.")
 
