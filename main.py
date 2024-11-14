@@ -1,22 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import json
-import random
-import time
-from typing import ClassVar, NoReturn, Any, Union, List, Dict
 import telebot
-import phonenumbers
-import countryflag
+from typing import ClassVar, Any, NoReturn, Union
 from src import utils
 from src.utils import User
-from src.vneng import VNEngine
 
 # Initialize the bot token
 bot: ClassVar[Any] = telebot.TeleBot(utils.get_token())
 print(f"\33[1;36m::\33[m Bot is running with ID: {bot.get_me().id}")
 
-# Channel usernames (replace with actual channels)
+# Required channel usernames
 CHANNELS = ["@SHMMHS1", "@SHMMHS1"]
 
 def is_user_member(user_id: int) -> bool:
@@ -25,23 +19,28 @@ def is_user_member(user_id: int) -> bool:
     """
     for channel in CHANNELS:
         try:
+            # Check if user is a member, admin, or creator of the channel
             status = bot.get_chat_member(channel, user_id).status
             if status not in ["member", "administrator", "creator"]:
                 return False
         except Exception as e:
             print(f"Error checking membership for channel {channel}: {e}")
-            return False
+            return False  # Assume not a member if there's an error
     return True
 
 @bot.message_handler(commands=["start"])
 def start_command_handler(message: ClassVar[Any]) -> NoReturn:
     """
-    Handles the start command and checks if the user has joined required channels.
+    Handles the /start command and prompts the user to join required channels.
     """
     user_id = message.from_user.id
 
-    if not is_user_member(user_id):
-        # Prompt user to join channels with inline buttons
+    # Check if the user has joined all required channels
+    if is_user_member(user_id):
+        # User has joined, send VIP message
+        send_vip_message(message)
+    else:
+        # User has not joined, prompt them to join channels with buttons
         join_buttons = [
             [telebot.types.InlineKeyboardButton(text="Join Channel 1", url=f"https://t.me/{CHANNELS[0][1:]}")],
             [telebot.types.InlineKeyboardButton(text="Join Channel 2", url=f"https://t.me/{CHANNELS[1][1:]}")],
@@ -50,33 +49,30 @@ def start_command_handler(message: ClassVar[Any]) -> NoReturn:
         markup = telebot.types.InlineKeyboardMarkup(join_buttons)
         bot.send_message(
             chat_id=user_id,
-            text="To use this bot, please join our channels. After joining, click **Check Membership**.",
+            text="To use this bot, please join all required channels. After joining, click **Check Membership**.",
             reply_markup=markup,
             parse_mode="Markdown"
         )
-    else:
-        # If already a member, send VIP message directly
-        send_vip_message(message)
 
 @bot.callback_query_handler(func=lambda call: call.data == "check_membership")
 def callback_check_membership(call: ClassVar[Any]) -> NoReturn:
     """
-    Checks if the user has joined the required channels upon clicking 'Check Membership'.
+    Checks if the user has joined required channels when they click "Check Membership".
     """
     user_id = call.from_user.id
 
     if is_user_member(user_id):
-        # User has joined channels, send the VIP message
-        bot.answer_callback_query(callback_query_id=call.id, text="You have successfully joined all channels!")
+        # User has joined all channels, send VIP message
+        bot.answer_callback_query(callback_query_id=call.id, text="Membership verified successfully!")
         send_vip_message(call.message)
     else:
-        # User hasn't joined, prompt them to join again without sending the VIP message
-        bot.answer_callback_query(callback_query_id=call.id, text="Please join all channels to use the bot.")
-        start_command_handler(call.message)  # Re-send join message
+        # User has not joined all channels, send prompt again
+        bot.answer_callback_query(callback_query_id=call.id, text="Please join all channels to proceed.")
+        start_command_handler(call.message)  # Re-send join prompt
 
 def send_vip_message(message: ClassVar[Any]) -> None:
     """
-    Sends the VIP message after successful membership verification.
+    Sends the VIP welcome message after verifying the user's membership.
     """
     user: ClassVar[Union[str, int]] = User(message.from_user)
     bot.send_chat_action(chat_id=message.chat.id, action="typing")
@@ -89,9 +85,9 @@ def send_vip_message(message: ClassVar[Any]) -> None:
             "Send /number to get a virtual number"
         )
     )
-    # Optional: You could add more VIP-specific logic here if needed.
 
 # Run the bot
+
 
 
 
