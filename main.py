@@ -80,11 +80,11 @@ def number_command_handler(message: ClassVar[Any]) -> NoReturn:
         )
     )
 
-# Callback handler for "Check" button to send a photo with buttons below it
+# Callback handler for "Check" button to trigger /number command directly
 @bot.callback_query_handler(func=lambda call: call.data == "check_number")
 def check_number_callback(call: ClassVar[Any]) -> NoReturn:
     """
-    Handle callback for "Check" button by sending a photo with text and three buttons.
+    Handle callback for "Check" button by running the /number command logic.
 
     Parameters:
         call (ClassVar[Any]): Incoming callback query.
@@ -92,40 +92,8 @@ def check_number_callback(call: ClassVar[Any]) -> NoReturn:
     Returns:
         None (NoReturn)
     """
-    # Define the keyboard with three buttons
-    keyboard = telebot.types.InlineKeyboardMarkup()
-    keyboard.add(
-        telebot.types.InlineKeyboardButton("Get Number", callback_data="trigger_number"),
-        telebot.types.InlineKeyboardButton("Vip", callback_data="trigger_vip"),
-        telebot.types.InlineKeyboardButton("Information", callback_data="trigger_info")
-    )
-
-    # Send a photo with the text and buttons
-    bot.send_photo(
-        chat_id=call.message.chat.id,
-        photo="https://example.com/photo.jpg",  # Replace with your actual photo URL
-        caption=(
-            "🌟 Here is some important information!\n\n"
-            "Press the buttons below to take specific actions."
-        ),
-        reply_markup=keyboard
-    )
-
-# Handlers for each button
-@bot.callback_query_handler(func=lambda call: call.data == "trigger_number")
-def trigger_number_callback(call: ClassVar[Any]) -> NoReturn:
-    """Simulate /number command when 'Get Number' button is clicked."""
+    # Directly call the /number command handler function
     number_command_handler(call.message)
-
-@bot.callback_query_handler(func=lambda call: call.data == "trigger_vip")
-def trigger_vip_callback(call: ClassVar[Any]) -> NoReturn:
-    """Handle 'Vip' button click."""
-    bot.send_message(call.message.chat.id, "VIP feature will be implemented here.")
-
-@bot.callback_query_handler(func=lambda call: call.data == "trigger_info")
-def trigger_info_callback(call: ClassVar[Any]) -> NoReturn:
-    """Handle 'Information' button click."""
-    bot.send_message(call.message.chat.id, "Information feature will be implemented here.")
 
 @bot.message_handler(commands=["help", "usage"])
 def help_command_handler(message: ClassVar[Any]) -> NoReturn:
@@ -163,7 +131,8 @@ def help_command_handler(message: ClassVar[Any]) -> NoReturn:
         )
     )
 
-# Start polling
+# Start pollin
+
 
 
 
