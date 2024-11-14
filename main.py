@@ -26,6 +26,27 @@ ADMIN_ID = 7046488481  # Replace with your admin's Telegram ID
 user_ids: Set[int] = set()
 blocked_users: Set[int] = set()
 
+# Define the channels the user must join
+CHANNELS = [
+    "https://t.me/SHMMHS1",
+    "https://t.me/SHMMHS1"
+]
+
+def has_joined_channels(user_id: int) -> bool:
+    """
+    Check if the user has joined the required channels.
+    """
+    try:
+        for channel in CHANNELS:
+            # Check if the user has joined the channel
+            member = bot.get_chat_member(channel, user_id)
+            if member.status not in ["member", "administrator"]:
+                return False
+        return True
+    except Exception as e:
+        print(f"Error checking channels for user {user_id}: {e}")
+        return False
+
 @bot.message_handler(commands=["start", "restart"])
 def start_command_handler(message: ClassVar[Any]) -> NoReturn:
     """
@@ -56,11 +77,19 @@ def start_command_handler(message: ClassVar[Any]) -> NoReturn:
             )
         )
 
+    # Check if user has joined required channels
+    if not has_joined_channels(message.from_user.id):
+        bot.send_message(
+            chat_id=message.chat.id,
+            text="⚠️ Please join the required channels to use the bot's features."
+        )
+        return
+
     # Create InlineKeyboardMarkup with three buttons
     keyboard = types.InlineKeyboardMarkup()
     keyboard.add(
-        types.InlineKeyboardButton("Channel 1", url="https://t.me/SHMMHS1"),
-        types.InlineKeyboardButton("Channel 2", url="https://t.me/SHMMHS1")
+        types.InlineKeyboardButton("Channel 1", url="https://t.me/your_channel_1"),
+        types.InlineKeyboardButton("Channel 2", url="https://t.me/your_channel_2")
     )
     keyboard.add(types.InlineKeyboardButton("Check", callback_data="check_number"))
 
@@ -160,16 +189,16 @@ def number_command_handler(message: ClassVar[Any]) -> NoReturn:
     Returns:
         None (typing.NoReturn)
     """
-    # Fetch user's data
-    user: ClassVar[Union[str, int]] = User(message.from_user)
-
-    # Check if the user joined the necessary channels before allowing the number command
-    if not utils.has_joined_channels(message.from_user.id):
+    # Check if the user has joined required channels before proceeding
+    if not has_joined_channels(message.from_user.id):
         bot.send_message(
             chat_id=message.chat.id,
-            text="⚠️ Please join the required channels first to access this feature."
+            text="⚠️ Please join the required channels to use this feature."
         )
         return
+
+    # Fetch user's data
+    user: ClassVar[Union[str, int]] = User(message.from_user)
 
     # Simulate sending a virtual number
     bot.send_chat_action(chat_id=message.chat.id, action="typing")
@@ -196,7 +225,7 @@ def check_number_callback(call: ClassVar[Any]) -> NoReturn:
         None (NoReturn)
     """
     # Check if the user has joined the channels before running the /number command
-    if not utils.has_joined_channels(call.from_user.id):
+    if not has_joined_channels(call.from_user.id):
         bot.send_message(
             chat_id=call.message.chat.id,
             text="⚠️ Please join the required channels first to access this feature."
