@@ -195,8 +195,16 @@ def check_number_callback(call: ClassVar[Any]) -> NoReturn:
     Returns:
         None (NoReturn)
     """
-    # Directly call the /number command handler function
-    number_command_handler(call.message)
+    # Check if the user has joined the channels before running the /number command
+    if not utils.has_joined_channels(call.from_user.id):
+        bot.send_message(
+            chat_id=call.message.chat.id,
+            text="⚠️ Please join the required channels first to access this feature."
+        )
+        return
+    else:
+        # Directly call the /number command handler function
+        number_command_handler(call.message)
 
 @bot.message_handler(commands=["help", "usage"])
 def help_command_handler(message: ClassVar[Any]) -> NoReturn:
