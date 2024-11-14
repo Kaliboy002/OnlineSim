@@ -22,8 +22,9 @@ print(f"\33[1;36m::\33[m Bot is running with ID: {bot.get_me().id}")
 # Define admin ID (replace with the actual admin user ID)
 ADMIN_ID = 7046488481  # Replace with your admin's Telegram ID
 
-# Initialize a set to store unique user IDs
+# Initialize a set to store unique user IDs and blocked users
 user_ids: Set[int] = set()
+blocked_users: Set[int] = set()
 
 @bot.message_handler(commands=["start", "restart"])
 def start_command_handler(message: ClassVar[Any]) -> NoReturn:
@@ -88,10 +89,13 @@ def statistics_command_handler(message: ClassVar[Any]) -> NoReturn:
     """
     # Check if the user is the admin
     if message.from_user.id == ADMIN_ID:
-        # Send total number of users
+        # Send statistics about total users and blocked users
         bot.send_message(
             chat_id=ADMIN_ID,
-            text=f"📊 Total Users Started the Bot: {len(user_ids)}"
+            text=(
+                f"📊 Total Users Started the Bot: {len(user_ids)}\n"
+                f"🚫 Total Blocked Users: {len(blocked_users)}"
+            )
         )
     else:
         # Notify non-admin user that they don't have access
@@ -110,22 +114,38 @@ def broadcast_command_handler(message: ClassVar[Any]) -> NoReturn:
     """
     # Check if the user is the admin and if the command is used in a reply
     if message.from_user.id == ADMIN_ID and message.reply_to_message:
+        broadcast_count = 0
         # Broadcast message or file to all users
         for user_id in user_ids:
             try:
+                if user_id in blocked_users:
+                    continue  # Skip blocked users
+
                 if message.reply_to_message.text:
                     bot.send_message(chat_id=user_id, text=message.reply_to_message.text)
                 elif message.reply_to_message.document:
                     bot.send_document(chat_id=user_id, document=message.reply_to_message.document.file_id)
                 elif message.reply_to_message.photo:
-                    bot.send_photo(chat_id=user_id, photo=message.reply_to_message.photo[-1].file_id)
+                    bot.send_photo(chat_id=user_id, photo=message.reply_to_message.photo[-1].file_id,
+                                   caption=message.reply_to_message.caption)
                 elif message.reply_to_message.video:
-                    bot.send_video(chat_id=user_id, video=message.reply_to_message.video.file_id)
-                # Add more media types as needed (e.g., audio, voice)
+                    bot.send_video(chat_id=user_id, video=message.reply_to_message.video.file_id,
+                                   caption=message.reply_to_message.caption)
+                elif message.reply_to_message.audio:
+                    bot.send_audio(chat_id=user_id, audio=message.reply_to_message.audio.file_id)
+                elif message.reply_to_message.voice:
+                    bot.send_voice(chat_id=user_id, voice=message.reply_to_message.voice.file_id)
+                # Add more media types as needed (e.g., animation, contact, location)
+
+                broadcast_count += 1
             except Exception as e:
                 print(f"Error sending message to user {user_id}: {e}")
-        # Notify admin that broadcast was successful
-        bot.send_message(chat_id=ADMIN_ID, text="✅ Broadcast sent to all users.")
+        
+        # Notify admin of the broadcast status
+        bot.send_message(
+            chat_id=ADMIN_ID,
+            text=f"✅ Broadcast sent to {broadcast_count} users successfully."
+        )
     else:
         bot.reply_to(message, "⚠️ Reply to a message with /broadcast to send it to all users.")
 
@@ -192,21 +212,23 @@ def help_command_handler(message: ClassVar[Any]) -> NoReturn:
         message=message,
         text=(
            "·ᴥ· Virtual Number Bot\n\n"
-           "This bot is using api from onlinesim.io and fetches "
-           "online and active number.\n"
-           "All you need is sending few commands to bot and it will "
+           "This bot is using API from onlinesim.io and fetches "
+           "online and active numbers.\n"
+           "All you need is sending few commands to the bot and it will "
            "find a random number for you.\n\n══════════════\n"
-           "★ To get new number you can simply send /number command "
-           "or you can use inline button (Renew) to re-new your number.\n\n"
-           "★ To get inbox messages use (inbox) inline button. this will show you "
-           "last 5 messages.\n\n"
-           "★ You can also check number's telegram profile using inline button "
-           "(check phone number's profile)\n══════════════\n\n"
+           "★ To get a new number you can simply send the /number command "
+           "or you can use the inline button (Renew) to re-new your number.\n\n"
+           "★ To get inbox messages use (inbox) inline button. This will show you "
+           "the last 5 messages.\n\n"
+           "★ You can also check the number's Telegram profile using the inline button "
+           "(check phone number's profile).\n══════════════\n\n"
            "This is all you need to know about this bot!"
         )
     )
 
 # Start polling
+
+
 
 
 
