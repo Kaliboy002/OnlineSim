@@ -17,7 +17,7 @@ bot: ClassVar[Any] = telebot.TeleBot(utils.get_token())
 print(f"\33[1;36m::\33[m Bot is running with ID: {bot.get_me().id}")
 
 # Channel usernames (replace with actual channels)
-CHANNELS = ["@SHMMHS1", "@SHMMHS1"]
+CHANNELS = ["@channel1", "@channel2"]
 
 def is_user_member(user_id: int) -> bool:
     """
@@ -55,8 +55,8 @@ def start_command_handler(message: ClassVar[Any]) -> NoReturn:
             parse_mode="Markdown"
         )
     else:
-        # User is already a member, send the welcome message and run /vip command
-        send_vip_welcome(message)
+        # If already a member, send VIP message directly
+        send_vip_message(message)
 
 @bot.callback_query_handler(func=lambda call: call.data == "check_membership")
 def callback_check_membership(call: ClassVar[Any]) -> NoReturn:
@@ -66,22 +66,22 @@ def callback_check_membership(call: ClassVar[Any]) -> NoReturn:
     user_id = call.from_user.id
 
     if is_user_member(user_id):
-        # User has joined channels, send the VIP welcome message
+        # User has joined channels, send the VIP message
         bot.answer_callback_query(callback_query_id=call.id, text="You have successfully joined all channels!")
-        send_vip_welcome(call.message)
+        send_vip_message(call.message)
     else:
-        # User hasn't joined, prompt them to join again
+        # User hasn't joined, prompt them to join again without sending the VIP message
         bot.answer_callback_query(callback_query_id=call.id, text="Please join all channels to use the bot.")
         start_command_handler(call.message)  # Re-send join message
 
-def send_vip_welcome(message: ClassVar[Any]) -> None:
+def send_vip_message(message: ClassVar[Any]) -> None:
     """
-    Sends a welcome message and the /vip command after successful membership verification.
+    Sends the VIP message after successful membership verification.
     """
     user: ClassVar[Union[str, int]] = User(message.from_user)
     bot.send_chat_action(chat_id=message.chat.id, action="typing")
-    bot.reply_to(
-        message=message,
+    bot.send_message(
+        chat_id=message.chat.id,
         text=(
             f"⁀➴ Hello {user.pn}\n"
             "Welcome to Virtual Number Bot\n\n"
@@ -89,9 +89,12 @@ def send_vip_welcome(message: ClassVar[Any]) -> None:
             "Send /number to get a virtual number"
         )
     )
-    bot.send_message(chat_id=message.chat.id, text="/vip")
+    # Optional: You could add more VIP-specific logic here if needed.
 
 # Run the bot
+bot.polling(none_stop=True)
+
+
 
 
 
