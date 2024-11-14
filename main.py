@@ -92,8 +92,6 @@ def send_vip_message(message: ClassVar[Any]) -> None:
     # Optional: You could add more VIP-specific logic here if needed.
 
 # Run the bot
-bot.polling(none_stop=True)
-
 
 
 
