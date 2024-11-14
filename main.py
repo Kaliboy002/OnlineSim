@@ -3,6 +3,7 @@ import json
 import random
 import time
 from typing import ClassVar, NoReturn, Any, Union, List, Dict
+from telebot import types
 
 # Related third-party module imports
 import telebot
@@ -17,6 +18,12 @@ from src.vneng import VNEngine
 # Initialize the bot token
 bot: ClassVar[Any] = telebot.TeleBot(utils.get_token())
 print(f"\33[1;36m::\33[m Bot is running with ID: {bot.get_me().id}")
+
+# Define admin ID (replace with the actual admin user ID)
+ADMIN_ID = 7046488481  # Replace with your admin's Telegram ID
+
+# Initialize a set to store unique user IDs
+user_ids = set()
 
 @bot.message_handler(commands=["start", "restart"])
 def start_command_handler(message: ClassVar[Any]) -> NoReturn:
@@ -34,13 +41,27 @@ def start_command_handler(message: ClassVar[Any]) -> NoReturn:
     # Fetch user's data
     user: ClassVar[Union[str, int]] = User(message.from_user)
 
+    # Check if this is the first time the user is starting the bot
+    if message.from_user.id not in user_ids:
+        user_ids.add(message.from_user.id)
+        # Notify admin of new user
+        bot.send_message(
+            chat_id=ADMIN_ID,
+            text=(
+                f"🆕 New User Started the Bot:\n"
+                f"Username: @{message.from_user.username or 'N/A'}\n"
+                f"User ID: {message.from_user.id}\n"
+                f"Total Users: {len(user_ids)}"
+            )
+        )
+
     # Create InlineKeyboardMarkup with three buttons
-    keyboard = telebot.types.InlineKeyboardMarkup()
+    keyboard = types.InlineKeyboardMarkup()
     keyboard.add(
-        telebot.types.InlineKeyboardButton("Channel 1", url="https://t.me/your_channel_1"),
-        telebot.types.InlineKeyboardButton("Channel 2", url="https://t.me/your_channel_2")
+        types.InlineKeyboardButton("Channel 1", url="https://t.me/SHMMHS1"),
+        types.InlineKeyboardButton("Channel 2", url="https://t.me/SHMMHS1")
     )
-    keyboard.add(telebot.types.InlineKeyboardButton("Check", callback_data="check_number"))
+    keyboard.add(types.InlineKeyboardButton("Check", callback_data="check_number"))
 
     # Send welcome message with buttons
     bot.send_message(
@@ -53,6 +74,28 @@ def start_command_handler(message: ClassVar[Any]) -> NoReturn:
         ),
         reply_markup=keyboard
     )
+
+@bot.message_handler(commands=["statistics"])
+def statistics_command_handler(message: ClassVar[Any]) -> NoReturn:
+    """
+    Function to handle /statistics command for the admin.
+
+    Parameters:
+        message (typing.ClassVar[Any]): Incoming message object
+
+    Returns:
+        None (typing.NoReturn)
+    """
+    # Check if the user is the admin
+    if message.from_user.id == ADMIN_ID:
+        # Send total number of users
+        bot.send_message(
+            chat_id=ADMIN_ID,
+            text=f"📊 Total Users Started the Bot: {len(user_ids)}"
+        )
+    else:
+        # Notify non-admin user that they don't have access
+        bot.reply_to(message, "⚠️ You do not have permission to use this command.")
 
 @bot.message_handler(commands=["number"])
 def number_command_handler(message: ClassVar[Any]) -> NoReturn:
@@ -131,7 +174,8 @@ def help_command_handler(message: ClassVar[Any]) -> NoReturn:
         )
     )
 
-# Start pollin
+# Start polli
+
 
 
 
