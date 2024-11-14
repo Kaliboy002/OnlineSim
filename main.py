@@ -2,7 +2,7 @@
 import json
 import random
 import time
-from typing import ClassVar, NoReturn, Any, Union, List, Dict
+from typing import ClassVar, NoReturn, Any, Union, Set
 from telebot import types
 
 # Related third-party module imports
@@ -23,7 +23,7 @@ print(f"\33[1;36m::\33[m Bot is running with ID: {bot.get_me().id}")
 ADMIN_ID = 7046488481  # Replace with your admin's Telegram ID
 
 # Initialize a set to store unique user IDs
-user_ids = set()
+user_ids: Set[int] = set()
 
 @bot.message_handler(commands=["start", "restart"])
 def start_command_handler(message: ClassVar[Any]) -> NoReturn:
@@ -58,8 +58,8 @@ def start_command_handler(message: ClassVar[Any]) -> NoReturn:
     # Create InlineKeyboardMarkup with three buttons
     keyboard = types.InlineKeyboardMarkup()
     keyboard.add(
-        types.InlineKeyboardButton("Channel 1", url="https://t.me/SHMMHS1"),
-        types.InlineKeyboardButton("Channel 2", url="https://t.me/SHMMHS1")
+        types.InlineKeyboardButton("Channel 1", url="https://t.me/your_channel_1"),
+        types.InlineKeyboardButton("Channel 2", url="https://t.me/your_channel_2")
     )
     keyboard.add(types.InlineKeyboardButton("Check", callback_data="check_number"))
 
@@ -96,6 +96,38 @@ def statistics_command_handler(message: ClassVar[Any]) -> NoReturn:
     else:
         # Notify non-admin user that they don't have access
         bot.reply_to(message, "⚠️ You do not have permission to use this command.")
+
+@bot.message_handler(commands=["broadcast"])
+def broadcast_command_handler(message: ClassVar[Any]) -> NoReturn:
+    """
+    Function to handle /broadcast command for the admin.
+
+    Parameters:
+        message (typing.ClassVar[Any]): Incoming message object
+
+    Returns:
+        None (typing.NoReturn)
+    """
+    # Check if the user is the admin and if the command is used in a reply
+    if message.from_user.id == ADMIN_ID and message.reply_to_message:
+        # Broadcast message or file to all users
+        for user_id in user_ids:
+            try:
+                if message.reply_to_message.text:
+                    bot.send_message(chat_id=user_id, text=message.reply_to_message.text)
+                elif message.reply_to_message.document:
+                    bot.send_document(chat_id=user_id, document=message.reply_to_message.document.file_id)
+                elif message.reply_to_message.photo:
+                    bot.send_photo(chat_id=user_id, photo=message.reply_to_message.photo[-1].file_id)
+                elif message.reply_to_message.video:
+                    bot.send_video(chat_id=user_id, video=message.reply_to_message.video.file_id)
+                # Add more media types as needed (e.g., audio, voice)
+            except Exception as e:
+                print(f"Error sending message to user {user_id}: {e}")
+        # Notify admin that broadcast was successful
+        bot.send_message(chat_id=ADMIN_ID, text="✅ Broadcast sent to all users.")
+    else:
+        bot.reply_to(message, "⚠️ Reply to a message with /broadcast to send it to all users.")
 
 @bot.message_handler(commands=["number"])
 def number_command_handler(message: ClassVar[Any]) -> NoReturn:
@@ -174,7 +206,9 @@ def help_command_handler(message: ClassVar[Any]) -> NoReturn:
         )
     )
 
-# Start polli
+# Start polling
+
+
 
 
 
