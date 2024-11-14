@@ -1,23 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+# Virtual Number bot for Telegram with Mandatory Channel Joining
 
-# Virtual Number bot for Telegram
-# Sends random virtual numbers to user
-# Service: OnlineSim.io
-# SourceCode (https://github.com/Kourva/OnlineSimBot)
-
-# Standard library imports
 import json
 import random
 import time
 from typing import ClassVar, NoReturn, Any, Union, List, Dict
-
-# Related third party module imports
 import telebot
 import phonenumbers
 import countryflag
-
-# Local application module imports
 from src import utils
 from src.utils import User
 from src.vneng import VNEngine
@@ -26,24 +17,51 @@ from src.vneng import VNEngine
 bot: ClassVar[Any] = telebot.TeleBot(utils.get_token())
 print(f"\33[1;36m::\33[m Bot is running with ID: {bot.get_me().id}")
 
+# Channel usernames (example)
+CHANNELS = ["@SHMMHS1", "@SHMMHS1"]  # replace with actual channels
+
+# Function to check if a user is a member of the required channels
+def is_user_member(user_id: int) -> bool:
+    for channel in CHANNELS:
+        try:
+            status = bot.get_chat_member(channel, user_id).status
+            if status not in ["member", "administrator", "creator"]:
+                return False
+        except Exception as e:
+            print(f"Error checking membership for channel {channel}: {e}")
+            return False
+    return True
 
 @bot.message_handler(commands=["start", "restart"])
 def start_command_handler(message: ClassVar[Any]) -> NoReturn:
     """
-    Function to handle start commands in bot
-    Shows welcome messages to users
-
-    Parameters:
-        message (typing.ClassVar[Any]): Incoming message object
-
-    Returns:
-        None (typing.NoReturn)
+    Function to handle start commands in bot.
+    Shows a welcome message and prompts to join mandatory channels if not already joined.
     """
+    user_id = message.from_user.id
 
-    # Fetch user's data
+    if not is_user_member(user_id):
+        # Send join message with inline buttons for channels and a check button
+        join_buttons = [
+            [telebot.types.InlineKeyboardButton(text="Join Channel 1", url=f"https://t.me/{CHANNELS[0][1:]}")],
+            [telebot.types.InlineKeyboardButton(text="Join Channel 2", url=f"https://t.me/{CHANNELS[1][1:]}")],
+            [telebot.types.InlineKeyboardButton(text="Check Membership", callback_data="check_membership")]
+        ]
+        markup = telebot.types.InlineKeyboardMarkup(join_buttons)
+        bot.send_message(
+            chat_id=user_id,
+            text="To use this bot, please join our channels first. After joining, click the **Check Membership** button below.",
+            reply_markup=markup,
+            parse_mode="Markdown"
+        )
+    else:
+        send_welcome_message(message)
+
+def send_welcome_message(message: ClassVar[Any]) -> None:
+    """
+    Sends the main welcome message and proceeds with the bot functionality if user is verified.
+    """
     user: ClassVar[Union[str, int]] = User(message.from_user)
-
-    # Send welcome message
     bot.send_chat_action(chat_id=message.chat.id, action="typing")
     bot.reply_to(
         message=message,
@@ -54,6 +72,31 @@ def start_command_handler(message: ClassVar[Any]) -> NoReturn:
             "Send /number to get a virtual number"
         )
     )
+    # Trigger the VIP command if needed
+    bot.send_message(chat_id=message.chat.id, text="/vip")
+
+@bot.callback_query_handler(func=lambda call: call.data == "check_membership")
+def callback_check_membership(call: ClassVar[Any]) -> NoReturn:
+    """
+    Callback function to check if the user has joined the required channels.
+    If joined, sends the /vip command, otherwise prompts to join again.
+    """
+    user_id = call.from_user.id
+
+    if is_user_member(user_id):
+        # User has joined channels, proceed with bot's functionality
+        bot.answer_callback_query(callback_query_id=call.id, text="You have successfully joined all channels!")
+        send_welcome_message(call.message)
+    else:
+        # User hasn't joined, prompt them to join again
+        bot.answer_callback_query(callback_query_id=call.id, text="Please join all channels to use the bot.")
+        start_command_handler(call.message)
+
+# Run the bot
+
+
+
+
 
 
 @bot.message_handler(commands=["help", "usage"])
