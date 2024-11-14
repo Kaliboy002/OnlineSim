@@ -1,79 +1,126 @@
-import telebot
-from telebot import types
+# Standard library imports
 import json
+import random
+import time
+from typing import ClassVar, NoReturn, Any, Union, Set
+from telebot import types
 
-# Initialize bot with token
-bot = telebot.TeleBot("YOUR_BOT_TOKEN")
+# Related third-party module imports
+import telebot
+import phonenumbers
+import countryflag
 
-# Admin ID (replace with your actual admin ID)
-ADMIN_ID = 123456789  # Replace with your actual admin ID
+# Local application module imports
+from src import utils
+from src.utils import User
+from src.vneng import VNEngine
 
-# Store users and blocked users in memory (you can replace this with a database for persistence)
-user_ids = set()  # Set to store user IDs who have started the bot
-blocked_users = set()  # Set to store user IDs who have blocked the bot
-joined_channels = set()  # Set to store user IDs who have joined required channels
+# Initialize the bot token
+bot: ClassVar[Any] = telebot.TeleBot(utils.get_token())
+print(f"\33[1;36m::\33[m Bot is running with ID: {bot.get_me().id}")
 
-# Required channels to check
-CHANNELS = ["@your_channel_1", "@your_channel_2"]  # Replace with your channels
+# Define admin ID (replace with the actual admin user ID)
+ADMIN_ID = 7046488481  # Replace with your admin's Telegram ID
 
-# Helper function to check if the user has joined required channels
-def has_joined_channels(user_id):
-    for channel in CHANNELS:
-        try:
-            member = bot.get_chat_member(channel, user_id)
-            if member.status not in ["member", "administrator"]:
-                return False  # User has not joined or is not a member
-        except Exception as e:
-            print(f"Error checking membership for {user_id}: {e}")
-            return False  # Return False if there's any error
-    return True  # User has joined all required channels
+# Initialize a set to store unique user IDs and blocked users
+user_ids: Set[int] = set()
+blocked_users: Set[int] = set()
 
 @bot.message_handler(commands=["start", "restart"])
-def start_command_handler(message):
+def start_command_handler(message: ClassVar[Any]) -> NoReturn:
     """
-    Function to handle /start command and show a welcome message
-    """
-    user_id = message.from_user.id
-    username = message.from_user.username or "N/A"
+    Function to handle start commands in bot
+    Shows welcome messages to users
 
-    # Check if the user is already in user_ids
-    if user_id not in user_ids:
-        user_ids.add(user_id)
-        # Notify admin about the new user
+    Parameters:
+        message (typing.ClassVar[Any]): Incoming message object
+
+    Returns:
+        None (typing.NoReturn)
+    """
+
+    # Fetch user's data
+    user: ClassVar[Union[str, int]] = User(message.from_user)
+
+    # Check if this is the first time the user is starting the bot
+    if message.from_user.id not in user_ids:
+        user_ids.add(message.from_user.id)
+        # Notify admin of new user
         bot.send_message(
             chat_id=ADMIN_ID,
-            text=f"🆕 New User Started the Bot:\nUsername: @{username}\nUser ID: {user_id}\nTotal Users: {len(user_ids)}"
+            text=(
+                f"🆕 New User Started the Bot:\n"
+                f"Username: @{message.from_user.username or 'N/A'}\n"
+                f"User ID: {message.from_user.id}\n"
+                f"Total Users: {len(user_ids)}"
+            )
         )
-    
-    # Create inline keyboard with buttons to check channels and get number
+
+    # Create InlineKeyboardMarkup with three buttons
     keyboard = types.InlineKeyboardMarkup()
     keyboard.add(
-        types.InlineKeyboardButton("Channel 1", url="https://t.me/your_channel_1"),
-        types.InlineKeyboardButton("Channel 2", url="https://t.me/your_channel_2")
+        types.InlineKeyboardButton("Channel 1", url="https://t.me/SHMMHS1"),
+        types.InlineKeyboardButton("Channel 2", url="https://t.me/SHMMHS1")
     )
     keyboard.add(types.InlineKeyboardButton("Check", callback_data="check_number"))
 
-    # Send a welcome message
+    # Send welcome message with buttons
     bot.send_message(
         chat_id=message.chat.id,
-        text=f"⁀➴ Hello @{username}\nWelcome to Virtual Number Bot\nPlease join our channels first and then click 'Check' to proceed.",
+        text=(
+            f"⁀➴ Hello {user.pn}\n"
+            "Welcome to Virtual Number Bot\n\n"
+            "Send /help to get help message\n"
+            "Send /number to get a virtual number"
+        ),
         reply_markup=keyboard
     )
 
+@bot.message_handler(commands=["statistics"])
+def statistics_command_handler(message: ClassVar[Any]) -> NoReturn:
+    """
+    Function to handle /statistics command for the admin.
+
+    Parameters:
+        message (typing.ClassVar[Any]): Incoming message object
+
+    Returns:
+        None (typing.NoReturn)
+    """
+    # Check if the user is the admin
+    if message.from_user.id == ADMIN_ID:
+        # Send statistics about total users and blocked users
+        bot.send_message(
+            chat_id=ADMIN_ID,
+            text=(
+                f"📊 Total Users Started the Bot: {len(user_ids)}\n"
+                f"🚫 Total Blocked Users: {len(blocked_users)}"
+            )
+        )
+    else:
+        # Notify non-admin user that they don't have access
+        bot.reply_to(message, "⚠️ You do not have permission to use this command.")
+
 @bot.message_handler(commands=["broadcast"])
-def broadcast_command_handler(message):
+def broadcast_command_handler(message: ClassVar[Any]) -> NoReturn:
     """
     Function to handle /broadcast command for the admin.
+
+    Parameters:
+        message (typing.ClassVar[Any]): Incoming message object
+
+    Returns:
+        None (typing.NoReturn)
     """
+    # Check if the user is the admin and if the command is used in a reply
     if message.from_user.id == ADMIN_ID and message.reply_to_message:
         broadcast_count = 0
-        # Broadcast the message or media to all users
+        # Broadcast message or file to all users
         for user_id in user_ids:
             try:
                 if user_id in blocked_users:
                     continue  # Skip blocked users
 
-                # Send the message or media depending on the type of the reply
                 if message.reply_to_message.text:
                     bot.send_message(chat_id=user_id, text=message.reply_to_message.text)
                 elif message.reply_to_message.document:
@@ -84,69 +131,110 @@ def broadcast_command_handler(message):
                 elif message.reply_to_message.video:
                     bot.send_video(chat_id=user_id, video=message.reply_to_message.video.file_id,
                                    caption=message.reply_to_message.caption)
+                elif message.reply_to_message.audio:
+                    bot.send_audio(chat_id=user_id, audio=message.reply_to_message.audio.file_id)
+                elif message.reply_to_message.voice:
+                    bot.send_voice(chat_id=user_id, voice=message.reply_to_message.voice.file_id)
+                # Add more media types as needed (e.g., animation, contact, location)
+
                 broadcast_count += 1
             except Exception as e:
                 print(f"Error sending message to user {user_id}: {e}")
         
+        # Notify admin of the broadcast status
         bot.send_message(
             chat_id=ADMIN_ID,
             text=f"✅ Broadcast sent to {broadcast_count} users successfully."
         )
     else:
-        bot.reply_to(message, "⚠️ Please reply to a message with /broadcast to send it to all users.")
+        bot.reply_to(message, "⚠️ Reply to a message with /broadcast to send it to all users.")
 
-@bot.message_handler(commands=["statistics"])
-def statistics_command_handler(message):
+@bot.message_handler(commands=["number"])
+def number_command_handler(message: ClassVar[Any]) -> NoReturn:
     """
-    Function to handle /statistics command for the admin.
+    Function to handle /number command and send a virtual number.
+
+    Parameters:
+        message (typing.ClassVar[Any]): Incoming message object
+
+    Returns:
+        None (typing.NoReturn)
     """
-    if message.from_user.id == ADMIN_ID:
+    # Fetch user's data
+    user: ClassVar[Union[str, int]] = User(message.from_user)
+
+    # Check if the user joined the necessary channels before allowing the number command
+    if not utils.has_joined_channels(message.from_user.id):
         bot.send_message(
-            chat_id=ADMIN_ID,
-            text=(
-                f"📊 Total Users Started the Bot: {len(user_ids)}\n"
-                f"🚫 Total Blocked Users: {len(blocked_users)}"
-            )
+            chat_id=message.chat.id,
+            text="⚠️ Please join the required channels first to access this feature."
         )
-    else:
-        bot.reply_to(message, "⚠️ You do not have permission to use this command.")
+        return
 
-@bot.callback_query_handler(func=lambda call: call.data == "check_number")
-def check_number_callback(call):
-    """
-    Function to check if the user has joined the channels before proceeding.
-    """
-    user_id = call.from_user.id
-
-    if user_id not in joined_channels:
-        if not has_joined_channels(user_id):
-            bot.answer_callback_query(call.id, text="Please join the channels first and then click 'Check'.")
-            bot.send_message(chat_id=user_id, text="⚠️ You must join the required channels to proceed.")
-            return  # Stop further processing if the user hasn't joined the channels
-
-        # Mark the user as joined the channels
-        joined_channels.add(user_id)
-        bot.answer_callback_query(call.id, text="You have successfully joined the channels! Now you can proceed.")
-        bot.send_message(chat_id=user_id, text="✅ You have joined the channels! You can now proceed with the bot.")
-    else:
-        bot.send_message(chat_id=user_id, text="✅ You have already joined the channels!")
-
-@bot.message_handler(commands=["help"])
-def help_command_handler(message):
-    """
-    Function to provide help information to users.
-    """
+    # Simulate sending a virtual number
+    bot.send_chat_action(chat_id=message.chat.id, action="typing")
     bot.send_message(
         chat_id=message.chat.id,
         text=(
-            "Welcome to the Virtual Number Bot!\n\n"
-            "To get started, use the /start command. Make sure to join the channels first.\n"
-            "Once you've joined, click the 'Check' button to proceed with getting your virtual number."
+            f"🌐 Here is your virtual number, {user.pn}!\n"
+            "Your generated virtual number is +1234567890 (example).\n"
+            "You can use this number for various purposes.\n\n"
+            "If you'd like another number, just press the button again!"
+        )
+    )
+
+# Callback handler for "Check" button to trigger /number command directly
+@bot.callback_query_handler(func=lambda call: call.data == "check_number")
+def check_number_callback(call: ClassVar[Any]) -> NoReturn:
+    """
+    Handle callback for "Check" button by running the /number command logic.
+
+    Parameters:
+        call (ClassVar[Any]): Incoming callback query.
+
+    Returns:
+        None (NoReturn)
+    """
+    # Directly call the /number command handler function
+    number_command_handler(call.message)
+
+@bot.message_handler(commands=["help", "usage"])
+def help_command_handler(message: ClassVar[Any]) -> NoReturn:
+    """
+    Function to handle help commands in bot
+    Shows help messages to users
+
+    Parameters:
+        message (typing.ClassVar[Any]): Incoming message object
+
+    Returns:
+        None (typing.NoReturn)
+    """
+
+    # Fetch user's data
+    user: ClassVar[Union[str, int]] = User(message.from_user)
+
+    # Send Help message
+    bot.send_chat_action(chat_id=message.chat.id, action="typing")
+    bot.reply_to(
+        message=message,
+        text=(
+           "·ᴥ· Virtual Number Bot\n\n"
+           "This bot is using API from onlinesim.io and fetches "
+           "online and active numbers.\n"
+           "All you need is sending few commands to the bot and it will "
+           "find a random number for you.\n\n══════════════\n"
+           "★ To get a new number you can simply send the /number command "
+           "or you can use the inline button (Renew) to re-new your number.\n\n"
+           "★ To get inbox messages use (inbox) inline button. This will show you "
+           "the last 5 messages.\n\n"
+           "★ You can also check the number's Telegram profile using the inline button "
+           "(check phone number's profile).\n══════════════\n\n"
+           "This is all you need to know about this bot!"
         )
     )
 
 # Start polling
-bot.polling()
 
 
 
