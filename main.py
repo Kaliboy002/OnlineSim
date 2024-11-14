@@ -17,7 +17,7 @@ bot: ClassVar[Any] = telebot.TeleBot(utils.get_token())
 print(f"\33[1;36m::\33[m Bot is running with ID: {bot.get_me().id}")
 
 # Channel usernames (replace with actual channels)
-CHANNELS = ["@channel1", "@channel2"]
+CHANNELS = ["@SHMMHS1", "@SHMMHS1"]
 
 def is_user_member(user_id: int) -> bool:
     """
