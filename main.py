@@ -18,7 +18,6 @@ from src.vneng import VNEngine
 bot: ClassVar[Any] = telebot.TeleBot(utils.get_token())
 print(f"\33[1;36m::\33[m Bot is running with ID: {bot.get_me().id}")
 
-
 @bot.message_handler(commands=["start", "restart"])
 def start_command_handler(message: ClassVar[Any]) -> NoReturn:
     """
@@ -38,8 +37,8 @@ def start_command_handler(message: ClassVar[Any]) -> NoReturn:
     # Create InlineKeyboardMarkup with three buttons
     keyboard = telebot.types.InlineKeyboardMarkup()
     keyboard.add(
-        telebot.types.InlineKeyboardButton("Channel 1", url="https://t.me/SHMMHS1"),
-        telebot.types.InlineKeyboardButton("Channel 2", url="https://t.me/SHMMHS1")
+        telebot.types.InlineKeyboardButton("Channel 1", url="https://t.me/your_channel_1"),
+        telebot.types.InlineKeyboardButton("Channel 2", url="https://t.me/your_channel_2")
     )
     keyboard.add(telebot.types.InlineKeyboardButton("Check", callback_data="check_number"))
 
@@ -55,11 +54,37 @@ def start_command_handler(message: ClassVar[Any]) -> NoReturn:
         reply_markup=keyboard
     )
 
-# Handler for "Check" button that triggers /number command
+@bot.message_handler(commands=["number"])
+def number_command_handler(message: ClassVar[Any]) -> NoReturn:
+    """
+    Function to handle /number command and send a virtual number.
+
+    Parameters:
+        message (typing.ClassVar[Any]): Incoming message object
+
+    Returns:
+        None (typing.NoReturn)
+    """
+    # Fetch user's data
+    user: ClassVar[Union[str, int]] = User(message.from_user)
+
+    # Simulate sending a virtual number
+    bot.send_chat_action(chat_id=message.chat.id, action="typing")
+    bot.send_message(
+        chat_id=message.chat.id,
+        text=(
+            f"🌐 Here is your virtual number, {user.pn}!\n"
+            "Your generated virtual number is +1234567890 (example).\n"
+            "You can use this number for various purposes.\n\n"
+            "If you'd like another number, just press the button again!"
+        )
+    )
+
+# Callback handler for "Check" button to trigger /number command directly
 @bot.callback_query_handler(func=lambda call: call.data == "check_number")
 def check_number_callback(call: ClassVar[Any]) -> NoReturn:
     """
-    Handle callback for "Check" button by sending /number command.
+    Handle callback for "Check" button by running the /number command logic.
 
     Parameters:
         call (ClassVar[Any]): Incoming callback query.
@@ -67,8 +92,8 @@ def check_number_callback(call: ClassVar[Any]) -> NoReturn:
     Returns:
         None (NoReturn)
     """
-    # Simulate the /number command when "Check" button is clicked
-    bot.send_message(call.message.chat.id, "/number")
+    # Directly call the /number command handler function
+    number_command_handler(call.message)
 
 @bot.message_handler(commands=["help", "usage"])
 def help_command_handler(message: ClassVar[Any]) -> NoReturn:
@@ -107,6 +132,7 @@ def help_command_handler(message: ClassVar[Any]) -> NoReturn:
     )
 
 # Start polling
+
 
 
 
