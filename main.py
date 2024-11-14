@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Virtual Number bot for Telegram with Mandatory Channel Joining
 
 import json
 import random
@@ -17,11 +16,13 @@ from src.vneng import VNEngine
 bot: ClassVar[Any] = telebot.TeleBot(utils.get_token())
 print(f"\33[1;36m::\33[m Bot is running with ID: {bot.get_me().id}")
 
-# Channel usernames (example)
-CHANNELS = ["@SHMMHS1", "@SHMMHS1"]  # replace with actual channels
+# Channel usernames (replace with actual channels)
+CHANNELS = ["@SHMMHS1", "@SHMMHS1"]
 
-# Function to check if a user is a member of the required channels
 def is_user_member(user_id: int) -> bool:
+    """
+    Checks if the user is a member of all required channels.
+    """
     for channel in CHANNELS:
         try:
             status = bot.get_chat_member(channel, user_id).status
@@ -32,16 +33,15 @@ def is_user_member(user_id: int) -> bool:
             return False
     return True
 
-@bot.message_handler(commands=["start", "restart"])
+@bot.message_handler(commands=["start"])
 def start_command_handler(message: ClassVar[Any]) -> NoReturn:
     """
-    Function to handle start commands in bot.
-    Shows a welcome message and prompts to join mandatory channels if not already joined.
+    Handles the start command and checks if the user has joined required channels.
     """
     user_id = message.from_user.id
 
     if not is_user_member(user_id):
-        # Send join message with inline buttons for channels and a check button
+        # Prompt user to join channels with inline buttons
         join_buttons = [
             [telebot.types.InlineKeyboardButton(text="Join Channel 1", url=f"https://t.me/{CHANNELS[0][1:]}")],
             [telebot.types.InlineKeyboardButton(text="Join Channel 2", url=f"https://t.me/{CHANNELS[1][1:]}")],
@@ -50,16 +50,33 @@ def start_command_handler(message: ClassVar[Any]) -> NoReturn:
         markup = telebot.types.InlineKeyboardMarkup(join_buttons)
         bot.send_message(
             chat_id=user_id,
-            text="To use this bot, please join our channels first. After joining, click the **Check Membership** button below.",
+            text="To use this bot, please join our channels. After joining, click **Check Membership**.",
             reply_markup=markup,
             parse_mode="Markdown"
         )
     else:
-        send_welcome_message(message)
+        # User is already a member, send the welcome message and run /vip command
+        send_vip_welcome(message)
 
-def send_welcome_message(message: ClassVar[Any]) -> None:
+@bot.callback_query_handler(func=lambda call: call.data == "check_membership")
+def callback_check_membership(call: ClassVar[Any]) -> NoReturn:
     """
-    Sends the main welcome message and proceeds with the bot functionality if user is verified.
+    Checks if the user has joined the required channels upon clicking 'Check Membership'.
+    """
+    user_id = call.from_user.id
+
+    if is_user_member(user_id):
+        # User has joined channels, send the VIP welcome message
+        bot.answer_callback_query(callback_query_id=call.id, text="You have successfully joined all channels!")
+        send_vip_welcome(call.message)
+    else:
+        # User hasn't joined, prompt them to join again
+        bot.answer_callback_query(callback_query_id=call.id, text="Please join all channels to use the bot.")
+        start_command_handler(call.message)  # Re-send join message
+
+def send_vip_welcome(message: ClassVar[Any]) -> None:
+    """
+    Sends a welcome message and the /vip command after successful membership verification.
     """
     user: ClassVar[Union[str, int]] = User(message.from_user)
     bot.send_chat_action(chat_id=message.chat.id, action="typing")
@@ -72,27 +89,10 @@ def send_welcome_message(message: ClassVar[Any]) -> None:
             "Send /number to get a virtual number"
         )
     )
-    # Trigger the VIP command if needed
     bot.send_message(chat_id=message.chat.id, text="/vip")
 
-@bot.callback_query_handler(func=lambda call: call.data == "check_membership")
-def callback_check_membership(call: ClassVar[Any]) -> NoReturn:
-    """
-    Callback function to check if the user has joined the required channels.
-    If joined, sends the /vip command, otherwise prompts to join again.
-    """
-    user_id = call.from_user.id
-
-    if is_user_member(user_id):
-        # User has joined channels, proceed with bot's functionality
-        bot.answer_callback_query(callback_query_id=call.id, text="You have successfully joined all channels!")
-        send_welcome_message(call.message)
-    else:
-        # User hasn't joined, prompt them to join again
-        bot.answer_callback_query(callback_query_id=call.id, text="Please join all channels to use the bot.")
-        start_command_handler(call.message)
-
 # Run the bot
+
 
 
 
