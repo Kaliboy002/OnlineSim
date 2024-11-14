@@ -1,8 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# Virtual Number bot for Telegram
+# Sends random virtual numbers to user
+# Service: OnlineSim.io
+# SourceCode (https://github.com/Kourva/OnlineSimBot)
+
+import json
+import random
+import time
+from typing import ClassVar, NoReturn, Any, Union
 import telebot
-from typing import ClassVar, Any, NoReturn, Union
 from src import utils
 from src.utils import User
 
@@ -19,28 +27,28 @@ def is_user_member(user_id: int) -> bool:
     """
     for channel in CHANNELS:
         try:
-            # Check if user is a member, admin, or creator of the channel
             status = bot.get_chat_member(channel, user_id).status
             if status not in ["member", "administrator", "creator"]:
                 return False
         except Exception as e:
             print(f"Error checking membership for channel {channel}: {e}")
-            return False  # Assume not a member if there's an error
+            return False
     return True
 
-@bot.message_handler(commands=["start"])
+@bot.message_handler(commands=["start", "restart"])
 def start_command_handler(message: ClassVar[Any]) -> NoReturn:
     """
-    Handles the /start command and prompts the user to join required channels.
+    Function to handle start and restart commands in bot
+    Prompts the user to join mandatory channels if not joined.
     """
     user_id = message.from_user.id
 
     # Check if the user has joined all required channels
     if is_user_member(user_id):
-        # User has joined, send VIP message
-        send_vip_message(message)
+        # User has joined, send the /number command directly
+        number_command_handler(message)
     else:
-        # User has not joined, prompt them to join channels with buttons
+        # User has not joined, prompt them to join channels
         join_buttons = [
             [telebot.types.InlineKeyboardButton(text="Join Channel 1", url=f"https://t.me/{CHANNELS[0][1:]}")],
             [telebot.types.InlineKeyboardButton(text="Join Channel 2", url=f"https://t.me/{CHANNELS[1][1:]}")],
@@ -62,75 +70,49 @@ def callback_check_membership(call: ClassVar[Any]) -> NoReturn:
     user_id = call.from_user.id
 
     if is_user_member(user_id):
-        # User has joined all channels, send VIP message
+        # User has joined all channels, execute the /number command
         bot.answer_callback_query(callback_query_id=call.id, text="Membership verified successfully!")
-        send_vip_message(call.message)
+        number_command_handler(call.message)
     else:
         # User has not joined all channels, send prompt again
         bot.answer_callback_query(callback_query_id=call.id, text="Please join all channels to proceed.")
-        start_command_handler(call.message)  # Re-send join prompt
+        start_command_handler(call.message)
 
-def send_vip_message(message: ClassVar[Any]) -> None:
+@bot.message_handler(commands=["number"])
+def number_command_handler(message: ClassVar[Any]) -> NoReturn:
     """
-    Sends the VIP welcome message after verifying the user's membership.
+    Handles the /number command by generating and sending a random virtual number.
     """
     user: ClassVar[Union[str, int]] = User(message.from_user)
+
+    # Simulated example of sending a virtual number
+    random_number = f"+1-{random.randint(100, 999)}-{random.randint(1000, 9999)}"
     bot.send_chat_action(chat_id=message.chat.id, action="typing")
-    bot.send_message(
-        chat_id=message.chat.id,
-        text=(
-            f"⁀➴ Hello {user.pn}\n"
-            "Welcome to Virtual Number Bot\n\n"
-            "Send /help to get help message\n"
-            "Send /number to get a virtual number"
-        )
+    bot.reply_to(
+        message=message,
+        text=f"Here is your virtual number: {random_number}"
     )
-
-# Run the bot
-
-
-
-
-
-
-
-
 
 @bot.message_handler(commands=["help", "usage"])
 def help_command_handler(message: ClassVar[Any]) -> NoReturn:
     """
     Function to handle help commands in bot
     Shows help messages to users
-
-    Parameters:
-        message (typing.ClassVar[Any]): Incoming message object
-
-    Returns:
-        None (typing.NoReturn)
     """
-
-    # Fetch user's data
-    user: ClassVar[Union[str, int]] = User(message.from_user)
-
-    # Send Help message
     bot.send_chat_action(chat_id=message.chat.id, action="typing")
     bot.reply_to(
         message=message,
         text=(
            "·ᴥ· Virtual Number Bot\n\n"
-           "This bot is using api from onlinesim.io and fetches "
-           "online and active number.\n"
-           "All you need is sending few commands to bot and it will "
-           "find a random number for you.\n\n══════════════\n"
-           "★ To get new number you can simply send /number command "
-           "or you can use inline button (Renew) to re-new your number.\n\n"
-           "★ To get inbox messages use (inbox) inline button. this will show you "
-           "last 5 messages.\n\n"
-           "★ You can also check number's telegram profile using inline button "
-           "(check phone number's profile)\n══════════════\n\n"
-           "This is all you need to know about this bot!"
+           "This bot is using API from onlinesim.io and fetches online and active numbers.\n"
+           "Send /number to get a virtual number.\n"
+           "For further assistance, please use the available commands."
         )
     )
+
+# Run the bot
+
+
 
 
 @bot.message_handler(commands=["number"])
