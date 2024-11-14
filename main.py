@@ -56,13 +56,17 @@ def start_command_handler(message: ClassVar[Any]) -> NoReturn:
             )
         )
 
-    # Create InlineKeyboardMarkup with three buttons
-    keyboard = types.InlineKeyboardMarkup()
+    # Create InlineKeyboardMarkup with each button in a separate row
+    keyboard = types.InlineKeyboardMarkup(row_width=1)
     keyboard.add(
-        types.InlineKeyboardButton("Channel 1", url="https://t.me/your_channel_1"),
+        types.InlineKeyboardButton("Channel 1", url="https://t.me/your_channel_1")
+    )
+    keyboard.add(
         types.InlineKeyboardButton("Channel 2", url="https://t.me/your_channel_2")
     )
-    keyboard.add(types.InlineKeyboardButton("Check", callback_data="check_number"))
+    keyboard.add(
+        types.InlineKeyboardButton("Check", callback_data="check_number")
+    )
 
     # Send welcome message with buttons
     bot.send_message(
