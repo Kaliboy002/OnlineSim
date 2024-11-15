@@ -2,8 +2,7 @@
 import json
 import random
 import time
-from typing import ClassVar, NoReturn, Any, Union, Set
-from telebot import types
+from typing import ClassVar, NoReturn, Any, Union, Set, Dict  # Add Dict for type hints
 
 # Related third-party module imports
 import telebot
@@ -14,6 +13,7 @@ import countryflag
 from src import utils
 from src.utils import User
 from src.vneng import VNEngine
+
 
 # Initialize the bot token
 bot: ClassVar[Any] = telebot.TeleBot(utils.get_token())
