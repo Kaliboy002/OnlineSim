@@ -6,6 +6,7 @@ from typing import ClassVar, NoReturn, Any, Union, Set, Dict  # Add Dict for typ
 
 # Related third-party module imports
 import telebot
+from telebot import types  # Correctly import types here
 import phonenumbers
 import countryflag
 
