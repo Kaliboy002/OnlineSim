@@ -268,7 +268,6 @@ def number_435_callback(call):
 # Handle the rest of the number buttons (like "163", "8627", etc.) with similar callback logic.
 
 # Start the bot
-bot.polling(none_stop=True)
 
 
 @bot.message_handler(commands=["statistics"])
