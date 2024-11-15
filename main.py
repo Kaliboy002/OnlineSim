@@ -33,10 +33,10 @@ def start_command_handler(message):
     Shows welcome messages to users
 
     Parameters:
-        message (typing.ClassVar[Any]): Incoming message object
+        message: Incoming message object
 
     Returns:
-        None (typing.NoReturn)
+        None
     """
 
     # Fetch user's data
@@ -76,6 +76,7 @@ def start_command_handler(message):
         parse_mode="Markdown",
         reply_markup=keyboard
     )
+
 
 
 
