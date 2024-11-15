@@ -96,7 +96,7 @@ def check_numb_callback(call):
     keyboard = types.InlineKeyboardMarkup(row_width=1)
     keyboard.add(
         types.InlineKeyboardButton("Free number", callback_data="check_number"),
-        types.InlineKeyboardButton("Vip number", callback_data="statistics")
+        types.InlineKeyboardButton("Vip number", callback_data="vip_number")
     )
 
     bot.send_photo(
@@ -167,6 +167,7 @@ def statistics_command_handler(message: ClassVar[Any]) -> NoReturn:
     else:
         # Notify non-admin user that they don't have access
         bot.reply_to(message, "⚠️ You do not have permission to use this command.")
+
 
 
 
