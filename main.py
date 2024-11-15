@@ -112,7 +112,7 @@ def check_numb_callback(call):
     invite_link = user_referrals.get(user_id, "Not Available")
 
     # Send photo with options and user's referral stats
-    photo_url = "https://example.com/photo.png"
+    photo_url = "https://l.arzfun.com/hKNPI"
     description = (
         f"Hi, welcome! Please choose from the options below.\n\n"
         f"👥 Total Invites: {total_invites}\n"
