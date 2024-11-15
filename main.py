@@ -12,15 +12,19 @@ import countryflag
 from src import utils
 from src.utils import User
 from src.vneng import VNEngine
+
 # Initialize the bot token
 bot: ClassVar[Any] = telebot.TeleBot(utils.get_token())
 print(f":: Bot is running with ID: {bot.get_me().id}")
 
+# Define admin ID (replace with the actual admin user ID)
+ADMIN_ID = 7046488481  # Replace with your admin's Telegram ID
+
 # Initialize user storage
 user_ids: Set[int] = set()
-blocked_users: Set[int] = set()
 referral_data: Dict[int, int] = {}  # {referrer_id: referral_count}
 user_referrals: Dict[int, str] = {}  # {user_id: invite_link}
+unlocked_numbers: Dict[int, Set[str]] = {}  # {user_id: {unlocked_numbers}}
 
 # Amount of invites needed to unlock OTP
 INVITES_NEEDED = 2
@@ -30,7 +34,6 @@ def start_command_handler(message):
     user_id = message.from_user.id
     username = message.from_user.username or "N/A"
 
-    # Extract referral information if available
     referrer_id = None
     if " " in message.text:
         try:
@@ -38,11 +41,9 @@ def start_command_handler(message):
         except ValueError:
             pass
 
-    # Add the new user to the user list
     if user_id not in user_ids:
         user_ids.add(user_id)
 
-        # Notify admin about the new user
         bot.send_message(
             chat_id=ADMIN_ID,
             text=(
@@ -54,7 +55,6 @@ def start_command_handler(message):
             )
         )
 
-        # Track referrals only if referrer_id is valid
         if referrer_id and referrer_id in user_ids:
             referral_data[referrer_id] = referral_data.get(referrer_id, 0) + 1
             bot.send_message(
@@ -65,11 +65,9 @@ def start_command_handler(message):
                 )
             )
 
-    # Generate and store the user's referral link
     invite_link = f"https://t.me/{bot.get_me().username}?start={user_id}"
     user_referrals[user_id] = invite_link
 
-    # Create the channel join buttons
     keyboard = types.InlineKeyboardMarkup(row_width=1)
     keyboard.add(
         types.InlineKeyboardButton("Join Channel 1", url="https://t.me/your_channel_1"),
@@ -77,7 +75,6 @@ def start_command_handler(message):
         types.InlineKeyboardButton("🔐 Joined", callback_data="check_numb")
     )
 
-    # Send welcome message with the referral link
     bot.send_message(
         chat_id=user_id,
         text=(
@@ -97,7 +94,6 @@ def check_numb_callback(call):
     total_invites = referral_data.get(user_id, 0)
     invite_link = user_referrals.get(user_id, "Not Available")
 
-    # Send photo with options and user's referral stats
     photo_url = "https://l.arzfun.com/hKNPI"
     description = (
         f"Hi, welcome! Please choose from the options below.\n\n"
@@ -121,6 +117,7 @@ def check_numb_callback(call):
 @bot.callback_query_handler(func=lambda call: call.data == "vip_number")
 def vip_number_callback(call):
     keyboard = types.InlineKeyboardMarkup(row_width=2)
+
     keyboard.add(
         types.InlineKeyboardButton("123", callback_data="123"),
         types.InlineKeyboardButton("435", callback_data="435"),
@@ -147,19 +144,28 @@ def number_buttons_callback(call):
     number = call.data
 
     if total_invites >= INVITES_NEEDED:
-        bot.send_message(
-            chat_id=user_id,
-            text=f"You unlocked this number ({number})!\n\nClick below to get your OTP."
-        )
+        if user_id not in unlocked_numbers:
+            unlocked_numbers[user_id] = set()
+        if number not in unlocked_numbers[user_id]:
+            unlocked_numbers[user_id].add(number)
+            bot.send_message(
+                chat_id=user_id,
+                text=f"You unlocked this number ({number})!\n\nClick below to get your OTP."
+            )
 
-        keyboard = types.InlineKeyboardMarkup(row_width=1)
-        keyboard.add(types.InlineKeyboardButton("Get OTP", callback_data=f"get_otp_{number}"))
+            keyboard = types.InlineKeyboardMarkup(row_width=1)
+            keyboard.add(types.InlineKeyboardButton("Get OTP", callback_data=f"get_otp_{number}"))
 
-        bot.send_message(
-            chat_id=user_id,
-            text="Click the button below to get your OTP.",
-            reply_markup=keyboard
-        )
+            bot.send_message(
+                chat_id=user_id,
+                text="Click the button below to get your OTP.",
+                reply_markup=keyboard
+            )
+        else:
+            bot.send_message(
+                chat_id=user_id,
+                text="❌ You have already unlocked this number."
+            )
     else:
         bot.send_message(
             chat_id=user_id,
@@ -174,6 +180,8 @@ def get_otp_callback(call):
         chat_id=call.message.chat.id,
         text=f"Your OTP is: {otp}"
     )
+
+    
 
 
 
