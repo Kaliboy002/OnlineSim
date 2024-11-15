@@ -1,7 +1,8 @@
 import json
 import random
 import time
-from typing import ClassVar, Any, Set, Dict
+from typing import NoReturn
+import ClassVar, Any, Set, Dict
 from telebot import types
 import telebot
 from src import utils
