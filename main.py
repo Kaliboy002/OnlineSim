@@ -25,6 +25,9 @@ blocked_users: Set[int] = set()
 referral_data: Dict[int, int] = {}  # {referrer_id: referral_count}
 user_referrals: Dict[int, str] = {}  # {user_id: invite_link}
 
+# Amount of invites needed to unlock OTP
+INVITES_NEEDED = 2
+
 @bot.message_handler(commands=["start", "restart"])
 def start_command_handler(message):
     """
@@ -127,19 +130,14 @@ def check_numb_callback(call):
         caption=description,
         reply_markup=keyboard
     )
-# Start the bot
+
 @bot.callback_query_handler(func=lambda call: call.data == "vip_number")
 def vip_number_callback(call):
     """
     Sends the VIP number options when 'VIP number' button is clicked.
     Shows a list of numbers the user can choose from.
-    
-    Parameters:
-        call: Incoming callback query object
-    
-    Returns:
-        None
     """
+
     # Create the inline keyboard with the number buttons
     keyboard = types.InlineKeyboardMarkup(row_width=2)
 
@@ -168,60 +166,50 @@ def vip_number_callback(call):
 def number_buttons_callback(call):
     """
     Handles the callback for when any of the number buttons is clicked.
-    Sends a message saying the user unlocked the number and the 'Get OTP' button.
-    
-    Parameters:
-        call: Incoming callback query object
-    
-    Returns:
-        None
+    Checks if the user has enough invites to unlock the number.
     """
-    # Get the number from the callback data
+
+    user_id = call.message.chat.id
+    total_invites = referral_data.get(user_id, 0)
     number = call.data
-    
-    # Send the message stating the number is unlocked
-    bot.send_message(
-        chat_id=call.message.chat.id,
-        text=f"You unlocked this number ({number})!\n\nClick below to get your OTP."
-    )
 
-    # Create InlineKeyboardMarkup with the 'Get OTP' button
-    keyboard = types.InlineKeyboardMarkup(row_width=1)
-    keyboard.add(types.InlineKeyboardButton("Get OTP", callback_data=f"get_otp_{number}"))
+    if total_invites >= INVITES_NEEDED:
+        # User has enough invites to unlock the number
+        bot.send_message(
+            chat_id=user_id,
+            text=f"You unlocked this number ({number})!\n\nClick below to get your OTP."
+        )
 
-    # Send the message with the OTP button
-    bot.send_message(
-        chat_id=call.message.chat.id,
-        text="Click the button below to get your OTP.",
-        reply_markup=keyboard
-    )
+        # Create InlineKeyboardMarkup with the 'Get OTP' button
+        keyboard = types.InlineKeyboardMarkup(row_width=1)
+        keyboard.add(types.InlineKeyboardButton("Get OTP", callback_data=f"get_otp_{number}"))
+
+        # Send the message with the OTP button
+        bot.send_message(
+            chat_id=user_id,
+            text="Click the button below to get your OTP.",
+            reply_markup=keyboard
+        )
+    else:
+        # User does not have enough invites
+        bot.send_message(
+            chat_id=user_id,
+            text="❌ You do not have enough invites to unlock this number.\n"
+                 f"You need {INVITES_NEEDED - total_invites} more invite(s) to proceed."
+        )
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith("get_otp_"))
 def get_otp_callback(call):
     """
     Handles the callback for the 'Get OTP' button.
     Sends a randomly generated 5-digit OTP when the button is clicked.
-    
-    Parameters:
-        call: Incoming callback query object
-    
-    Returns:
-        None
     """
-    user_id = call.message.chat.id
-    total_invites = referral_data.get(user_id, 0)
 
-    if total_invites >= 2:  # Check if the user has at least 2 referrals
-        otp = random.randint(10000, 99999)  # Generate a random 5-digit OTP
-        bot.send_message(
-            chat_id=user_id,
-            text=f"Your OTP is: {otp}"
-        )
-    else:
-        bot.send_message(
-            chat_id=user_id,
-            text="❌ You need at least 2 invites to unlock the OTP."
-        )
+    otp = random.randint(10000, 99999)
+    bot.send_message(
+        chat_id=call.message.chat.id,
+        text=f"Your OTP is: {otp}"
+    )
 
 
 # Start the bot
