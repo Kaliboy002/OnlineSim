@@ -69,12 +69,18 @@ def start_command_handler(message: ClassVar[Any]) -> NoReturn:
     )
 
     # Send welcome message with buttons
-    bot.send_message(
-        chat_id=message.chat.id,
-        text=(
-⚠️ 𝙄𝙣 𝙪𝙨𝙚 𝙩𝙝𝙞𝙨 𝙗𝙤𝙩 𝙮𝙤𝙪 𝙝𝙖𝙫𝙚 𝙩𝙤 𝙟𝙤𝙞𝙣 𝙤𝙪𝙧 𝙩𝙚𝙡𝙚𝙜𝙧𝙖𝙢 𝙘𝙝𝙖𝙣𝙣𝙚𝙡𝙨.\nHᴇʏ ᴜsᴇʀ ʏᴏᴜ ʜᴀᴠᴇ ᴛᴏ Jᴏɪɴ ʙᴏᴛʜ ᴛʜᴇsᴇ ᴄʜᴀɴɴᴇʟs.\n\nᴏᴛʜᴇʀᴡɪsᴇ ᴛʜɪs ʙᴏᴛ ᴡɪʟʟ ɴᴏᴛ ᴡᴏʀᴋ. Iғ ʏᴏᴜ ʜᴀᴠᴇ 🔐𝗝𝗼𝗶𝗻𝗲𝗱 ᴛʜᴇ ᴄʜᴀɴɴᴇʟs. Tʜᴇɴ ᴄʟɪᴄᴋ ᴛʜᴇ Jᴏɪɴᴇᴅ ʙᴜᴛᴛᴏɴ ᴛᴏ ᴄᴏɴғɪʀᴍ ʏᴏᴜʀ ʙᴏᴛ ᴍᴇᴍʙᴇʀsʜɪᴘ.),
-        reply_markup=keyboard
-    )
+bot.send_message(
+    chat_id=message.chat.id,
+    text=(
+        "*⚠️ _To use this bot, you must join_ our Telegram channels.*\n\n"
+        "Hey user! You need to join both of these channels.\n\n"
+        "Otherwise, this bot will not work. If you have 🔐joined the channels, "
+        "then click the 'Joined' button to confirm your bot membership."
+    ),
+    parse_mode="Markdown",
+    reply_markup=keyboard
+)
+
 
 @bot.message_handler(commands=["statistics"])
 def statistics_command_handler(message: ClassVar[Any]) -> NoReturn:
