@@ -23,6 +23,9 @@ print(f":: Bot is running with ID: {bot.get_me().id}")
 # Define admin ID (replace with the actual admin user ID)
 ADMIN_ID = 7046488481  # Replace with your admin's Telegram ID
 
+# List of available numbers
+number_buttons = ["123", "435", "163", "8627", "62718", "100828", "66", "6728", "6182", "8372"]
+
 # Initialize user storage
 user_ids: Set[int] = set()
 blocked_users: Set[int] = set()
@@ -150,30 +153,13 @@ def check_numb_callback(call):
 # Start the bot
 
 
-@bot.callback_query_handler(func=lambda call: call.data == "number_command")
-def number_command_callback(call):
-    """
-    Handles the callback for when the 'Free number' button is clicked.
-    Executes the /number command.
 
-    Parameters:
-        call: Incoming callback query object
 
-    Returns:
-        None
+@bot.callback_query_handler(func=lambda call: call.data in number_buttons)
+def number_buttons_callback(call):
     """
-    # Trigger the number command logic
-    bot.send_message(
-        chat_id=call.message.chat.id,
-        text="Executing the /number command..."
-    )
-    # You can add the logic for the /number command here
-
-@bot.callback_query_handler(func=lambda call: call.data == "vip_number")
-def vip_number_callback(call):
-    """
-    Handles the callback for the 'Vip number' button.
-    Sends a message with the unlocked number and the 'Get OTP' button.
+    Handles the callback for when any of the number buttons is clicked.
+    Sends a message saying the user unlocked the number and the 'Get OTP' button.
     
     Parameters:
         call: Incoming callback query object
@@ -181,10 +167,13 @@ def vip_number_callback(call):
     Returns:
         None
     """
+    # Get the number from the callback data
+    number = call.data
+    
     # Send the message stating the number is unlocked
     bot.send_message(
         chat_id=call.message.chat.id,
-        text="You unlocked this VIP number!\n\nClick below to get your OTP."
+        text=f"You unlocked this number ({number})!\n\nClick below to get your OTP."
     )
 
     # Create InlineKeyboardMarkup with the 'Get OTP' button
@@ -219,55 +208,8 @@ def get_otp_callback(call):
         text=f"Your OTP is: {otp}"
     )
 
-# Add more button handling like this for other buttons
-@bot.callback_query_handler(func=lambda call: call.data == "123")
-def number_123_callback(call):
-    """
-    Handles the callback for the '123' number button.
-    Sends a message with the unlocked number and the 'Get OTP' button.
-    
-    Parameters:
-        call: Incoming callback query object
-    
-    Returns:
-        None
-    """
-    # Send the message stating the number is unlocked
-    bot.send_message(
-        chat_id=call.message.chat.id,
-        text="You unlocked this number (123)!\n\nClick below to get your OTP."
-    )
-
-    # Create InlineKeyboardMarkup with the 'Get OTP' button
-    keyboard = types.InlineKeyboardMarkup(row_width=1)
-    keyboard.add(types.InlineKeyboardButton("Get OTP", callback_data="get_otp"))
-
-    # Send the message with the OTP button
-    bot.send_message(
-        chat_id=call.message.chat.id,
-        text="Click the button below to get your OTP.",
-        reply_markup=keyboard
-    )
-
-# Add more number buttons with similar handling
-@bot.callback_query_handler(func=lambda call: call.data == "435")
-def number_435_callback(call):
-    bot.send_message(
-        chat_id=call.message.chat.id,
-        text="You unlocked this number (435)!\n\nClick below to get your OTP."
-    )
-    keyboard = types.InlineKeyboardMarkup(row_width=1)
-    keyboard.add(types.InlineKeyboardButton("Get OTP", callback_data="get_otp"))
-    bot.send_message(
-        chat_id=call.message.chat.id,
-        text="Click the button below to get your OTP.",
-        reply_markup=keyboard
-    )
-
-# Repeat the pattern for other number buttons
-# Handle the rest of the number buttons (like "163", "8627", etc.) with similar callback logic.
-
 # Start the bot
+
 
 
 @bot.message_handler(commands=["statistics"])
