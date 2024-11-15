@@ -1,4 +1,4 @@
-## Standard library imports
+## Standard library import
 import json
 import random
 import time
