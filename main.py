@@ -1,4 +1,4 @@
-# Standard library imports
+# # Standard library imports
 import json
 import random
 import time
@@ -76,10 +76,72 @@ def start_command_handler(message):
         reply_markup=keyboard
     )
 
+@bot.callback_query_handler(func=lambda call: call.data == "check_number")
+def check_number_callback(call):
+    """
+    Handles the callback for when the '🔐𝗝𝗼𝗶𝗻𝗲𝗱' button is clicked.
+    Shows a photo with two buttons: 'Free number' and 'Vip number'.
 
+    Parameters:
+        call: Incoming callback query object
 
+    Returns:
+        None
+    """
 
+    # Send the photo with description
+    photo_url = "https://l.arzfun.com/hKNPI"
+    description = "Hi, welcome! Please choose from the options below."
 
+    keyboard = types.InlineKeyboardMarkup(row_width=1)
+    keyboard.add(
+        types.InlineKeyboardButton("Free number", callback_data="number_command"),
+        types.InlineKeyboardButton("Vip number", callback_data="vip_number")
+    )
+
+    bot.send_photo(
+        chat_id=call.message.chat.id,
+        photo=photo_url,
+        caption=description,
+        reply_markup=keyboard
+    )
+
+@bot.callback_query_handler(func=lambda call: call.data == "number_command")
+def number_command_callback(call):
+    """
+    Handles the callback for when the 'Free number' button is clicked.
+    Executes the /number command.
+
+    Parameters:
+        call: Incoming callback query object
+
+    Returns:
+        None
+    """
+    # Trigger the number command logic
+    bot.send_message(
+        chat_id=call.message.chat.id,
+        text="Executing the /number command..."
+    )
+    # You can add the logic for the /number command here
+
+@bot.callback_query_handler(func=lambda call: call.data == "vip_number")
+def vip_number_callback(call):
+    """
+    Placeholder function for the 'Vip number' button.
+    Will run /vipnumber command when implemented.
+
+    Parameters:
+        call: Incoming callback query object
+
+    Returns:
+        None
+    """
+    # Placeholder for /vipnumber command
+    bot.send_message(
+        chat_id=call.message.chat.id,
+        text="Vip number command will be implemented here."
+    )
 
 @bot.message_handler(commands=["statistics"])
 def statistics_command_handler(message: ClassVar[Any]) -> NoReturn:
@@ -105,6 +167,9 @@ def statistics_command_handler(message: ClassVar[Any]) -> NoReturn:
     else:
         # Notify non-admin user that they don't have access
         bot.reply_to(message, "⚠️ You do not have permission to use this command.")
+
+
+
 
 @bot.message_handler(commands=["broadcast"])
 def broadcast_command_handler(message: ClassVar[Any]) -> NoReturn:
