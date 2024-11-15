@@ -1,4 +1,3 @@
-
 ## Standard library imports
 import json
 import random
@@ -24,15 +23,11 @@ print(f":: Bot is running with ID: {bot.get_me().id}")
 # Define admin ID (replace with the actual admin user ID)
 ADMIN_ID = 7046488481  # Replace with your admin's Telegram ID
 
-# List of available numbers
-number_buttons = ["123", "435", "163", "8627", "62718", "100828", "66", "6728", "6182", "8372"]
-
 # Initialize user storage
 user_ids: Set[int] = set()
 blocked_users: Set[int] = set()
 referral_data: Dict[int, int] = {}  # {referrer_id: referral_count}
 user_referrals: Dict[int, str] = {}  # {user_id: invite_link}
-MIN_REFERRALS_FOR_UNLOCK = 1  # Set the minimum referrals required to unlock the feature
 
 @bot.message_handler(commands=["start", "restart"])
 def start_command_handler(message):
@@ -40,6 +35,7 @@ def start_command_handler(message):
     Handles /start or /restart commands.
     Tracks referrals and sends welcome messages.
     """
+
     user_id = message.from_user.id
     username = message.from_user.username or "N/A"
 
@@ -110,37 +106,23 @@ def check_numb_callback(call):
     Handles the callback for the '🔐 Joined' button.
     Displays the user's invite stats and referral link.
     """
+
     user_id = call.message.chat.id
     total_invites = referral_data.get(user_id, 0)
     invite_link = user_referrals.get(user_id, "Not Available")
-
-    # Check if user has enough referrals to unlock the VIP feature
-    if total_invites >= MIN_REFERRALS_FOR_UNLOCK:
-        # If the user has enough referrals, unlock the VIP feature
-        unlocked_message = "🔓 You've unlocked the VIP feature! Choose from the options below."
-        keyboard = types.InlineKeyboardMarkup(row_width=1)
-        keyboard.add(
-            types.InlineKeyboardButton("Free number", callback_data="check_number"),
-            types.InlineKeyboardButton("VIP number", callback_data="vip_number")  # VIP option available
-        )
-    else:
-        # If the user does not have enough referrals, lock the VIP feature
-        unlocked_message = (
-            f"❌ You need at least {MIN_REFERRALS_FOR_UNLOCK} referrals to unlock the VIP number feature.\n"
-            "Keep inviting people to unlock it!"
-        )
-        keyboard = types.InlineKeyboardMarkup(row_width=1)
-        keyboard.add(
-            types.InlineKeyboardButton("Free number", callback_data="check_number")  # Only free number available
-        )
 
     # Send photo with options and user's referral stats
     photo_url = "https://l.arzfun.com/hKNPI"
     description = (
         f"Hi, welcome! Please choose from the options below.\n\n"
         f"👥 Total Invites: {total_invites}\n"
-        f"🔗 Your Invite Link: {invite_link}\n\n"
-        f"{unlocked_message}"
+        f"🔗 Your Invite Link: {invite_link}"
+    )
+
+    keyboard = types.InlineKeyboardMarkup(row_width=1)
+    keyboard.add(
+        types.InlineKeyboardButton("Free number", callback_data="check_number"),
+        types.InlineKeyboardButton("VIP number", callback_data="vip_number")
     )
 
     bot.send_photo(
@@ -149,6 +131,7 @@ def check_numb_callback(call):
         caption=description,
         reply_markup=keyboard
     )
+
 
 
 # Start the bot
