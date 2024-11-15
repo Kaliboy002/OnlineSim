@@ -1,19 +1,13 @@
-# # Standard library imports
 import json
 import random
 import time
-from typing import ClassVar, NoReturn, Any, Union, Set
+from typing import ClassVar, NoReturn, Any, Union, Set, Dict
 from telebot import types
 
 # Related third-party module imports
 import telebot
-import phonenumbers
-import countryflag
-
-# Local application module imports
 from src import utils
 from src.utils import User
-from src.vneng import VNEngine
 
 # Initialize the bot token
 bot: ClassVar[Any] = telebot.TeleBot(utils.get_token())
@@ -22,41 +16,68 @@ print(f"\33[1;36m::\33[m Bot is running with ID: {bot.get_me().id}")
 # Define admin ID (replace with the actual admin user ID)
 ADMIN_ID = 7046488481  # Replace with your admin's Telegram ID
 
-# Initialize a set to store unique user IDs and blocked users
+# Initialize user storage
 user_ids: Set[int] = set()
 blocked_users: Set[int] = set()
+referral_data: Dict[int, int] = {}  # {referrer_id: referral_count}
+user_referrals: Dict[int, str] = {}  # {user_id: invite_link}
 
 @bot.message_handler(commands=["start", "restart"])
 def start_command_handler(message):
     """
-    Function to handle start commands in bot
-    Shows welcome messages to users
+    Handles /start or /restart commands.
+    Tracks referrals and sends welcome messages.
 
     Parameters:
-        message: Incoming message object
+        message: Incoming message object.
 
     Returns:
         None
     """
 
-    # Fetch user's data
-    user = message.from_user.id
+    user_id = message.from_user.id
+    username = message.from_user.username or "N/A"
 
-    # Check if this is the first time the user is starting the bot
-    if message.from_user.id not in user_ids:
-        user_ids.add(message.from_user.id)
-        # Notify admin of new user
+    # Extract referral information if available
+    referrer_id = None
+    if " " in message.text:
+        try:
+            referrer_id = int(message.text.split(" ")[1])
+        except ValueError:
+            pass
+
+    # Add the new user to the user list
+    if user_id not in user_ids:
+        user_ids.add(user_id)
+
+        # Notify admin about the new user
         bot.send_message(
             chat_id=ADMIN_ID,
             text=(
                 f"🆕 New User Started the Bot:\n"
-                f"Username: @{message.from_user.username or 'N/A'}\n"
-                f"User ID: {message.from_user.id}\n"
+                f"Username: @{username}\n"
+                f"User ID: {user_id}\n"
+                f"Referred By: {referrer_id or 'No Referrer'}\n"
                 f"Total Users: {len(user_ids)}"
             )
         )
 
-    # Create InlineKeyboardMarkup with each button in a separate row
+        # Track referrals
+        if referrer_id and referrer_id in user_ids:
+            referral_data[referrer_id] = referral_data.get(referrer_id, 0) + 1
+            bot.send_message(
+                chat_id=referrer_id,
+                text=(
+                    f"🎉 You have referred a new user!\n"
+                    f"👥 Total Referrals: {referral_data[referrer_id]}"
+                )
+            )
+
+    # Generate and store the user's referral link
+    invite_link = f"https://t.me/{bot.get_me().username}?start={user_id}"
+    user_referrals[user_id] = invite_link
+
+    # Create the channel join buttons
     keyboard = types.InlineKeyboardMarkup(row_width=1)
     keyboard.add(
         types.InlineKeyboardButton("Jᴏɪɴ ᴄʜᴀɴɴᴇʟ 𝟷⚡️", url="https://t.me/your_channel_1"),
@@ -64,13 +85,15 @@ def start_command_handler(message):
         types.InlineKeyboardButton("🔐𝗝𝗼𝗶𝗻𝗲𝗱", callback_data="check_numb")
     )
 
-    # Send welcome message with buttons
+    # Send welcome message with the referral link
     bot.send_message(
-        chat_id=message.chat.id,
+        chat_id=user_id,
         text=(
-            "⚠️ 𝙄𝙣 𝙪𝙨𝙚 𝙩𝙝𝙞𝙨 𝙗𝙤𝙩 𝙮𝙤𝙪 𝙝𝙖𝙫𝙚 𝙩𝙤 𝙟𝙤𝙞𝙣 𝙤𝙪𝙧 𝙩𝙚𝙡𝙚𝙜𝙧𝙖𝙢 𝙘𝙝𝙖𝙣𝙣𝙚𝙡𝙨.\n"
-            "Hᴇʏ ᴜsᴇʀ ʏᴏᴜ ʜᴀᴠᴇ ᴛᴏ Jᴏɪɴ ʙᴏᴛʜ ᴛʜᴇsᴇ ᴄʜᴀɴɴᴇʟs.\n\n"
-            "ᴏᴛʜᴇʀᴡɪsᴇ ᴛʜɪs ʙᴏᴛ ᴡɪʟʟ ɴᴏᴛ ᴡᴏʀᴋ. Iғ ʏᴏᴜ ʜᴀᴠᴇ Jᴏɪɴᴇᴅ ᴛʜᴇ ᴄʜᴀɴɴᴇʟs. Tʜᴇɴ ᴄʟɪᴄᴋ ᴛʜᴇ 🔐𝗝𝗼𝗶𝗻𝗲𝗱 ʙᴜᴛᴛᴏɴ ᴛᴏ ᴄᴏɴғɪʀᴍ ʏᴏᴜʀ ʙᴏᴛ ᴍᴇᴍʙᴇʀsʜɪᴘ."
+            "⚠️ To use this bot, you must join our Telegram channels.\n\n"
+            "Here is your unique invite link:\n"
+            f"`{invite_link}`\n\n"
+            "Share this link with friends to earn rewards!\n\n"
+            "Once you've joined the channels, click the 🔐𝗝𝗼𝗶𝗻𝗲𝗱 button to confirm your membership."
         ),
         parse_mode="Markdown",
         reply_markup=keyboard
@@ -79,19 +102,27 @@ def start_command_handler(message):
 @bot.callback_query_handler(func=lambda call: call.data == "check_numb")
 def check_numb_callback(call):
     """
-    Handles the callback for when the '🔐𝗝𝗼𝗶𝗻𝗲𝗱' button is clicked.
-    Shows a photo with two buttons: 'Free number' and 'Vip number'.
+    Handles the callback for the '🔐𝗝𝗼𝗶𝗻𝗲𝗱' button.
+    Displays the user's invite stats and referral link.
 
     Parameters:
-        call: Incoming callback query object
+        call: Incoming callback query object.
 
     Returns:
         None
     """
 
-    # Send the photo with description
+    user_id = call.message.chat.id
+    total_invites = referral_data.get(user_id, 0)
+    invite_link = user_referrals.get(user_id, "Not Available")
+
+    # Send photo with options and user's referral stats
     photo_url = "https://l.arzfun.com/hKNPI"
-    description = "Hi, welcome! Please choose from the options below."
+    description = (
+        f"Hi, welcome! Please choose from the options below.\n\n"
+        f"👥 Total Invites: {total_invites}\n"
+        f"🔗 Your Invite Link: {invite_link}"
+    )
 
     keyboard = types.InlineKeyboardMarkup(row_width=1)
     keyboard.add(
@@ -100,7 +131,7 @@ def check_numb_callback(call):
     )
 
     bot.send_photo(
-        chat_id=call.message.chat.id,
+        chat_id=user_id,
         photo=photo_url,
         caption=description,
         reply_markup=keyboard
