@@ -1,17 +1,15 @@
 import json
 import random
 import time
-from typing import ClassVar, NoReturn, Any, Union, Set, Dict
+from typing import ClassVar, Any, Set, Dict
 from telebot import types
-
-# Related third-party module imports
 import telebot
 from src import utils
 from src.utils import User
 
 # Initialize the bot token
 bot: ClassVar[Any] = telebot.TeleBot(utils.get_token())
-print(f"\33[1;36m::\33[m Bot is running with ID: {bot.get_me().id}")
+print(f":: Bot is running with ID: {bot.get_me().id}")
 
 # Define admin ID (replace with the actual admin user ID)
 ADMIN_ID = 7046488481  # Replace with your admin's Telegram ID
@@ -27,12 +25,6 @@ def start_command_handler(message):
     """
     Handles /start or /restart commands.
     Tracks referrals and sends welcome messages.
-
-    Parameters:
-        message: Incoming message object.
-
-    Returns:
-        None
     """
 
     user_id = message.from_user.id
@@ -62,7 +54,7 @@ def start_command_handler(message):
             )
         )
 
-        # Track referrals
+        # Track referrals only if referrer_id is valid and not affecting other functionalities
         if referrer_id and referrer_id in user_ids:
             referral_data[referrer_id] = referral_data.get(referrer_id, 0) + 1
             bot.send_message(
@@ -80,9 +72,9 @@ def start_command_handler(message):
     # Create the channel join buttons
     keyboard = types.InlineKeyboardMarkup(row_width=1)
     keyboard.add(
-        types.InlineKeyboardButton("Jᴏɪɴ ᴄʜᴀɴɴᴇʟ 𝟷⚡️", url="https://t.me/your_channel_1"),
-        types.InlineKeyboardButton("Jᴏɪɴ ᴄʜᴀɴɴᴇʟ 2⚡️", url="https://t.me/your_channel_2"),
-        types.InlineKeyboardButton("🔐𝗝𝗼𝗶𝗻𝗲𝗱", callback_data="check_numb")
+        types.InlineKeyboardButton("Join Channel 1", url="https://t.me/your_channel_1"),
+        types.InlineKeyboardButton("Join Channel 2", url="https://t.me/your_channel_2"),
+        types.InlineKeyboardButton("🔐 Joined", callback_data="check_numb")
     )
 
     # Send welcome message with the referral link
@@ -93,7 +85,7 @@ def start_command_handler(message):
             "Here is your unique invite link:\n"
             f"`{invite_link}`\n\n"
             "Share this link with friends to earn rewards!\n\n"
-            "Once you've joined the channels, click the 🔐𝗝𝗼𝗶𝗻𝗲𝗱 button to confirm your membership."
+            "Once you've joined the channels, click the 🔐 Joined button to confirm your membership."
         ),
         parse_mode="Markdown",
         reply_markup=keyboard
@@ -102,14 +94,8 @@ def start_command_handler(message):
 @bot.callback_query_handler(func=lambda call: call.data == "check_numb")
 def check_numb_callback(call):
     """
-    Handles the callback for the '🔐𝗝𝗼𝗶𝗻𝗲𝗱' button.
+    Handles the callback for the '🔐 Joined' button.
     Displays the user's invite stats and referral link.
-
-    Parameters:
-        call: Incoming callback query object.
-
-    Returns:
-        None
     """
 
     user_id = call.message.chat.id
@@ -117,7 +103,7 @@ def check_numb_callback(call):
     invite_link = user_referrals.get(user_id, "Not Available")
 
     # Send photo with options and user's referral stats
-    photo_url = "https://l.arzfun.com/hKNPI"
+    photo_url = "https://example.com/photo.png"
     description = (
         f"Hi, welcome! Please choose from the options below.\n\n"
         f"👥 Total Invites: {total_invites}\n"
@@ -127,7 +113,7 @@ def check_numb_callback(call):
     keyboard = types.InlineKeyboardMarkup(row_width=1)
     keyboard.add(
         types.InlineKeyboardButton("Free number", callback_data="check_number"),
-        types.InlineKeyboardButton("Vip number", callback_data="vip_number")
+        types.InlineKeyboardButton("VIP number", callback_data="vip_number")
     )
 
     bot.send_photo(
@@ -136,6 +122,9 @@ def check_numb_callback(call):
         caption=description,
         reply_markup=keyboard
     )
+
+# Start the bot
+
 
 @bot.callback_query_handler(func=lambda call: call.data == "number_command")
 def number_command_callback(call):
@@ -731,11 +720,21 @@ def new_number_handler(call):
         return 0
 
 
-# Run the bot on polling mode
+# Run the bot in polling mode with enhanced error handling
 if __name__ == '__main__':
-    try:
-        bot.infinity_polling(
-            skip_pending=True
-        )
-    except KeyboardInterrupt:
-        raise SystemExit("\n\33[1;31m::\33[m Terminated by user")
+    while True:
+        try:
+            bot.infinity_polling(
+                skip_pending=True,  # Skip any pending updates for faster start-up
+                timeout=10,  # Timeout for long polling
+                long_polling_timeout=5  # Telegram's server timeout
+            )
+        except KeyboardInterrupt:
+            print("\n\33[1;31m::\33[m Bot terminated by user")
+            raise SystemExit
+        except Exception as e:
+            # Log the error and restart polling
+            print(f"\n\33[1;31m::\33[m An error occurred: {e}")
+            print("Restarting bot in 5 seconds...")
+            time.sleep(5)  # Delay before restarting to avoid rapid retries
+
