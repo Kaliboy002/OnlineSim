@@ -26,9 +26,6 @@ referral_data: Dict[int, int] = {}  # {referrer_id: referral_count}
 user_referrals: Dict[int, str] = {}  # {user_id: invite_link}
 user_button_clicks: Dict[int, int] = {}  # {user_id: button_click_count}
 
-# Define the minimum referrals required to unlock OTP
-MIN_REFERRALS = 2
-
 @bot.message_handler(commands=["start", "restart"])
 def start_command_handler(message):
     """
@@ -119,7 +116,7 @@ def check_numb_callback(call):
 
     keyboard = types.InlineKeyboardMarkup(row_width=1)
     keyboard.add(
-        types.InlineKeyboardButton("Free number", callback_data="check_number"),
+        types.InlineKeyboardButton("Free number", callback_data="free_number"),
         types.InlineKeyboardButton("VIP number", callback_data="vip_number")
     )
 
@@ -130,89 +127,48 @@ def check_numb_callback(call):
         reply_markup=keyboard
     )
 
+@bot.callback_query_handler(func=lambda call: call.data == "free_number")
+def free_number_callback(call):
+    """
+    Sends free number options when 'Free number' button is clicked.
+    """
+    bot.send_message(
+        chat_id=call.message.chat.id,
+        text="🔓 Free numbers are now available! Enjoy using them."
+    )
+
 @bot.callback_query_handler(func=lambda call: call.data == "vip_number")
 def vip_number_callback(call):
     """
-    Sends the VIP number options when 'VIP number' button is clicked.
-    Shows a list of numbers the user can choose from.
+    Sends a message for the VIP number option.
     """
-    user_id = call.message.chat.id
-    total_invites = referral_data.get(user_id, 0)
-    
-    # If the user doesn't have enough invites, send a message and return
-    if total_invites < MIN_REFERRALS:
-        bot.send_message(
-            chat_id=user_id,
-            text="⚠️ You do not have enough invites to unlock this option. Please refer more users to unlock the VIP numbers."
-        )
-        return
-    
-    # Create the inline keyboard with the number buttons
-    keyboard = types.InlineKeyboardMarkup(row_width=2)
-
-    # Create a button for each individual number
-    keyboard.add(
-        types.InlineKeyboardButton("123", callback_data="123"),
-        types.InlineKeyboardButton("435", callback_data="435"),
-        types.InlineKeyboardButton("163", callback_data="163"),
-        types.InlineKeyboardButton("8627", callback_data="8627"),
-        types.InlineKeyboardButton("62718", callback_data="62718"),
-        types.InlineKeyboardButton("100828", callback_data="100828"),
-        types.InlineKeyboardButton("66", callback_data="66"),
-        types.InlineKeyboardButton("6728", callback_data="6728"),
-        types.InlineKeyboardButton("6182", callback_data="6182"),
-        types.InlineKeyboardButton("8372", callback_data="8372")
-    )
-
-    # Send message with number selection options
     bot.send_message(
         chat_id=call.message.chat.id,
-        text="Please choose a VIP number:",
-        reply_markup=keyboard
+        text="⚡ VIP numbers are free for now! Use them without restrictions."
     )
 
-@bot.callback_query_handler(func=lambda call: call.data in ["123", "435", "163", "8627", "62718", "100828", "66", "6728", "6182", "8372"])
+@bot.callback_query_handler(func=lambda call: call.data.startswith("number_"))
 def number_buttons_callback(call):
     """
     Handles the callback for when any of the number buttons is clicked.
-    Sends a message stating the user unlocked the number and the 'Get OTP' button.
+    If user has enough invites, sends OTP code; otherwise, shows an error message.
     """
     user_id = call.message.chat.id
     total_invites = referral_data.get(user_id, 0)
 
-    # If the user has not enough invites, show an error message
-    if total_invites < MIN_REFERRALS:
+    # Check if the user has enough invites
+    if total_invites >= 2:
+        otp_code = random.randint(10000, 99999)
         bot.send_message(
             chat_id=user_id,
-            text="⚠️ You need at least 2 referrals to unlock the OTP. Please refer more users."
+            text=f"🎉 You unlocked the OTP!\n\nYour OTP code is: {otp_code}"
         )
-        return
+    else:
+        bot.send_message(
+            chat_id=user_id,
+            text="❌ You do not have enough invites to get the OTP. Please invite more users to unlock this feature."
+        )
 
-    # Create InlineKeyboardMarkup with the 'Get OTP' button
-    keyboard = types.InlineKeyboardMarkup(row_width=1)
-    keyboard.add(types.InlineKeyboardButton("Get OTP", callback_data=f"get_otp_{call.data}"))
-
-    # Send the message with the OTP button
-    bot.send_message(
-        chat_id=user_id,
-        text=f"You unlocked this number ({call.data})!\n\nClick below to get your OTP.",
-        reply_markup=keyboard
-    )
-
-@bot.callback_query_handler(func=lambda call: call.data.startswith("get_otp_"))
-def get_otp_callback(call):
-    """
-    Handles the callback for the 'Get OTP' button.
-    Sends a randomly generated 5-digit OTP when the button is clicked.
-    """
-    # Generate a random 5-digit OTP
-    otp = random.randint(10000, 99999)
-
-    # Send the OTP to the user
-    bot.send_message(
-        chat_id=call.message.chat.id,
-        text=f"Your OTP code is: {otp}"
-    )
 
 
 # Start the bot
