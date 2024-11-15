@@ -27,7 +27,7 @@ user_ids: Set[int] = set()
 blocked_users: Set[int] = set()
 
 @bot.message_handler(commands=["start", "restart"])
-def start_command_handler(message: ClassVar[Any]) -> NoReturn:
+def start_command_handler(message):
     """
     Function to handle start commands in bot
     Shows welcome messages to users
@@ -40,7 +40,7 @@ def start_command_handler(message: ClassVar[Any]) -> NoReturn:
     """
 
     # Fetch user's data
-    user: ClassVar[Union[str, int]] = User(message.from_user)
+    user = message.from_user.id
 
     # Check if this is the first time the user is starting the bot
     if message.from_user.id not in user_ids:
@@ -56,27 +56,27 @@ def start_command_handler(message: ClassVar[Any]) -> NoReturn:
             )
         )
 
+    # Create InlineKeyboardMarkup with each button in a separate row
+    keyboard = types.InlineKeyboardMarkup(row_width=1)
+    keyboard.add(
+        types.InlineKeyboardButton("Channel 1", url="https://t.me/your_channel_1"),
+        types.InlineKeyboardButton("Channel 2", url="https://t.me/your_channel_2"),
+        types.InlineKeyboardButton("Check", callback_data="check_number")
+    )
 
-# Create InlineKeyboardMarkup with each button in a separate row
-keyboard = types.InlineKeyboardMarkup(row_width=1)
-keyboard.add(
-    types.InlineKeyboardButton("Channel 1", url="https://t.me/your_channel_1"),
-    types.InlineKeyboardButton("Channel 2", url="https://t.me/your_channel_2"),
-    types.InlineKeyboardButton("Check", callback_data="check_number")
-)
+    # Send welcome message with buttons
+    bot.send_message(
+        chat_id=message.chat.id,
+        text=(
+            "*⚠️ _To use this bot, you must join_ our Telegram channels.*\n\n"
+            "Hey user! You need to join both of these channels.\n\n"
+            "Otherwise, this bot will not work. If you have 🔐joined the channels, "
+            "then click the 'Joined' button to confirm your bot membership."
+        ),
+        parse_mode="Markdown",
+        reply_markup=keyboard
+    )
 
-# Send welcome message with buttons
-bot.send_message(
-    chat_id=message.chat.id,
-    text=(
-        "*⚠️ _To use this bot, you must join_ our Telegram channels.*\n\n"
-        "Hey user! You need to join both of these channels.\n\n"
-        "Otherwise, this bot will not work. If you have 🔐joined the channels, "
-        "then click the 'Joined' button to confirm your bot membership."
-    ),
-    parse_mode="Markdown",
-    reply_markup=keyboard
-)
 
 
 
