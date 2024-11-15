@@ -61,7 +61,7 @@ def start_command_handler(message):
     keyboard.add(
         types.InlineKeyboardButton("Jᴏɪɴ ᴄʜᴀɴɴᴇʟ 𝟷⚡️", url="https://t.me/your_channel_1"),
         types.InlineKeyboardButton("Jᴏɪɴ ᴄʜᴀɴɴᴇʟ 2⚡️", url="https://t.me/your_channel_2"),
-        types.InlineKeyboardButton(" "🔐𝗝𝗼𝗶𝗻𝗲𝗱", callback_data="check_number")
+        types.InlineKeyboardButton("🔐𝗝𝗼𝗶𝗻𝗲𝗱", callback_data="check_number")
     )
 
     # Send welcome message with buttons
