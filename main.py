@@ -106,42 +106,6 @@ def check_numb_callback(call):
         reply_markup=keyboard
     )
 
-@bot.callback_query_handler(func=lambda call: call.data == "number_command")
-def number_command_callback(call):
-    """
-    Handles the callback for when the 'Free number' button is clicked.
-    Executes the /number command.
-
-    Parameters:
-        call: Incoming callback query object
-
-    Returns:
-        None
-    """
-    # Trigger the number command logic
-    bot.send_message(
-        chat_id=call.message.chat.id,
-        text="Executing the /number command..."
-    )
-    # You can add the logic for the /number command here
-
-@bot.callback_query_handler(func=lambda call: call.data == "vip_number")
-def vip_number_callback(call):
-    """
-    Placeholder function for the 'Vip number' button.
-    Will run /vipnumber command when implemented.
-
-    Parameters:
-        call: Incoming callback query object
-
-    Returns:
-        None
-    """
-    # Placeholder for /vipnumber command
-    bot.send_message(
-        chat_id=call.message.chat.id,
-        text="Vip number command will be implemented here."
-    )
 
 @bot.message_handler(commands=["statistics"])
 def statistics_command_handler(message: ClassVar[Any]) -> NoReturn:
