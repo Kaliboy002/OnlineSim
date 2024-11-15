@@ -233,8 +233,8 @@ def check_number_callback(call: ClassVar[Any]) -> NoReturn:
     # Directly call the /number command handler function
     number_command_handler(call.message)
 
-@bot.callback_query_handler(func=lambda call: call.data == "vip_number")
-def vip_number_callback(call):
+@bot.message_handler(commands=["vip_number", "usage"])
+def vip_number_command_handler(message: ClassVar[Any]) -> NoReturn:
     """
     Function to handle help commands in bot
     Shows help messages to users
