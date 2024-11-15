@@ -28,7 +28,7 @@ user_ids: Set[int] = set()
 blocked_users: Set[int] = set()
 referral_data: Dict[int, int] = {}  # {referrer_id: referral_count}
 user_referrals: Dict[int, str] = {}  # {user_id: invite_link}
-MIN_REFERRALS_FOR_UNLOCK = 5  # Set the minimum referrals required to unlock the feature
+MIN_REFERRALS_FOR_UNLOCK = 1  # Set the minimum referrals required to unlock the feature
 
 @bot.message_handler(commands=["start", "restart"])
 def start_command_handler(message):
