@@ -61,7 +61,7 @@ def start_command_handler(message):
     keyboard.add(
         types.InlineKeyboardButton("Jᴏɪɴ ᴄʜᴀɴɴᴇʟ 𝟷⚡️", url="https://t.me/your_channel_1"),
         types.InlineKeyboardButton("Jᴏɪɴ ᴄʜᴀɴɴᴇʟ 2⚡️", url="https://t.me/your_channel_2"),
-        types.InlineKeyboardButton("🔐𝗝𝗼𝗶𝗻𝗲𝗱", callback_data="check_number")
+        types.InlineKeyboardButton("🔐𝗝𝗼𝗶𝗻𝗲𝗱", callback_data="check_numb")
     )
 
     # Send welcome message with buttons
@@ -76,8 +76,8 @@ def start_command_handler(message):
         reply_markup=keyboard
     )
 
-@bot.callback_query_handler(func=lambda call: call.data == "check_number")
-def check_number_callback(call):
+@bot.callback_query_handler(func=lambda call: call.data == "check_numb")
+def check_numb_callback(call):
     """
     Handles the callback for when the '🔐𝗝𝗼𝗶𝗻𝗲𝗱' button is clicked.
     Shows a photo with two buttons: 'Free number' and 'Vip number'.
@@ -95,7 +95,7 @@ def check_number_callback(call):
 
     keyboard = types.InlineKeyboardMarkup(row_width=1)
     keyboard.add(
-        types.InlineKeyboardButton("Free number", callback_data="number_command"),
+        types.InlineKeyboardButton("Free number", callback_data="check_number"),
         types.InlineKeyboardButton("Vip number", callback_data="vip_number")
     )
 
