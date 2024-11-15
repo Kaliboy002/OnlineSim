@@ -1,20 +1,11 @@
-## Standard library imports
 import json
 import random
-import time
-from typing import ClassVar, NoReturn, Any, Union, Set, Dict  # Add Dict for type hints
-# Related third-party module imports
+from typing import ClassVar, Any, Dict, Set
 import telebot
-from telebot import types  # Correctly import types here
-import phonenumbers
-import countryflag
-# Local application module imports
-from src import utils
-from src.utils import User
-from src.vneng import VNEngine
+from telebot import types
+
 # Initialize the bot token
-bot: ClassVar[Any] = telebot.TeleBot(utils.get_token())
-print(f":: Bot is running with ID: {bot.get_me().id}")
+bot: ClassVar[Any] = telebot.TeleBot("YOUR_BOT_TOKEN")  # Replace with your bot token
 
 # Define admin ID (replace with the actual admin user ID)
 ADMIN_ID = 7046488481  # Replace with your admin's Telegram ID
@@ -30,11 +21,6 @@ INVITES_NEEDED = 2
 
 @bot.message_handler(commands=["start", "restart"])
 def start_command_handler(message):
-    """
-    Handles /start or /restart commands.
-    Tracks referrals and sends welcome messages.
-    """
-
     user_id = message.from_user.id
     username = message.from_user.username or "N/A"
 
@@ -62,7 +48,7 @@ def start_command_handler(message):
             )
         )
 
-        # Track referrals only if referrer_id is valid and not affecting other functionalities
+        # Track referrals only if referrer_id is valid
         if referrer_id and referrer_id in user_ids:
             referral_data[referrer_id] = referral_data.get(referrer_id, 0) + 1
             bot.send_message(
@@ -101,11 +87,6 @@ def start_command_handler(message):
 
 @bot.callback_query_handler(func=lambda call: call.data == "check_numb")
 def check_numb_callback(call):
-    """
-    Handles the callback for the '🔐 Joined' button.
-    Displays the user's invite stats and referral link.
-    """
-
     user_id = call.message.chat.id
     total_invites = referral_data.get(user_id, 0)
     invite_link = user_referrals.get(user_id, "Not Available")
@@ -133,15 +114,7 @@ def check_numb_callback(call):
 
 @bot.callback_query_handler(func=lambda call: call.data == "vip_number")
 def vip_number_callback(call):
-    """
-    Sends the VIP number options when 'VIP number' button is clicked.
-    Shows a list of numbers the user can choose from.
-    """
-
-    # Create the inline keyboard with the number buttons
     keyboard = types.InlineKeyboardMarkup(row_width=2)
-
-    # Create a button for each individual number
     keyboard.add(
         types.InlineKeyboardButton("123", callback_data="123"),
         types.InlineKeyboardButton("435", callback_data="435"),
@@ -155,7 +128,6 @@ def vip_number_callback(call):
         types.InlineKeyboardButton("8372", callback_data="8372")
     )
 
-    # Send message with number selection options
     bot.send_message(
         chat_id=call.message.chat.id,
         text="Please choose a VIP number:",
@@ -164,34 +136,25 @@ def vip_number_callback(call):
 
 @bot.callback_query_handler(func=lambda call: call.data in ["123", "435", "163", "8627", "62718", "100828", "66", "6728", "6182", "8372"])
 def number_buttons_callback(call):
-    """
-    Handles the callback for when any of the number buttons is clicked.
-    Checks if the user has enough invites to unlock the number.
-    """
-
     user_id = call.message.chat.id
     total_invites = referral_data.get(user_id, 0)
     number = call.data
 
     if total_invites >= INVITES_NEEDED:
-        # User has enough invites to unlock the number
         bot.send_message(
             chat_id=user_id,
             text=f"You unlocked this number ({number})!\n\nClick below to get your OTP."
         )
 
-        # Create InlineKeyboardMarkup with the 'Get OTP' button
         keyboard = types.InlineKeyboardMarkup(row_width=1)
         keyboard.add(types.InlineKeyboardButton("Get OTP", callback_data=f"get_otp_{number}"))
 
-        # Send the message with the OTP button
         bot.send_message(
             chat_id=user_id,
             text="Click the button below to get your OTP.",
             reply_markup=keyboard
         )
     else:
-        # User does not have enough invites
         bot.send_message(
             chat_id=user_id,
             text="❌ You do not have enough invites to unlock this number.\n"
@@ -200,16 +163,13 @@ def number_buttons_callback(call):
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith("get_otp_"))
 def get_otp_callback(call):
-    """
-    Handles the callback for the 'Get OTP' button.
-    Sends a randomly generated 5-digit OTP when the button is clicked.
-    """
-
     otp = random.randint(10000, 99999)
     bot.send_message(
         chat_id=call.message.chat.id,
         text=f"Your OTP is: {otp}"
     )
+
+bot.polling(none_stop=True)
 
 
 # Start the bot
