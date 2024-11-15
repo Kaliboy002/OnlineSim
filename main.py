@@ -56,19 +56,16 @@ def start_command_handler(message: ClassVar[Any]) -> NoReturn:
             )
         )
 
-    # Create InlineKeyboardMarkup with each button in a separate row
-    keyboard = types.InlineKeyboardMarkup(row_width=1)
-    keyboard.add(
-        types.InlineKeyboardButton("Channel 1", url="https://t.me/your_channel_1")
-    )
-    keyboard.add(
-        types.InlineKeyboardButton("Channel 2", url="https://t.me/your_channel_2")
-    )
-    keyboard.add(
-        types.InlineKeyboardButton("Check", callback_data="check_number")
-    )
 
-    # Send welcome message with buttons
+# Create InlineKeyboardMarkup with each button in a separate row
+keyboard = types.InlineKeyboardMarkup(row_width=1)
+keyboard.add(
+    types.InlineKeyboardButton("Channel 1", url="https://t.me/your_channel_1"),
+    types.InlineKeyboardButton("Channel 2", url="https://t.me/your_channel_2"),
+    types.InlineKeyboardButton("Check", callback_data="check_number")
+)
+
+# Send welcome message with buttons
 bot.send_message(
     chat_id=message.chat.id,
     text=(
@@ -80,6 +77,7 @@ bot.send_message(
     parse_mode="Markdown",
     reply_markup=keyboard
 )
+
 
 
 @bot.message_handler(commands=["statistics"])
