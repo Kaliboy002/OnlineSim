@@ -26,6 +26,9 @@ referral_data: Dict[int, int] = {}  # {referrer_id: referral_count}
 user_referrals: Dict[int, str] = {}  # {user_id: invite_link}
 user_button_clicks: Dict[int, int] = {}  # {user_id: button_click_count}
 
+# Define the minimum referrals required to unlock OTP
+MIN_REFERRALS = 2
+
 @bot.message_handler(commands=["start", "restart"])
 def start_command_handler(message):
     """
@@ -137,7 +140,7 @@ def vip_number_callback(call):
     total_invites = referral_data.get(user_id, 0)
     
     # If the user doesn't have enough invites, send a message and return
-    if total_invites < 10:
+    if total_invites < MIN_REFERRALS:
         bot.send_message(
             chat_id=user_id,
             text="⚠️ You do not have enough invites to unlock this option. Please refer more users to unlock the VIP numbers."
@@ -175,36 +178,26 @@ def number_buttons_callback(call):
     Sends a message stating the user unlocked the number and the 'Get OTP' button.
     """
     user_id = call.message.chat.id
-    
-    # Track the number of buttons clicked by the user
-    user_button_clicks[user_id] = user_button_clicks.get(user_id, 0) + 1
-    button_clicks = user_button_clicks[user_id]
+    total_invites = referral_data.get(user_id, 0)
 
-    # Check if the user has clicked enough buttons
-    if button_clicks >= 10:
-        # If user has clicked 10 buttons, show the 'Get OTP' button
+    # If the user has not enough invites, show an error message
+    if total_invites < MIN_REFERRALS:
         bot.send_message(
             chat_id=user_id,
-            text=f"You unlocked this number ({call.data})!\n\nClick below to get your OTP."
+            text="⚠️ You need at least 2 referrals to unlock the OTP. Please refer more users."
         )
+        return
 
-        # Create InlineKeyboardMarkup with the 'Get OTP' button
-        keyboard = types.InlineKeyboardMarkup(row_width=1)
-        keyboard.add(types.InlineKeyboardButton("Get OTP", callback_data=f"get_otp_{call.data}"))
+    # Create InlineKeyboardMarkup with the 'Get OTP' button
+    keyboard = types.InlineKeyboardMarkup(row_width=1)
+    keyboard.add(types.InlineKeyboardButton("Get OTP", callback_data=f"get_otp_{call.data}"))
 
-        # Send the message with the OTP button
-        bot.send_message(
-            chat_id=user_id,
-            text="Click the button below to get your OTP.",
-            reply_markup=keyboard
-        )
-    else:
-        # If the user hasn't clicked 10 buttons, show a message
-        remaining = 10 - button_clicks
-        bot.send_message(
-            chat_id=user_id,
-            text=f"You need to click {remaining} more buttons to unlock the 'Get OTP' option."
-        )
+    # Send the message with the OTP button
+    bot.send_message(
+        chat_id=user_id,
+        text=f"You unlocked this number ({call.data})!\n\nClick below to get your OTP.",
+        reply_markup=keyboard
+    )
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith("get_otp_"))
 def get_otp_callback(call):
@@ -218,8 +211,9 @@ def get_otp_callback(call):
     # Send the OTP to the user
     bot.send_message(
         chat_id=call.message.chat.id,
-        text=f"Your OTP is: {otp}"
+        text=f"Your OTP code is: {otp}"
     )
+
 
 # Start the bot
 
