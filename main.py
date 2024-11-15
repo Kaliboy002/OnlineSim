@@ -169,7 +169,6 @@ def get_otp_callback(call):
         text=f"Your OTP is: {otp}"
     )
 
-bot.polling(none_stop=True)
 
 
 # Start the bot
