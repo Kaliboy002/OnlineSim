@@ -96,7 +96,7 @@ def check_numb_callback(call):
     keyboard = types.InlineKeyboardMarkup(row_width=1)
     keyboard.add(
         types.InlineKeyboardButton("Free number", callback_data="check_number"),
-        types.InlineKeyboardButton("Vip number", callback_data="vip_number")
+        types.InlineKeyboardButton("Vip number", callback_data="help")
     )
 
     bot.send_photo(
