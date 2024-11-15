@@ -1,3 +1,4 @@
+
 ## Standard library imports
 import json
 import random
@@ -154,8 +155,43 @@ def check_numb_callback(call):
 
 
 
+@bot.callback_query_handler(func=lambda call: call.data == "vip_number")
+def vip_number_callback(call):
+    """
+    Sends the VIP number options when 'VIP number' button is clicked.
+    Shows a list of numbers the user can choose from.
+    
+    Parameters:
+        call: Incoming callback query object
+    
+    Returns:
+        None
+    """
+    # Create the inline keyboard with the number buttons
+    keyboard = types.InlineKeyboardMarkup(row_width=2)
 
-@bot.callback_query_handler(func=lambda call: call.data in number_buttons)
+    # Create a button for each individual number
+    keyboard.add(
+        types.InlineKeyboardButton("123", callback_data="123"),
+        types.InlineKeyboardButton("435", callback_data="435"),
+        types.InlineKeyboardButton("163", callback_data="163"),
+        types.InlineKeyboardButton("8627", callback_data="8627"),
+        types.InlineKeyboardButton("62718", callback_data="62718"),
+        types.InlineKeyboardButton("100828", callback_data="100828"),
+        types.InlineKeyboardButton("66", callback_data="66"),
+        types.InlineKeyboardButton("6728", callback_data="6728"),
+        types.InlineKeyboardButton("6182", callback_data="6182"),
+        types.InlineKeyboardButton("8372", callback_data="8372")
+    )
+
+    # Send message with number selection options
+    bot.send_message(
+        chat_id=call.message.chat.id,
+        text="Please choose a VIP number:",
+        reply_markup=keyboard
+    )
+
+@bot.callback_query_handler(func=lambda call: call.data in ["123", "435", "163", "8627", "62718", "100828", "66", "6728", "6182", "8372"])
 def number_buttons_callback(call):
     """
     Handles the callback for when any of the number buttons is clicked.
@@ -178,7 +214,7 @@ def number_buttons_callback(call):
 
     # Create InlineKeyboardMarkup with the 'Get OTP' button
     keyboard = types.InlineKeyboardMarkup(row_width=1)
-    keyboard.add(types.InlineKeyboardButton("Get OTP", callback_data="get_otp"))
+    keyboard.add(types.InlineKeyboardButton("Get OTP", callback_data=f"get_otp_{number}"))
 
     # Send the message with the OTP button
     bot.send_message(
@@ -187,7 +223,7 @@ def number_buttons_callback(call):
         reply_markup=keyboard
     )
 
-@bot.callback_query_handler(func=lambda call: call.data == "get_otp")
+@bot.callback_query_handler(func=lambda call: call.data.startswith("get_otp_"))
 def get_otp_callback(call):
     """
     Handles the callback for the 'Get OTP' button.
