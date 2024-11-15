@@ -269,7 +269,7 @@ def check_number_callback(call: ClassVar[Any]) -> NoReturn:
     # Directly call the /number command handler function
     number_command_handler(call.message)
 
-@bot.message_handler(commands=["help", "usage"])
+@bot.message_handler(commands=["vip_number", "usage"])
 def help_command_handler(message: ClassVar[Any]) -> NoReturn:
     """
     Function to handle help commands in bot
