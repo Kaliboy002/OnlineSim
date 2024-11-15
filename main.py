@@ -130,6 +130,40 @@ def vip_number_callback(call):
     """
     Placeholder function for the 'Vip number' button.
     Will run /vipnumber command when implemented.
+    
+    Parameters:
+        call: Incoming callback query object
+    
+    Returns:
+        None
+    """
+    # Send the placeholder message and 10 buttons
+    bot.send_message(
+        chat_id=call.message.chat.id,
+        text="Vip number command will be implemented here."
+    )
+
+    # Create InlineKeyboardMarkup with the number buttons
+    keyboard = types.InlineKeyboardMarkup(row_width=2)
+    number_buttons = [
+        "123", "435", "163", "8627", "62718", "100828", "66", "6728", "6182", "8372"
+    ]
+    
+    # Add buttons to the keyboard
+    for number in number_buttons:
+        keyboard.add(types.InlineKeyboardButton(number, callback_data=number))
+
+    bot.send_message(
+        chat_id=call.message.chat.id,
+        text="Please choose a VIP number:",
+        reply_markup=keyboard
+    )
+
+@bot.callback_query_handler(func=lambda call: call.data in ["123", "435", "163", "8627", "62718", "100828", "66", "6728", "6182", "8372"])
+def number_buttons_callback(call):
+    """
+    Handles the callback for when any of the number buttons is clicked.
+    Sends a message saying the user doesn't have enough coins to get this number.
 
     Parameters:
         call: Incoming callback query object
@@ -137,10 +171,9 @@ def vip_number_callback(call):
     Returns:
         None
     """
-    # Placeholder for /vipnumber command
     bot.send_message(
         chat_id=call.message.chat.id,
-        text="Vip number command will be implemented here."
+        text="You don't have enough coins to get this number."
     )
 
 @bot.message_handler(commands=["statistics"])
