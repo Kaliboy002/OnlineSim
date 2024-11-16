@@ -125,8 +125,8 @@ def check_numb_callback(call):
 
     keyboard = types.InlineKeyboardMarkup(row_width=1)
     keyboard.add(
-        types.InlineKeyboardButton("𝙁𝙧𝙚𝙚 𝙉𝙪𝙢𝙗𝙚𝙧 🌎", callback_data="check_number"),
-        types.InlineKeyboardButton("𝙑𝙄𝙋 𝙉𝙪𝙢𝙗𝙚𝙧 ⭐", callback_data="vip_number")
+        types.InlineKeyboardButton("ɢᴇᴛ ғʀᴇᴇ ɴᴜᴍʙᴇʀ ⚡️", callback_data="check_number"),
+        types.InlineKeyboardButton("ɢᴇᴛ ᴠɪᴘ ɴᴜᴍʙᴇʀs 💎", callback_data="vip_number")
     )
 
     bot.send_photo(
@@ -1081,7 +1081,7 @@ def new_number_handler(call):
                         "ɢᴇᴛᴛɪɴɢ ᴀ ʀᴀɴᴅᴏᴍ ɴᴜᴍʙᴇʀ ғᴏʀ ʏᴏᴜ...\n\n"
                         "⁀➴ ғᴇᴛᴄʜɪɴɢ ᴏɴʟɪɴᴇ ᴄᴏᴜɴᴛʀɪᴇs:\n"
                         f"ɢᴏᴛ {len(countries)} ᴄᴏᴜɴᴛʀɪᴇs\n\n"
-                        "⁀➴ Testing active numbers:\n"
+                        "⁀➴ ᴛᴇsᴛɪɴɢ ᴀᴄᴛɪᴠᴇ ɴᴜᴍʙᴇʀs:\n"
                         f"ᴛʀʏɪɴɢ {country_name} ({formatted_number})\n\n"
                         f"{flag} ʜᴇʀᴇ ɪs ʏᴏᴜʀ ɴᴜᴍʙᴇʀ:: +{number[1]}\n\n"
                         f"ʟᴀsᴛ ᴜᴘᴅᴀᴛᴇ:: {number[0]}"
