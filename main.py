@@ -154,25 +154,27 @@ def vip_number_callback(call):
     # Create the inline keyboard with the number buttons
     keyboard = types.InlineKeyboardMarkup(row_width=2)
     keyboard.add(
-        types.InlineKeyboardButton("🇩🇪 +4917623489057", callback_data="123"),
-        types.InlineKeyboardButton("🇬🇧 +447923456781", callback_data="4351"),
-        types.InlineKeyboardButton("🇫🇷 +33689234157", callback_data="4352"),
-        types.InlineKeyboardButton("🇪🇸 +34678934512", callback_data="4353"),
-        types.InlineKeyboardButton("🇮🇹 +393491823756", callback_data="4354"),
-        types.InlineKeyboardButton("🇳🇱 +31623498576", callback_data="4355"),
-        types.InlineKeyboardButton("🇸🇪 +46712349875", callback_data="4356"),
-        types.InlineKeyboardButton("🇵🇱 +48671234985", callback_data="435"),
-        types.InlineKeyboardButton("🇳🇴 +47983475612", callback_data="163"),
-        types.InlineKeyboardButton("🇩🇰 +45234876129", callback_data="8627"),
-        types.InlineKeyboardButton("🇷🇺 +79812346789", callback_data="62718"),
-        types.InlineKeyboardButton("🇺🇸 +12148956234", callback_data="100828"),
-        types.InlineKeyboardButton("🇨🇦 +14168973521", callback_data="66"),
-        types.InlineKeyboardButton("🇦🇺 +61489234567", callback_data="43511"),
-        types.InlineKeyboardButton("🇦🇫 +93798865312", callback_data="43522"),
-        types.InlineKeyboardButton("🇮🇷 +989123746502", callback_data="43533"),
-        types.InlineKeyboardButton("🇵🇰 +923148765432", callback_data="6728"),
-        types.InlineKeyboardButton("🇮🇳 +919823476203", callback_data="6182"),
-        types.InlineKeyboardButton("🇯🇵 +819012345678", callback_data="8372")
+        types.InlineKeyboardButton("🇩🇪 +4917623489057", callback_data="1"),
+        types.InlineKeyboardButton("🇬🇧 +447923456781", callback_data="2"),
+        types.InlineKeyboardButton("🇫🇷 +33689234157", callback_data="3"),
+        types.InlineKeyboardButton("🇪🇸 +34678934512", callback_data="4"),
+        types.InlineKeyboardButton("🇮🇹 +393491823756", callback_data="5"),
+        types.InlineKeyboardButton("🇳🇱 +31623498576", callback_data="7"),
+        types.InlineKeyboardButton("🇸🇪 +46712349875", callback_data="8"),
+        types.InlineKeyboardButton("🇵🇱 +48671234985", callback_data="9"),
+        types.InlineKeyboardButton("🇳🇴 +47983475612", callback_data="10"),
+        types.InlineKeyboardButton("🇩🇰 +45234876129", callback_data="11"),
+        types.InlineKeyboardButton("🇷🇺 +79812346789", callback_data="12"),
+        types.InlineKeyboardButton("🇺🇸 +12148956234", callback_data="13"),
+        types.InlineKeyboardButton("🇨🇦 +14168973521", callback_data="14"),
+        types.InlineKeyboardButton("🇦🇺 +61489234567", callback_data="15"),
+        types.InlineKeyboardButton("🇦🇫 +93798865312", callback_data="16"),
+        types.InlineKeyboardButton("🇮🇩 +6281234762098", callback_data="17"),
+        types.InlineKeyboardButton("🇹🇷 +905123489672", callback_data="18"),
+        types.InlineKeyboardButton("🇮🇷 +989123746502", callback_data="19"),
+        types.InlineKeyboardButton("🇵🇰 +923148765432", callback_data="20"),
+        types.InlineKeyboardButton("🇮🇳 +919823476203", callback_data="21"),
+        types.InlineKeyboardButton("🇯🇵 +819012345678", callback_data="22")
     )
 
     # Send message with number selection options
@@ -189,7 +191,7 @@ def vip_number_callback(call):
     )
 
 
-@bot.callback_query_handler(func=lambda call: call.data in ["123", "435", "163", "8627", "62718", "100828", "66", "6728", "6182", "8372"])
+@bot.callback_query_handler(func=lambda call: call.data in ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22"])
 def number_buttons_callback(call):
     """
     Handles the callback for when any of the number buttons is clicked.
