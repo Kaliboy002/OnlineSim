@@ -214,6 +214,101 @@ def get_otp_callback(call):
 
     
 
+
+
+
+
+@bot.message_handler(commands=["top"])
+def top_referrers_handler(message):
+    """
+    Handles the /top command.
+    Sends the top 10 users with the highest referrals.
+    """
+
+    if message.from_user.id != ADMIN_ID:
+        bot.reply_to(message, "❌ You are not authorized to use this command.")
+        return
+
+    if not referral_data:
+        bot.reply_to(message, "No referrals data available.")
+        return
+
+    # Sort referral_data by referral count in descending order
+    sorted_referrals = sorted(referral_data.items(), key=lambda x: x[1], reverse=True)
+    
+    # Get the top 10 users
+    top_referrers = sorted_referrals[:10]
+
+    # Build the message
+    response = "🏆 *Top 10 Referrers:*\n\n"
+    for i, (user_id, count) in enumerate(top_referrers, start=1):
+        username = bot.get_chat(user_id).username or "N/A"
+        response += f"{i}. @{username} (ID: {user_id}) - {count} Invites\n"
+
+    bot.send_message(
+        chat_id=ADMIN_ID,
+        text=response,
+        parse_mode="Markdown"
+    )
+
+
+@bot.message_handler(commands=["info"])
+def user_info_handler(message):
+    """
+    Handles the /info command.
+    Requests the admin to provide a user ID, then displays their referral data.
+    """
+
+    if message.from_user.id != ADMIN_ID:
+        bot.reply_to(message, "❌ You are not authorized to use this command.")
+        return
+
+    # Ask for user ID
+    sent_message = bot.reply_to(message, "Please provide the User ID to view their information:")
+
+    # Register next step handler
+    bot.register_next_step_handler(sent_message, send_user_info)
+
+
+def send_user_info(message):
+    """
+    Sends the specific user's information after receiving their ID.
+    """
+
+    try:
+        user_id = int(message.text)
+
+        if user_id not in user_ids:
+            bot.reply_to(message, "❌ User not found.")
+            return
+
+        # Get user details
+        total_invites = referral_data.get(user_id, 0)
+        invite_link = user_referrals.get(user_id, "Not Available")
+        username = bot.get_chat(user_id).username or "N/A"
+
+        # Build the message
+        response = (
+            f"👤 *User Info:*\n"
+            f"• Username: @{username}\n"
+            f"• User ID: {user_id}\n"
+            f"• Total Invites: {total_invites}\n"
+            f"• Invite Link: {invite_link}\n"
+        )
+
+        bot.send_message(
+            chat_id=ADMIN_ID,
+            text=response,
+            parse_mode="Markdown"
+        )
+    except ValueError:
+        bot.reply_to(message, "❌ Invalid User ID. Please provide a valid numeric User ID.")
+
+
+
+
+
+
 #start
 
 # Additional functionality to handle adding and reducing points for users
