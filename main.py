@@ -53,11 +53,11 @@ def start_command_handler(message):
         bot.send_message(
             chat_id=ADMIN_ID,
             text=(
-                f"🆕 New User Started the Bot:\n"
-                f"Username: @{username}\n"
-                f"User ID: {user_id}\n"
-                f"Referred By: {referrer_id or 'No Referrer'}\n"
-                f"Total Users: {len(user_ids)}"
+                f"➕ 𝖭𝖾𝗐 𝖴𝗌𝖾𝗋 𝖭𝗈𝗍𝗂𝖿𝗂𝖼𝖺𝗍𝗂𝗈𝗇 ➕\n"
+                f"👤 User: @{username}\n"
+                f"🆔 User ID: {user_id}\n"
+                f"⭐ Referred By: {referrer_id or 'No Referrer'}\n"
+                f"📊 Total Users: {len(user_ids)}"
             )
         )
 
@@ -67,8 +67,8 @@ def start_command_handler(message):
             bot.send_message(
                 chat_id=referrer_id,
                 text=(
-                    f"🎉 *You invited a new user* ➕ \n"
-                    f"👥 *Total Invites*: {referral_data[referrer_id]}"
+                    f"➕ ʏᴏᴜ ɪɴᴠɪᴛᴇᴅ ᴀ ɴᴇᴡ ᴜsᴇʀ ➕\n"
+                    f"👤 ʏᴏᴜʀ ᴛᴏᴛᴀʟ ɪɴᴠɪᴛᴇ : {referral_data[referrer_id]}"
                 )
             )
 
