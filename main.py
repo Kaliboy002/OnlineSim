@@ -16,7 +16,7 @@ from src.vneng import VNEngine
 bot: ClassVar[Any] = telebot.TeleBot(utils.get_token())
 print(f":: Bot is running with ID: {bot.get_me().id}")
 
-# Define admin ID
+# Define admin ID (replace with the actual admin user ID)
 ADMIN_ID = 7046488481  # Replace with your admin's Telegram ID
 
 # Initialize user storage
@@ -30,9 +30,15 @@ INVITES_NEEDED = 2
 
 @bot.message_handler(commands=["start", "restart"])
 def start_command_handler(message):
+    """
+    Handles /start or /restart commands.
+    Tracks referrals and sends welcome messages.
+    """
+
     user_id = message.from_user.id
     username = message.from_user.username or "N/A"
 
+    # Extract referral information if available
     referrer_id = None
     if " " in message.text:
         try:
@@ -40,44 +46,78 @@ def start_command_handler(message):
         except ValueError:
             pass
 
+    # Add the new user to the user list
     if user_id not in user_ids:
         user_ids.add(user_id)
 
+        # Notify admin about the new user
         bot.send_message(
             chat_id=ADMIN_ID,
-            text=f"🆕 New User Started the Bot:\nUsername: @{username}\nUser ID: {user_id}\nReferred By: {referrer_id or 'No Referrer'}"
+            text=(
+                f"🆕 New User Started the Bot:\n"
+                f"Username: @{username}\n"
+                f"User ID: {user_id}\n"
+                f"Referred By: {referrer_id or 'No Referrer'}\n"
+                f"Total Users: {len(user_ids)}"
+            )
         )
 
+        # Track referrals only if referrer_id is valid and not affecting other functionalities
         if referrer_id and referrer_id in user_ids:
             referral_data[referrer_id] = referral_data.get(referrer_id, 0) + 1
             bot.send_message(
                 chat_id=referrer_id,
-                text=f"🎉 You have referred a new user!\n👥 Total Referrals: {referral_data[referrer_id]}"
+                text=(
+                    f"🎉 You have referred a new user!\n"
+                    f"👥 Total Referrals: {referral_data[referrer_id]}"
+                )
             )
 
+    # Generate and store the user's referral link
     invite_link = f"https://t.me/{bot.get_me().username}?start={user_id}"
     user_referrals[user_id] = invite_link
 
+    # Create the channel join buttons
     keyboard = types.InlineKeyboardMarkup(row_width=1)
     keyboard.add(
-        types.InlineKeyboardButton("Join Channel 1", url="https://t.me/your_channel_1"),
-        types.InlineKeyboardButton("Join Channel 2", url="https://t.me/your_channel_2"),
-        types.InlineKeyboardButton("🔐 Joined", callback_data="check_numb")
+        types.InlineKeyboardButton("Jᴏɪɴ ᴄʜᴀɴɴᴇʟ 𝟷⚡️", url="https://t.me/your_channel_1"),
+        types.InlineKeyboardButton("Jᴏɪɴ ᴄʜᴀɴɴᴇʟ 2⚡️", url="https://t.me/your_channel_2"),
+        types.InlineKeyboardButton("🔐𝗝𝗼𝗶𝗻𝗲𝗱", callback_data="check_numb")
     )
 
-    bot.send_message(
-        chat_id=user_id,
-        text=f"⚠️ To use this bot, you must join our Telegram channels.\n\nHere is your unique invite link:\n`{invite_link}`\n\nOnce you've joined the channels, click the 🔐 Joined button."
-    )
+ # Send welcome message with the referral link
+bot.send_message(
+    chat_id=user_id,
+    text=(
+        "⚠️ 𝙄𝙣 𝙪𝙨𝙚 𝙩𝙝𝙞𝙨 𝙗𝙤𝙩 𝙮𝙤𝙪 𝙝𝙖𝙫𝙚 𝙩𝙤 𝙟𝙤𝙞𝙣 𝙤𝙪𝙧 𝙩𝙚𝙡𝙚𝙜𝙧𝙖𝙢 𝙘𝙝𝙖𝙣𝙣𝙚𝙡𝙨.\n\n"
+        "Hᴇʏ ᴜsᴇʀ ʏᴏᴜ ʜᴀᴠᴇ ᴛᴏ Jᴏɪɴ ʙᴏᴛʜ ᴛʜᴇsᴇ ᴄʜᴀɴɴᴇʟs.\n\n"
+        "ᴏᴛʜᴇʀᴡɪsᴇ ᴛʜɪs ʙᴏᴛ ᴡɪʟʟ ɴᴏᴛ ᴡᴏʀᴋ. Iғ ʏᴏᴜ ʜᴀᴠᴇ 🔐𝗝𝗼𝗶𝗻𝗲𝗱 ᴛʜᴇ ᴄʜᴀɴɴᴇʟs, "
+        "ᴛʜᴇɴ ᴄʟɪᴄᴋ ᴛʜᴇ Jᴏɪɴᴇᴅ ʙᴜᴛᴛᴏɴ ᴛᴏ ᴄᴏɴғɪʀᴍ ʏᴏᴜʀ ʙᴏᴛ ᴍᴇᴍʙᴇʀsʜɪᴘ.\n\n"
+    ),
+    parse_mode="Markdown",
+    reply_markup=keyboard
+)
+
+
 
 @bot.callback_query_handler(func=lambda call: call.data == "check_numb")
 def check_numb_callback(call):
+    """
+    Handles the callback for the '🔐 Joined' button.
+    Displays the user's invite stats and referral link.
+    """
+
     user_id = call.message.chat.id
     total_invites = referral_data.get(user_id, 0)
     invite_link = user_referrals.get(user_id, "Not Available")
 
+    # Send photo with options and user's referral stats
     photo_url = "https://l.arzfun.com/hKNPI"
-    description = f"Hi, welcome! Please choose from the options below.\n\n👥 Total Invites: {total_invites}\n🔗 Your Invite Link: {invite_link}"
+    description = (
+        f"Hi, welcome! Please choose from the options below.\n\n"
+        f"👥 Total Invites: {total_invites}\n"
+        f"🔗 Your Invite Link: {invite_link}"
+    )
 
     keyboard = types.InlineKeyboardMarkup(row_width=1)
     keyboard.add(
@@ -94,58 +134,78 @@ def check_numb_callback(call):
 
 @bot.callback_query_handler(func=lambda call: call.data == "vip_number")
 def vip_number_callback(call):
+    """
+    Sends the VIP number options when 'VIP number' button is clicked.
+    Shows a list of numbers the user can choose from.
+    """
+
+    # Create the inline keyboard with the number buttons
     keyboard = types.InlineKeyboardMarkup(row_width=2)
+
+    # Create a button for each individual number
     keyboard.add(
         types.InlineKeyboardButton("123", callback_data="123"),
         types.InlineKeyboardButton("435", callback_data="435"),
         types.InlineKeyboardButton("163", callback_data="163"),
         types.InlineKeyboardButton("8627", callback_data="8627"),
         types.InlineKeyboardButton("62718", callback_data="62718"),
-        types.InlineKeyboardButton("100828", callback_data="100828")
+        types.InlineKeyboardButton("100828", callback_data="100828"),
+        types.InlineKeyboardButton("66", callback_data="66"),
+        types.InlineKeyboardButton("6728", callback_data="6728"),
+        types.InlineKeyboardButton("6182", callback_data="6182"),
+        types.InlineKeyboardButton("8372", callback_data="8372")
     )
 
+    # Send message with number selection options
     bot.send_message(
         chat_id=call.message.chat.id,
         text="Please choose a VIP number:",
         reply_markup=keyboard
     )
 
-@bot.callback_query_handler(func=lambda call: call.data in ["123", "435", "163", "8627", "62718", "100828"])
+@bot.callback_query_handler(func=lambda call: call.data in ["123", "435", "163", "8627", "62718", "100828", "66", "6728", "6182", "8372"])
 def number_buttons_callback(call):
+    """
+    Handles the callback for when any of the number buttons is clicked.
+    Checks if the user has enough invites to unlock the number.
+    """
+
     user_id = call.message.chat.id
     total_invites = referral_data.get(user_id, 0)
     number = call.data
 
     if total_invites >= INVITES_NEEDED:
-        # Check if the user has already unlocked this number
-        unlocked_numbers = referral_data.get(user_id, [])
-        if number not in unlocked_numbers:
-            referral_data[user_id] = total_invites - 2  # Reduce invites for unlocking the number
-            unlocked_numbers.append(number)
-            referral_data[user_id] = unlocked_numbers
+        # User has enough invites to unlock the number
+        bot.send_message(
+            chat_id=user_id,
+            text=f"You unlocked this number ({number})!\n\nClick below to get your OTP."
+        )
 
-            bot.send_message(
-                chat_id=user_id,
-                text=f"You unlocked this number ({number})!\n\nClick below to get your OTP."
-            )
-
-        # Send OTP button, no deduction of invites again
+        # Create InlineKeyboardMarkup with the 'Get OTP' button
         keyboard = types.InlineKeyboardMarkup(row_width=1)
         keyboard.add(types.InlineKeyboardButton("Get OTP", callback_data=f"get_otp_{number}"))
 
+        # Send the message with the OTP button
         bot.send_message(
             chat_id=user_id,
             text="Click the button below to get your OTP.",
             reply_markup=keyboard
         )
     else:
+        # User does not have enough invites
         bot.send_message(
             chat_id=user_id,
-            text=f"❌ You do not have enough invites to unlock this number.\nYou need {INVITES_NEEDED - total_invites} more invite(s) to proceed."
+            text="❌ You do not have enough invites to unlock this number.\n"
+                 f"You need {INVITES_NEEDED - total_invites} more invite(s) to proceed."
         )
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith("get_otp_"))
 def get_otp_callback(call):
+    """
+    Handles the callback for the 'Get OTP' button.
+    Sends a randomly generated 5-digit OTP when the button is clicked.
+    """
+
     otp = random.randint(10000, 99999)
     bot.send_message(
         chat_id=call.message.chat.id,
