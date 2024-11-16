@@ -165,7 +165,7 @@ def vip_number_callback(call):
     # Send message with number selection options
     bot.send_message(
         chat_id=call.message.chat.id,
-        text="Please choose a VIP number:",
+        text="ɪɴ ᴠɪᴘ ɴᴜᴍʙᴇʀ ᴘᴀʀᴛ ʏᴏᴜ ᴄᴀɴ ɢᴇᴛ ʏᴏᴜʀ ᴏᴡɴ ᴅᴇsɪʀᴇᴅ ɴᴜᴍʙᴇʀ ᴀɴᴅ ʀᴇᴄᴇɪᴠᴇ ɪɴᴄᴏᴍɪɴɢ ᴍᴇssᴀɢᴇs ᴇᴠᴇʀᴛɪᴍᴇ. ʙᴜᴛ ғɪʀsᴛ ʏᴏᴜ ɴᴇᴇᴅ ᴛᴏ ʜᴀᴠᴇ ᴀᴛ ʟᴇᴀsᴛ 5 ɪɴᴠɪᴛᴇs ᴛᴏ ᴜɴʟᴏᴄᴋ ᴛʜɪs ᴘᴀʀᴛ.\n\n👤 ʏᴏᴜʀ ᴛᴏᴛᴀʟ ɪɴᴠɪᴛᴇ : {total_invites} \n🔐 ʏᴏᴜʀ ɪɴᴠɪᴛᴇ ʟɪɴᴋ : {invite_link} \n\nᴄᴏᴘʏ ᴀɴᴅ sʜᴀʀᴇ ʏᴏᴜʀ ɪɴᴠɪᴛᴇ ʟɪɴᴋ ᴡɪᴛʜ ʏᴏᴜʀ ғʀɪᴇɴᴅs ᴛᴏ ɢᴇᴛ ᴍᴏʀᴇ ɪɴᴠɪᴛᴇs",
         reply_markup=keyboard
     )
 
