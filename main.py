@@ -112,13 +112,18 @@ def check_numb_callback(call):
     total_invites = referral_data.get(user_id, 0)
     invite_link = user_referrals.get(user_id, "Not Available")
 
-    # Send photo with options and user's referral stats
-    photo_url = "https://l.arzfun.com/hKNPI"
-    description = (
-        f"Hi, welcome! Please choose from the options below.\n\n"
-        f"👥 Total Invites: {total_invites}\n"
-        f"🔗 Your Invite Link: {invite_link}"
-    )
+  # Send photo with options and user's referral stats
+photo_url = "https://l.arzfun.com/hKNPI"
+description = (
+    f"Hᴇʏ 🖐 {username}\n\n"
+    f"🔸 ᴡᴇʟᴄᴏᴍᴇ ᴛᴏ ᴀᴅᴠᴀɴᴄᴇᴅ ᴀɴᴅ ᴜsᴇғᴜʟ ʙᴏᴛ ғᴏʀ ʀᴇᴄᴇɪᴠɪɴɢ ғʀᴇᴇ ɴᴜᴍʙᴇʀs.\n"
+    f"🔹 ʏᴏᴜ ᴄᴀɴ ʀᴇɢɪsᴛᴇʀ ᴛᴏ ᴀʟʟ ᴋɪɴᴅs ᴏғ ᴀᴘᴘs ᴀɴᴅ sᴏᴄɪᴀʟ ᴍᴇᴅɪᴀ sɪᴛᴇs ᴀɴᴅ ʀᴇᴄᴇɪᴠᴇ ᴛʜᴇ ᴠᴇʀɪғɪᴄᴀᴛɪᴏɴ ᴄᴏᴅᴇ (ᴏᴛᴘ) ғʀᴏᴍ ᴛʜᴇ ʙᴏᴛ.\n"
+    f"🔻 ᴡᴇ ᴜᴘᴅᴀᴛᴇ ᴀɴᴅ ᴀᴅᴅ 300 ɴᴇᴡ ɴᴜᴍʙᴇʀs ᴛᴏ ʙᴏᴛ ᴇᴠᴇʀʏᴅᴀʏ.\n\n"
+    f"👥 **Total Invites:** {total_invites}\n"
+    f"🔗 **Your Invite Link:**\n"
+    f"`{invite_link}`\n\n"
+    f"📋 *Tap the link to copy it to your clipboard!*"
+)
 
     keyboard = types.InlineKeyboardMarkup(row_width=1)
     keyboard.add(
