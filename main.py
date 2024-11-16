@@ -155,12 +155,21 @@ def vip_number_callback(call):
     keyboard = types.InlineKeyboardMarkup(row_width=2)
     keyboard.add(
         types.InlineKeyboardButton("123", callback_data="123"),
+        types.InlineKeyboardButton("4351", callback_data="4351"),
+        types.InlineKeyboardButton("4352", callback_data="4352"),
+        types.InlineKeyboardButton("4353", callback_data="4353"),
+        types.InlineKeyboardButton("4354", callback_data="4354"),
+        types.InlineKeyboardButton("4355", callback_data="4355"),
+        types.InlineKeyboardButton("4356", callback_data="4356"),
         types.InlineKeyboardButton("435", callback_data="435"),
         types.InlineKeyboardButton("163", callback_data="163"),
         types.InlineKeyboardButton("8627", callback_data="8627"),
         types.InlineKeyboardButton("62718", callback_data="62718"),
         types.InlineKeyboardButton("100828", callback_data="100828"),
         types.InlineKeyboardButton("66", callback_data="66"),
+        types.InlineKeyboardButton("43511", callback_data="43511"),
+        types.InlineKeyboardButton("43522", callback_data="43522"),
+        types.InlineKeyboardButton("43533", callback_data="43533"),
         types.InlineKeyboardButton("6728", callback_data="6728"),
         types.InlineKeyboardButton("6182", callback_data="6182"),
         types.InlineKeyboardButton("8372", callback_data="8372")
