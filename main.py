@@ -311,14 +311,13 @@ def send_user_info(message):
 
 #start
 
-# Additional functionality to handle adding and reducing points for users
+# Additional functionality to handle adding, reducing, and resetting points for users
 @bot.message_handler(commands=["add"])
 def add_command_handler(message):
     """
     Handles the /add command sent by the admin.
-    Displays buttons for adding or reducing points for a single user or all users.
+    Displays buttons for managing user points.
     """
-
     if message.from_user.id != ADMIN_ID:
         bot.reply_to(message, "❌ You are not authorized to use this command.")
         return
@@ -329,7 +328,9 @@ def add_command_handler(message):
         types.InlineKeyboardButton("Add points for one user", callback_data="add_one_user"),
         types.InlineKeyboardButton("Add points for every user", callback_data="add_all_users"),
         types.InlineKeyboardButton("Reduce points for one user", callback_data="reduce_one_user"),
-        types.InlineKeyboardButton("Reduce points for every user", callback_data="reduce_all_users")
+        types.InlineKeyboardButton("Reduce points for every user", callback_data="reduce_all_users"),
+        types.InlineKeyboardButton("Reset points for one user", callback_data="reset_one_user"),
+        types.InlineKeyboardButton("Reset points for every user", callback_data="reset_all_users"),
     )
 
     bot.send_message(
@@ -337,6 +338,65 @@ def add_command_handler(message):
         text="Choose an option:",
         reply_markup=keyboard
     )
+
+
+
+# Resetting points of a single user
+@bot.callback_query_handler(func=lambda call: call.data == "reset_one_user")
+def reset_one_user_callback(call):
+    """
+    Handles the button for resetting points of a single user.
+    Prompts the admin to enter the user ID or username.
+    """
+    bot.send_message(chat_id=call.message.chat.id, text="Please send the user ID or username to reset points:")
+    bot.register_next_step_handler_by_chat_id(call.message.chat.id, process_reset_one_user)
+
+def process_reset_one_user(message):
+    """
+    Processes the user ID or username entered by the admin.
+    Resets the user's points to 0.
+    """
+    user_identifier = message.text
+    user_id = int(user_identifier) if user_identifier.isdigit() else None
+
+    if user_id and user_id in user_ids:
+        referral_data[user_id] = 0
+        bot.send_message(
+            chat_id=user_id,
+            text="❌ Your invite points have been reset to 0."
+        )
+        bot.send_message(
+            chat_id=ADMIN_ID,
+            text=f"✅ Reset points of user {user_id} to 0."
+        )
+    else:
+        bot.send_message(
+            chat_id=ADMIN_ID,
+            text=f"❌ User ID/Username {user_identifier} not found."
+        )
+
+# Resetting points of all users
+@bot.callback_query_handler(func=lambda call: call.data == "reset_all_users")
+def reset_all_users_callback(call):
+    """
+    Handles the button for resetting points of all users.
+    Resets all users' points to 0.
+    """
+    for user_id in user_ids:
+        referral_data[user_id] = 0
+        bot.send_message(
+            chat_id=user_id,
+            text="❌ Your invite points have been reset to 0."
+        )
+
+    bot.send_message(
+        chat_id=ADMIN_ID,
+        text="✅ Reset points of all users to 0."
+    )
+
+
+
+
 
 # Adding points to one user
 @bot.callback_query_handler(func=lambda call: call.data == "add_one_user")
