@@ -141,14 +141,9 @@ def number_buttons_callback(call):
     if user_id not in user_points:
         user_points[user_id] = 220
 
-    if number in unlocked_numbers:
-        bot.send_message(
-            chat_id=user_id,
-            text=f"You have already unlocked this number ({number})! You can use it anytime."
-        )
-    elif total_invites >= INVITES_NEEDED and user_points[user_id] >= 2:
+    if number not in unlocked_numbers and total_invites >= INVITES_NEEDED and user_points[user_id] >= 2:
         unlocked_numbers.add(number)
-        user_points[user_id] -= 2  # Deduct 2 points for unlocking
+        user_points[user_id] -= 2  # Deduct 2 points for unlocking the number
 
         bot.send_message(
             chat_id=user_id,
@@ -170,14 +165,12 @@ def number_buttons_callback(call):
                  f"You need {INVITES_NEEDED - total_invites} more invite(s) or 2 points to proceed."
         )
 
-
-
 @bot.callback_query_handler(func=lambda call: call.data.startswith("get_otp_"))
 def get_otp_callback(call):
     """
     Handles OTP generation and sends it to the user.
     After the user unlocks a number, they can request an OTP, which will be sent to them.
-    Each OTP request reduces 2 points from the user's referral count.
+    OTP can be requested multiple times, but no point deduction happens here.
     """
 
     user_id = call.message.chat.id
@@ -191,34 +184,18 @@ def get_otp_callback(call):
         )
         return
 
-    # Check if the user has enough invites to unlock additional numbers (reduce 2 invites per number unlocked)
-    total_invites = referral_data.get(user_id, 0)
+    # Generate and send OTP
+    otp = random.randint(100000, 999999)  # Generate a random 6-digit OTP
+    bot.send_message(
+        chat_id=user_id,
+        text=f"Your OTP for number {number} is: {otp}"
+    )
 
-    if total_invites >= INVITES_NEEDED:
-        # User has enough invites to request OTP
-        otp = random.randint(100000, 999999)  # Generate a random 6-digit OTP
-        bot.send_message(
-            chat_id=user_id,
-            text=f"Your OTP for number {number} is: {otp}"
-        )
-
-        # Reduce the user's invites by 2 points for unlocking the number
-        referral_data[user_id] = total_invites - 2
-
-        # Send confirmation message about the reduced invites
-        bot.send_message(
-            chat_id=user_id,
-            text=f"🔒 You have successfully unlocked this number ({number})!\n\n"
-                 f"🔻 2 points have been deducted from your referral count. You now have {referral_data[user_id]} points left."
-        )
-
-    else:
-        # User does not have enough invites to get the OTP
-        bot.send_message(
-            chat_id=user_id,
-            text=f"❌ You don't have enough invites to request an OTP.\n"
-                 f"You need {INVITES_NEEDED - total_invites} more invites to proceed."
-        )
+    # No points will be deducted here for OTP request
+    bot.send_message(
+        chat_id=user_id,
+        text=f"✅ OTP sent for number {number}. You can use it for verification."
+    )
 
 
 
