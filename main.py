@@ -216,12 +216,12 @@ def get_otp_callback(call):
 
 #start
 
-# Additional functionality to handle adding points for users
+# Additional functionality to handle adding and reducing points for users
 @bot.message_handler(commands=["add"])
 def add_command_handler(message):
     """
     Handles the /add command sent by the admin.
-    Displays buttons for adding points to a single user or all users.
+    Displays buttons for adding or reducing points for a single user or all users.
     """
 
     if message.from_user.id != ADMIN_ID:
@@ -232,7 +232,9 @@ def add_command_handler(message):
     keyboard = types.InlineKeyboardMarkup(row_width=1)
     keyboard.add(
         types.InlineKeyboardButton("Add points for one user", callback_data="add_one_user"),
-        types.InlineKeyboardButton("Add points for every user", callback_data="add_all_users")
+        types.InlineKeyboardButton("Add points for every user", callback_data="add_all_users"),
+        types.InlineKeyboardButton("Reduce points for one user", callback_data="reduce_one_user"),
+        types.InlineKeyboardButton("Reduce points for every user", callback_data="reduce_all_users")
     )
 
     bot.send_message(
@@ -241,6 +243,7 @@ def add_command_handler(message):
         reply_markup=keyboard
     )
 
+# Adding points to one user
 @bot.callback_query_handler(func=lambda call: call.data == "add_one_user")
 def add_one_user_callback(call):
     """
@@ -249,9 +252,9 @@ def add_one_user_callback(call):
     """
 
     bot.send_message(chat_id=call.message.chat.id, text="Please send the user ID or username:")
-    bot.register_next_step_handler_by_chat_id(call.message.chat.id, process_one_user_id)
+    bot.register_next_step_handler_by_chat_id(call.message.chat.id, process_add_one_user)
 
-def process_one_user_id(message):
+def process_add_one_user(message):
     """
     Processes the user ID or username entered by the admin.
     Prompts for the amount of points to add.
@@ -285,6 +288,7 @@ def process_one_user_id(message):
     bot.send_message(chat_id=ADMIN_ID, text="Enter the amount of invites to add:")
     bot.register_next_step_handler_by_chat_id(message.chat.id, process_points_amount)
 
+# Adding points to all users
 @bot.callback_query_handler(func=lambda call: call.data == "add_all_users")
 def add_all_users_callback(call):
     """
@@ -293,9 +297,9 @@ def add_all_users_callback(call):
     """
 
     bot.send_message(chat_id=call.message.chat.id, text="Enter the amount of invites to add to all users:")
-    bot.register_next_step_handler_by_chat_id(call.message.chat.id, process_all_users_points)
+    bot.register_next_step_handler_by_chat_id(call.message.chat.id, process_add_all_users)
 
-def process_all_users_points(message):
+def process_add_all_users(message):
     """
     Processes the amount of points to add for all users.
     """
@@ -316,7 +320,85 @@ def process_all_users_points(message):
     except ValueError:
         bot.send_message(chat_id=ADMIN_ID, text="❌ Invalid amount. Please try again.")
 
+# Reducing points from one user
+@bot.callback_query_handler(func=lambda call: call.data == "reduce_one_user")
+def reduce_one_user_callback(call):
+    """
+    Handles the button for reducing points from a single user.
+    Prompts the admin to enter the user ID or username.
+    """
+
+    bot.send_message(chat_id=call.message.chat.id, text="Please send the user ID or username:")
+    bot.register_next_step_handler_by_chat_id(call.message.chat.id, process_reduce_one_user)
+
+def process_reduce_one_user(message):
+    """
+    Processes the user ID or username entered by the admin.
+    Prompts for the amount of points to reduce.
+    """
+
+    user_identifier = message.text
+
+    def process_points_amount(message):
+        try:
+            points = int(message.text)
+            user_id = int(user_identifier) if user_identifier.isdigit() else None
+
+            if user_id and user_id in user_ids:
+                referral_data[user_id] = max(referral_data.get(user_id, 0) - points, 0)
+                bot.send_message(
+                    chat_id=user_id,
+                    text=f"❌ {points} invite(s) have been deducted from your account."
+                )
+                bot.send_message(
+                    chat_id=ADMIN_ID,
+                    text=f"✅ Deducted {points} invite(s) from user {user_id}."
+                )
+            else:
+                bot.send_message(
+                    chat_id=ADMIN_ID,
+                    text=f"❌ User ID/Username {user_identifier} not found."
+                )
+        except ValueError:
+            bot.send_message(chat_id=ADMIN_ID, text="❌ Invalid amount. Please try again.")
+
+    bot.send_message(chat_id=ADMIN_ID, text="Enter the amount of invites to reduce:")
+    bot.register_next_step_handler_by_chat_id(message.chat.id, process_points_amount)
+
+# Reducing points from all users
+@bot.callback_query_handler(func=lambda call: call.data == "reduce_all_users")
+def reduce_all_users_callback(call):
+    """
+    Handles the button for reducing points from all users.
+    Prompts the admin to enter the amount of points to reduce.
+    """
+
+    bot.send_message(chat_id=call.message.chat.id, text="Enter the amount of invites to reduce from all users:")
+    bot.register_next_step_handler_by_chat_id(call.message.chat.id, process_reduce_all_users)
+
+def process_reduce_all_users(message):
+    """
+    Processes the amount of points to reduce for all users.
+    """
+
+    try:
+        points = int(message.text)
+        for user_id in user_ids:
+            referral_data[user_id] = max(referral_data.get(user_id, 0) - points, 0)
+            bot.send_message(
+                chat_id=user_id,
+                text=f"❌ {points} invite(s) have been deducted from your account."
+            )
+
+        bot.send_message(
+            chat_id=ADMIN_ID,
+            text=f"✅ Deducted {points} invite(s) from all users."
+        )
+    except ValueError:
+        bot.send_message(chat_id=ADMIN_ID, text="❌ Invalid amount. Please try again.")
+
 # Existing code remains unchanged
+
 
 
 # Start the bot
