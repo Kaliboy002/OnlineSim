@@ -760,7 +760,7 @@ def number_command_handler(message: ClassVar[Any]) -> NoReturn:
     prompt: ClassVar[Any] = bot.reply_to(
         message=message,
         text=(
-            "ғʀᴇᴇ ɴᴜᴍʙᴇʀ : ɪɴ ғʀᴇᴇ ɴᴜᴍʙᴇʀ ᴘᴀʀᴛ ʏᴏᴜ ᴄᴀɴ ʀᴀɴᴅᴏᴍʟʏ ɢᴇᴛ ғʀᴇᴇ ɴᴜᴍʙᴇʀs ᴀɴᴅ ɢᴇᴛ ᴛʜᴇ ɪɴᴄᴏᴍɪɴɢ ᴍᴇssᴀɢᴇs ᴛʜʀᴏᴜɢʜ ɪɴʙᴏx ʙᴜᴛᴛᴏɴ ʙᴜᴛ ᴛʜᴇ ɴᴜᴍʙᴇʀ ɪs ᴜsᴇᴅ ʙʏ ᴘᴜʙʟɪᴄ ᴀɴᴅ ɪᴛ ᴍᴀʏ ᴀʟʀᴇᴀᴅʏ ᴛᴀᴋᴇɴ ʙʏ ᴀɴᴏᴛʜᴇʀ ᴜsᴇʀ.\n┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈"
+            "*ғʀᴇᴇ ɴᴜᴍʙᴇʀ* : ɪɴ ғʀᴇᴇ ɴᴜᴍʙᴇʀ ᴘᴀʀᴛ ʏᴏᴜ ᴄᴀɴ ʀᴀɴᴅᴏᴍʟʏ ɢᴇᴛ ғʀᴇᴇ ɴᴜᴍʙᴇʀs ᴀɴᴅ ɢᴇᴛ ᴛʜᴇ ɪɴᴄᴏᴍɪɴɢ ᴍᴇssᴀɢᴇs ᴛʜʀᴏᴜɢʜ ɪɴʙᴏx ʙᴜᴛᴛᴏɴ ʙᴜᴛ ᴛʜᴇ ɴᴜᴍʙᴇʀ ɪs ᴜsᴇᴅ ʙʏ ᴘᴜʙʟɪᴄ ᴀɴᴅ ɪᴛ ᴍᴀʏ ᴀʟʀᴇᴀᴅʏ ᴛᴀᴋᴇɴ ʙʏ ᴀɴᴏᴛʜᴇʀ ᴜsᴇʀ.\n┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n"
             "Getting a random number for you...\n\n"
             "⁀➴ Fetching online countries:"
         ),
@@ -778,6 +778,7 @@ def number_command_handler(message: ClassVar[Any]) -> NoReturn:
         chat_id=message.chat.id,
         message_id=prompt.message_id,
         text=(
+            "*ғʀᴇᴇ ɴᴜᴍʙᴇʀ* : ɪɴ ғʀᴇᴇ ɴᴜᴍʙᴇʀ ᴘᴀʀᴛ ʏᴏᴜ ᴄᴀɴ ʀᴀɴᴅᴏᴍʟʏ ɢᴇᴛ ғʀᴇᴇ ɴᴜᴍʙᴇʀs ᴀɴᴅ ɢᴇᴛ ᴛʜᴇ ɪɴᴄᴏᴍɪɴɢ ᴍᴇssᴀɢᴇs ᴛʜʀᴏᴜɢʜ ɪɴʙᴏx ʙᴜᴛᴛᴏɴ ʙᴜᴛ ᴛʜᴇ ɴᴜᴍʙᴇʀ ɪs ᴜsᴇᴅ ʙʏ ᴘᴜʙʟɪᴄ ᴀɴᴅ ɪᴛ ᴍᴀʏ ᴀʟʀᴇᴀᴅʏ ᴛᴀᴋᴇɴ ʙʏ ᴀɴᴏᴛʜᴇʀ ᴜsᴇʀ.\n┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n"
             "Getting a random number for you...\n\n"
             "⁀➴ Fetching online countries:\n"
             f"Got {len(countries)} countries\n\n"
@@ -822,6 +823,7 @@ def number_command_handler(message: ClassVar[Any]) -> NoReturn:
                 chat_id=message.chat.id,
                 message_id=prompt.message_id,
                 text=(
+                    "*ғʀᴇᴇ ɴᴜᴍʙᴇʀ* : ɪɴ ғʀᴇᴇ ɴᴜᴍʙᴇʀ ᴘᴀʀᴛ ʏᴏᴜ ᴄᴀɴ ʀᴀɴᴅᴏᴍʟʏ ɢᴇᴛ ғʀᴇᴇ ɴᴜᴍʙᴇʀs ᴀɴᴅ ɢᴇᴛ ᴛʜᴇ ɪɴᴄᴏᴍɪɴɢ ᴍᴇssᴀɢᴇs ᴛʜʀᴏᴜɢʜ ɪɴʙᴏx ʙᴜᴛᴛᴏɴ ʙᴜᴛ ᴛʜᴇ ɴᴜᴍʙᴇʀ ɪs ᴜsᴇᴅ ʙʏ ᴘᴜʙʟɪᴄ ᴀɴᴅ ɪᴛ ᴍᴀʏ ᴀʟʀᴇᴀᴅʏ ᴛᴀᴋᴇɴ ʙʏ ᴀɴᴏᴛʜᴇʀ ᴜsᴇʀ.\n┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n"
                     "Getting a random number for you...\n\n"
                     "⁀➴ Fetching online countries:\n"
                     f"Got {len(countries)} countries\n\n"
@@ -855,6 +857,7 @@ def number_command_handler(message: ClassVar[Any]) -> NoReturn:
                     chat_id=message.chat.id,
                     message_id=prompt.message_id,
                     text=(
+                        "*ғʀᴇᴇ ɴᴜᴍʙᴇʀ* : ɪɴ ғʀᴇᴇ ɴᴜᴍʙᴇʀ ᴘᴀʀᴛ ʏᴏᴜ ᴄᴀɴ ʀᴀɴᴅᴏᴍʟʏ ɢᴇᴛ ғʀᴇᴇ ɴᴜᴍʙᴇʀs ᴀɴᴅ ɢᴇᴛ ᴛʜᴇ ɪɴᴄᴏᴍɪɴɢ ᴍᴇssᴀɢᴇs ᴛʜʀᴏᴜɢʜ ɪɴʙᴏx ʙᴜᴛᴛᴏɴ ʙᴜᴛ ᴛʜᴇ ɴᴜᴍʙᴇʀ ɪs ᴜsᴇᴅ ʙʏ ᴘᴜʙʟɪᴄ ᴀɴᴅ ɪᴛ ᴍᴀʏ ᴀʟʀᴇᴀᴅʏ ᴛᴀᴋᴇɴ ʙʏ ᴀɴᴏᴛʜᴇʀ ᴜsᴇʀ.\n┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n"
                         "Getting a random number for you...\n\n"
                         "⁀➴ Fetching online countries:\n"
                         f"Got {len(countries)} countries\n\n"
@@ -876,6 +879,7 @@ def number_command_handler(message: ClassVar[Any]) -> NoReturn:
             chat_id=message.chat.id,
             message_id=prompt.message_id,
             text=(
+                    "*ғʀᴇᴇ ɴᴜᴍʙᴇʀ* : ɪɴ ғʀᴇᴇ ɴᴜᴍʙᴇʀ ᴘᴀʀᴛ ʏᴏᴜ ᴄᴀɴ ʀᴀɴᴅᴏᴍʟʏ ɢᴇᴛ ғʀᴇᴇ ɴᴜᴍʙᴇʀs ᴀɴᴅ ɢᴇᴛ ᴛʜᴇ ɪɴᴄᴏᴍɪɴɢ ᴍᴇssᴀɢᴇs ᴛʜʀᴏᴜɢʜ ɪɴʙᴏx ʙᴜᴛᴛᴏɴ ʙᴜᴛ ᴛʜᴇ ɴᴜᴍʙᴇʀ ɪs ᴜsᴇᴅ ʙʏ ᴘᴜʙʟɪᴄ ᴀɴᴅ ɪᴛ ᴍᴀʏ ᴀʟʀᴇᴀᴅʏ ᴛᴀᴋᴇɴ ʙʏ ᴀɴᴏᴛʜᴇʀ ᴜsᴇʀ.\n┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n"
                     "Getting a random number for you...\n\n"
                     "⁀➴ Fetching online countries:\n"
                     f"Got {len(countries)} countries\n\n"
