@@ -783,8 +783,8 @@ def number_command_handler(message: ClassVar[Any]) -> NoReturn:
         message=message,
         text=(
             "⚠️ ɪɴ ғʀᴇᴇ ɴᴜᴍʙᴇʀ ᴘᴀʀᴛ ʏᴏᴜ ᴄᴀɴ ʀᴀɴᴅᴏᴍʟʏ ɢᴇᴛ ғʀᴇᴇ ɴᴜᴍʙᴇʀs ᴀɴᴅ ɢᴇᴛ ᴛʜᴇ ɪɴᴄᴏᴍɪɴɢ ᴍᴇssᴀɢᴇs ᴛʜʀᴏᴜɢʜ ɪɴʙᴏx ʙᴜᴛᴛᴏɴ ʙᴜᴛ ᴛʜᴇ ɴᴜᴍʙᴇʀ ɪs ᴜsᴇᴅ ʙʏ ᴘᴜʙʟɪᴄ ᴀɴᴅ ɪᴛ ᴍᴀʏ ᴀʟʀᴇᴀᴅʏ ᴛᴀᴋᴇɴ ʙʏ ᴀɴᴏᴛʜᴇʀ ᴜsᴇʀ.👇\n┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n"  
-            "Getting a random number for you...\n\n"
-            "⁀➴ Fetching online countries:"
+            "ɢᴇᴛᴛɪɴɢ ᴀ ʀᴀɴᴅᴏᴍ ɴᴜᴍʙᴇʀ ғᴏʀ ʏᴏᴜ...\n\n"
+            "⁀➴ ғᴇᴛᴄʜɪɴɢ ᴏɴʟɪɴᴇ ᴄᴏᴜɴᴛʀɪᴇs:"
         ),
     )
 
@@ -801,10 +801,10 @@ def number_command_handler(message: ClassVar[Any]) -> NoReturn:
         message_id=prompt.message_id,
         text=(
             "⚠️ ɪɴ ғʀᴇᴇ ɴᴜᴍʙᴇʀ ᴘᴀʀᴛ ʏᴏᴜ ᴄᴀɴ ʀᴀɴᴅᴏᴍʟʏ ɢᴇᴛ ғʀᴇᴇ ɴᴜᴍʙᴇʀs ᴀɴᴅ ɢᴇᴛ ᴛʜᴇ ɪɴᴄᴏᴍɪɴɢ ᴍᴇssᴀɢᴇs ᴛʜʀᴏᴜɢʜ ɪɴʙᴏx ʙᴜᴛᴛᴏɴ ʙᴜᴛ ᴛʜᴇ ɴᴜᴍʙᴇʀ ɪs ᴜsᴇᴅ ʙʏ ᴘᴜʙʟɪᴄ ᴀɴᴅ ɪᴛ ᴍᴀʏ ᴀʟʀᴇᴀᴅʏ ᴛᴀᴋᴇɴ ʙʏ ᴀɴᴏᴛʜᴇʀ ᴜsᴇʀ.👇\n┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n"            
-            "Getting a random number for you...\n\n"
-            "⁀➴ Fetching online countries:\n"
-            f"Got {len(countries)} countries\n\n"
-            "⁀➴ Testing active numbers:\n"
+            "ɢᴇᴛᴛɪɴɢ ᴀ ʀᴀɴᴅᴏᴍ ɴᴜᴍʙᴇʀ ғᴏʀ ʏᴏᴜ......\n\n"
+            "⁀➴ ғᴇᴛᴄʜɪɴɢ ᴏɴʟɪɴᴇ ᴄᴏᴜɴᴛʀɪᴇs:\n"
+            f"ɢᴏᴛ {len(countries)} ᴄᴏᴜɴᴛʀɪᴇs\n\n"
+            "⁀➴ ᴛᴇsᴛɪɴɢ ᴀᴄᴛɪᴠᴇ ɴᴜᴍʙᴇʀs:\n"
         ),
     )
 
@@ -846,10 +846,10 @@ def number_command_handler(message: ClassVar[Any]) -> NoReturn:
                 message_id=prompt.message_id,
                 text=(
                    "⚠️ ɪɴ ғʀᴇᴇ ɴᴜᴍʙᴇʀ ᴘᴀʀᴛ ʏᴏᴜ ᴄᴀɴ ʀᴀɴᴅᴏᴍʟʏ ɢᴇᴛ ғʀᴇᴇ ɴᴜᴍʙᴇʀs ᴀɴᴅ ɢᴇᴛ ᴛʜᴇ ɪɴᴄᴏᴍɪɴɢ ᴍᴇssᴀɢᴇs ᴛʜʀᴏᴜɢʜ ɪɴʙᴏx ʙᴜᴛᴛᴏɴ ʙᴜᴛ ᴛʜᴇ ɴᴜᴍʙᴇʀ ɪs ᴜsᴇᴅ ʙʏ ᴘᴜʙʟɪᴄ ᴀɴᴅ ɪᴛ ᴍᴀʏ ᴀʟʀᴇᴀᴅʏ ᴛᴀᴋᴇɴ ʙʏ ᴀɴᴏᴛʜᴇʀ ᴜsᴇʀ.👇\n┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n" "Getting a random number for you...\n\n"
-                    "⁀➴ Fetching online countries:\n"
-                    f"Got {len(countries)} countries\n\n"
-                    "⁀➴ Testing active numbers:\n"
-                    f"Trying {country_name} ({formatted_number})"
+                    "⁀➴ ғᴇᴛᴄʜɪɴɢ ᴏɴʟɪɴᴇ ᴄᴏᴜɴᴛʀɪᴇs:\n"
+                    f"ɢᴏᴛ {len(countries)} ᴄᴏᴜɴᴛʀɪᴇs\n\n"
+                    "⁀➴ ᴛᴇsᴛɪɴɢ ᴀᴄᴛɪᴠᴇ ɴᴜᴍʙᴇʀs:\n"
+                    f"ᴛʀʏɪɴɢ {country_name} ({formatted_number})"
                 ),
             ) 
 
@@ -879,13 +879,13 @@ def number_command_handler(message: ClassVar[Any]) -> NoReturn:
                     message_id=prompt.message_id,
                     text=(
                         "⚠️ ɪɴ ғʀᴇᴇ ɴᴜᴍʙᴇʀ ᴘᴀʀᴛ ʏᴏᴜ ᴄᴀɴ ʀᴀɴᴅᴏᴍʟʏ ɢᴇᴛ ғʀᴇᴇ ɴᴜᴍʙᴇʀs ᴀɴᴅ ɢᴇᴛ ᴛʜᴇ ɪɴᴄᴏᴍɪɴɢ ᴍᴇssᴀɢᴇs ᴛʜʀᴏᴜɢʜ ɪɴʙᴏx ʙᴜᴛᴛᴏɴ ʙᴜᴛ ᴛʜᴇ ɴᴜᴍʙᴇʀ ɪs ᴜsᴇᴅ ʙʏ ᴘᴜʙʟɪᴄ ᴀɴᴅ ɪᴛ ᴍᴀʏ ᴀʟʀᴇᴀᴅʏ ᴛᴀᴋᴇɴ ʙʏ ᴀɴᴏᴛʜᴇʀ ᴜsᴇʀ.👇\n┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n"
-                        "Getting a random number for you...\n\n"
-                        "⁀➴ Fetching online countries:\n"
-                        f"Got {len(countries)} countries\n\n"
-                        "⁀➴ Testing active numbers:\n"
-                        f"Trying {country_name} ({formatted_number})\n\n"
-                        f"{flag} Here is your number: +{number[1]}\n\n"
-                        f"Last Update: {number[0]}"
+                        "ɢᴇᴛᴛɪɴɢ ᴀ ʀᴀɴᴅᴏᴍ ɴᴜᴍʙᴇʀ ғᴏʀ ʏᴏᴜ...\n\n"
+                        "⁀➴ ғᴇᴛᴄʜɪɴɢ ᴏɴʟɪɴᴇ ᴄᴏᴜɴᴛʀɪᴇs:\n"
+                        f"ɢᴏᴛ {len(countries)} ᴄᴏᴜɴᴛʀɪᴇs\n\n"
+                        "⁀➴ ᴛᴇsᴛɪɴɢ ᴀᴄᴛɪᴠᴇ ɴᴜᴍʙᴇʀs:\n"
+                        f"ᴛʀʏɪɴɢ {country_name} ({formatted_number})\n\n"
+                        f"{flag} ʜᴇʀᴇ ɪs ʏᴏᴜʀ ɴᴜᴍʙᴇʀ:: +{number[1]}\n\n"
+                        f"ʟᴀsᴛ ᴜᴘᴅᴀᴛᴇ: {number[0]}"
                     ),
                     reply_markup=Markup
                 )
@@ -902,11 +902,11 @@ def number_command_handler(message: ClassVar[Any]) -> NoReturn:
             text=(
 
                     "⚠️ ɪɴ ғʀᴇᴇ ɴᴜᴍʙᴇʀ ᴘᴀʀᴛ ʏᴏᴜ ᴄᴀɴ ʀᴀɴᴅᴏᴍʟʏ ɢᴇᴛ ғʀᴇᴇ ɴᴜᴍʙᴇʀs ᴀɴᴅ ɢᴇᴛ ᴛʜᴇ ɪɴᴄᴏᴍɪɴɢ ᴍᴇssᴀɢᴇs ᴛʜʀᴏᴜɢʜ ɪɴʙᴏx ʙᴜᴛᴛᴏɴ ʙᴜᴛ ᴛʜᴇ ɴᴜᴍʙᴇʀ ɪs ᴜsᴇᴅ ʙʏ ᴘᴜʙʟɪᴄ ᴀɴᴅ ɪᴛ ᴍᴀʏ ᴀʟʀᴇᴀᴅʏ ᴛᴀᴋᴇɴ ʙʏ ᴀɴᴏᴛʜᴇʀ ᴜsᴇʀ.👇\n┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n"
-                    "Getting a random number for you...\n\n"
-                    "⁀➴ Fetching online countries:\n"
-                    f"Got {len(countries)} countries\n\n"
-                    "⁀➴ Testing active numbers:\n"
-                    f"There is no online number for now!"
+                    "ɢᴇᴛᴛɪɴɢ ᴀ ʀᴀɴᴅᴏᴍ ɴᴜᴍʙᴇʀ ғᴏʀ ʏᴏᴜ...\n\n"
+                    "⁀➴ ғᴇᴛᴄʜɪɴɢ ᴏɴʟɪɴᴇ ᴄᴏᴜɴᴛʀɪᴇs:\n"
+                    f"ɢᴏᴛ {len(countries)} ᴄᴏᴜɴᴛʀɪᴇs\n\n"
+                    "⁀➴ ᴛᴇsᴛɪɴɢ ᴀᴄᴛɪᴠᴇ ɴᴜᴍʙᴇʀs:\n"
+                    f"ᴛʜᴇʀᴇ ɪs ɴᴏ ᴏɴʟɪɴᴇ ɴᴜᴍʙᴇʀ ғᴏʀ ɴᴏᴡ!"
                 ),
         ) 
 
@@ -984,8 +984,8 @@ def new_number_handler(call):
         chat_id=chat_id,
         message_id=message_id,
         text=(
-            "Getting a random number for you...\n\n"
-            "⁀➴ Fetching online countries:"
+            "ɢᴇᴛᴛɪɴɢ ᴀ ʀᴀɴᴅᴏᴍ ɴᴜᴍʙᴇʀ ғᴏʀ ʏᴏᴜ...\n\n"
+            "⁀➴ ғᴇᴛᴄʜɪɴɢ ᴏɴʟɪɴᴇ ᴄᴏᴜɴᴛʀɪᴇs:"
         ),
     )
 
@@ -1001,10 +1001,10 @@ def new_number_handler(call):
         chat_id=chat_id,
         message_id=message_id,
         text=(
-            "Getting a random number for you...\n\n"
-            "⁀➴ Fetching online countries:\n"
-            f"Got {len(countries)} countries\n\n"
-            "⁀➴ Testing active numbers:\n"
+            "ɢᴇᴛᴛɪɴɢ ᴀ ʀᴀɴᴅᴏᴍ ɴᴜᴍʙᴇʀ ғᴏʀ ʏᴏᴜ...\n\n"
+            "⁀➴ ғᴇᴛᴄʜɪɴɢ ᴏɴʟɪɴᴇ ᴄᴏᴜɴᴛʀɪᴇs:\n"
+            f"ɢᴏᴛ {len(countries)} ᴄᴏᴜɴᴛʀɪᴇs\n\n"
+            "⁀➴ ᴛᴇsᴛɪɴɢ ᴀᴄᴛɪᴠᴇ ɴᴜᴍʙᴇʀs:\n"
         ),
     )
 
@@ -1045,11 +1045,11 @@ def new_number_handler(call):
                 chat_id=chat_id,
                 message_id=message_id,
                 text=(
-                    "Getting a random number for you...\n\n"
-                    "⁀➴ Fetching online countries:\n"
+                    "ɢᴇᴛᴛɪɴɢ ᴀ ʀᴀɴᴅᴏᴍ ɴᴜᴍʙᴇʀ ғᴏʀ ʏᴏᴜ...\n\n"
+                    "⁀➴ ғᴇᴛᴄʜɪɴɢ ᴏɴʟɪɴᴇ ᴄᴏᴜɴᴛʀɪᴇs:\n"
                     f"Got {len(countries)} countries\n\n"
-                    "⁀➴ Testing active numbers:\n"
-                    f"Trying {country_name} ({formatted_number})"
+                    "⁀➴ ᴛᴇsᴛɪɴɢ ᴀᴄᴛɪᴠᴇ ɴᴜᴍʙᴇʀs:\n"
+                    f"ᴛʀʏɪɴɢ {country_name} ({formatted_number})"
                 ),
             ) 
 
@@ -1078,13 +1078,13 @@ def new_number_handler(call):
                     chat_id=chat_id,
                     message_id=message_id,
                     text=(
-                        "Getting a random number for you...\n\n"
-                        "⁀➴ Fetching online countries:\n"
-                        f"Got {len(countries)} countries\n\n"
+                        "ɢᴇᴛᴛɪɴɢ ᴀ ʀᴀɴᴅᴏᴍ ɴᴜᴍʙᴇʀ ғᴏʀ ʏᴏᴜ...\n\n"
+                        "⁀➴ ғᴇᴛᴄʜɪɴɢ ᴏɴʟɪɴᴇ ᴄᴏᴜɴᴛʀɪᴇs:\n"
+                        f"ɢᴏᴛ {len(countries)} ᴄᴏᴜɴᴛʀɪᴇs\n\n"
                         "⁀➴ Testing active numbers:\n"
-                        f"Trying {country_name} ({formatted_number})\n\n"
-                        f"{flag} Here is your number: +{number[1]}\n\n"
-                        f"Last Update: {number[0]}"
+                        f"ᴛʀʏɪɴɢ {country_name} ({formatted_number})\n\n"
+                        f"{flag} ʜᴇʀᴇ ɪs ʏᴏᴜʀ ɴᴜᴍʙᴇʀ:: +{number[1]}\n\n"
+                        f"ʟᴀsᴛ ᴜᴘᴅᴀᴛᴇ:: {number[0]}"
                     ),
                     reply_markup=Markup
                 )
@@ -1106,11 +1106,11 @@ def new_number_handler(call):
             chat_id=chat_id,
             message_id=message_id,
             text=(
-                    "Getting a random number for you...\n\n"
-                    "⁀➴ Fetching online countries:\n"
-                    f"Got {len(countries)} countries\n\n"
-                    "⁀➴ Testing active numbers:\n"
-                    f"There is no online number for now!"
+                    "ɢᴇᴛᴛɪɴɢ ᴀ ʀᴀɴᴅᴏᴍ ɴᴜᴍʙᴇʀ ғᴏʀ ʏᴏᴜ...\n\n"
+                    "⁀➴ ғᴇᴛᴄʜɪɴɢ ᴏɴʟɪɴᴇ ᴄᴏᴜɴᴛʀɪᴇs:\n"
+                    f"ɢᴏᴛ {len(countries)} ᴄᴏᴜɴᴛʀɪᴇs\n\n"
+                    "⁀➴ ᴛᴇsᴛɪɴɢ ᴀᴄᴛɪᴠᴇ ɴᴜᴍʙᴇʀs:\n"
+                    f"ᴛʜᴇʀᴇ ɪs ɴᴏ ᴏɴʟɪɴᴇ ɴᴜᴍʙᴇʀ ғᴏʀ ɴᴏᴡ!"
                 ),
         ) 
 
