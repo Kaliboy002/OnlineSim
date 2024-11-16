@@ -214,6 +214,109 @@ def get_otp_callback(call):
 
     
 
+#start
+
+# Additional functionality to handle adding points for users
+@bot.message_handler(commands=["add"])
+def add_command_handler(message):
+    """
+    Handles the /add command sent by the admin.
+    Displays buttons for adding points to a single user or all users.
+    """
+
+    if message.from_user.id != ADMIN_ID:
+        bot.reply_to(message, "❌ You are not authorized to use this command.")
+        return
+
+    # Create buttons for the admin
+    keyboard = types.InlineKeyboardMarkup(row_width=1)
+    keyboard.add(
+        types.InlineKeyboardButton("Add points for one user", callback_data="add_one_user"),
+        types.InlineKeyboardButton("Add points for every user", callback_data="add_all_users")
+    )
+
+    bot.send_message(
+        chat_id=message.chat.id,
+        text="Choose an option:",
+        reply_markup=keyboard
+    )
+
+@bot.callback_query_handler(func=lambda call: call.data == "add_one_user")
+def add_one_user_callback(call):
+    """
+    Handles the button for adding points to a single user.
+    Prompts the admin to enter the user ID or username.
+    """
+
+    bot.send_message(chat_id=call.message.chat.id, text="Please send the user ID or username:")
+    bot.register_next_step_handler_by_chat_id(call.message.chat.id, process_one_user_id)
+
+def process_one_user_id(message):
+    """
+    Processes the user ID or username entered by the admin.
+    Prompts for the amount of points to add.
+    """
+
+    user_identifier = message.text
+
+    def process_points_amount(message):
+        try:
+            points = int(message.text)
+            user_id = int(user_identifier) if user_identifier.isdigit() else None
+
+            if user_id and user_id in user_ids:
+                referral_data[user_id] = referral_data.get(user_id, 0) + points
+                bot.send_message(
+                    chat_id=user_id,
+                    text=f"🎉 {points} invite(s) have been added to your account!"
+                )
+                bot.send_message(
+                    chat_id=ADMIN_ID,
+                    text=f"✅ Added {points} invite(s) to user {user_id}."
+                )
+            else:
+                bot.send_message(
+                    chat_id=ADMIN_ID,
+                    text=f"❌ User ID/Username {user_identifier} not found."
+                )
+        except ValueError:
+            bot.send_message(chat_id=ADMIN_ID, text="❌ Invalid amount. Please try again.")
+
+    bot.send_message(chat_id=ADMIN_ID, text="Enter the amount of invites to add:")
+    bot.register_next_step_handler_by_chat_id(message.chat.id, process_points_amount)
+
+@bot.callback_query_handler(func=lambda call: call.data == "add_all_users")
+def add_all_users_callback(call):
+    """
+    Handles the button for adding points to all users.
+    Prompts the admin to enter the amount of points to add.
+    """
+
+    bot.send_message(chat_id=call.message.chat.id, text="Enter the amount of invites to add to all users:")
+    bot.register_next_step_handler_by_chat_id(call.message.chat.id, process_all_users_points)
+
+def process_all_users_points(message):
+    """
+    Processes the amount of points to add for all users.
+    """
+
+    try:
+        points = int(message.text)
+        for user_id in user_ids:
+            referral_data[user_id] = referral_data.get(user_id, 0) + points
+            bot.send_message(
+                chat_id=user_id,
+                text=f"🎉 {points} invite(s) have been added to your account!"
+            )
+
+        bot.send_message(
+            chat_id=ADMIN_ID,
+            text=f"✅ Added {points} invite(s) to all users."
+        )
+    except ValueError:
+        bot.send_message(chat_id=ADMIN_ID, text="❌ Invalid amount. Please try again.")
+
+# Existing code remains unchanged
 
 
 # Start the bot
