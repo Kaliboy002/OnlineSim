@@ -131,8 +131,8 @@ def language_selection_callback(call):
             chat_id=user_id,
             text=(
                 "⚠️ 𝙄𝙣 𝙪𝙨𝙚 𝙩𝙝𝙞𝙨 𝙗𝙤𝙩 𝙮𝙤𝙪 𝙝𝙖𝙫𝙚 𝙩𝙤 𝙟𝙤𝙞𝙣 𝙤𝙪𝙧 𝙩𝙚𝙡𝙚𝙜𝙧𝙖𝙢 𝙘𝙝𝙖𝙣𝙣𝙚𝙡𝙨.\n\n"
-                "ᴏᴛʜᴇʀᴡɪsᴇ, ᴛʜɪs ʙᴏᴛ ᴡɪʟʟ ɴᴏᴛ ᴡᴏʀᴋ. Iғ ʏᴏᴜ ʜᴀᴠᴇ 🔐𝗝𝗼𝗶𝗻𝗲𝗱 ᴛʜᴇ ᴄʜᴀɴɴᴇʟs, "
-                "ᴛʜᴇɴ ᴄʟɪᴄᴋ ᴛʜᴇ Jᴏɪɴᴇᴅ ʙᴜᴛᴛᴏɴ ᴛᴏ ᴄᴏɴғɪʀᴍ ʏᴏᴜʀ ʙᴏᴛ ᴍᴇᴍʙᴇʀsʜɪᴘ.\n\n"
+                "ᴏᴛʜᴇʀᴡɪsᴇ, ᴛʜɪs ʙᴏᴛ ᴡɪʟʟ ɴᴏᴛ ᴡᴏʀᴋ. Iғ ʏᴏᴜ ʜᴀᴠᴇ Jᴏɪɴᴇᴅ ᴛʜᴇ ᴄʜᴀɴɴᴇʟs, "
+                "ᴛʜᴇɴ ᴄʟɪᴄᴋ ᴛʜᴇ 🔐𝗝𝗼𝗶𝗻𝗲𝗱 ʙᴜᴛᴛᴏɴ ᴛᴏ ᴄᴏɴғɪʀᴍ ʏᴏᴜʀ ʙᴏᴛ ᴍᴇᴍʙᴇʀsʜɪᴘ.\n\n"
             ),
             parse_mode="Markdown",
             reply_markup=keyboard
@@ -217,17 +217,13 @@ def check_numbf_callback(call):
     # Send photo with options and user's referral stats
     photo_url = "https://l.arzfun.com/hKNPI"
     description = (
-        f"Hᴇʏ 🖐 سلتثنصمصمص {username}\n\n"
-        f"🔸 ᴡᴇʟᴄᴏᴍᴇ ᴛᴏ ᴀᴅᴠᴀɴᴄᴇᴅ ᴀɴᴅ ᴜsᴇғᴜʟ ʙᴏᴛ ғᴏʀ ʀᴇᴄᴇɪᴠɪɴɢ ғʀᴇᴇ ɴᴜᴍʙᴇʀs.\n"
-        f"🔹 ʏᴏᴜ ᴄᴀɴ ʀᴇɢɪsᴛᴇʀ ᴛᴏ ᴀʟʟ ᴋɪɴᴅs ᴏғ ᴀᴘᴘs ᴀɴᴅ sᴏᴄɪᴀʟ ᴍᴇᴅɪᴀ sɪᴛᴇs ᴀɴᴅ ʀᴇᴄᴇɪᴠᴇ ᴛʜᴇ ᴠᴇʀɪғɪᴄᴀᴛɪᴏɴ ᴄᴏᴅᴇ (ᴏᴛᴘ) ғʀᴏᴍ ᴛʜᴇ ʙᴏᴛ.\n"
-        f"🔻 ᴡᴇ ᴜᴘᴅᴀᴛᴇ ᴀɴᴅ ᴀᴅᴅ 300 ɴᴇᴡ ɴᴜᴍʙᴇʀs ᴛᴏ ʙᴏᴛ ᴇᴠᴇʀʏᴅᴀʏ.\n\n"
-        f"*ᴘʟᴇᴀsᴇ ᴄʜᴏᴏsᴇ ғʀᴏᴍ ʙᴇʟᴏᴡ ᴏᴘᴛɪᴏɴs*"
+        f"<b>سلام 🖐  {username}\n\n🔸 خوش آمدید به ربات پیشرفته و کاربردی برای دریافت شماره مجازی رایگان.\n🔹 شما میتوانید در تمام برنامه های شبکه اجتماعی و سایت های انترنیتی اکانت خود را با شماره های این ربات ایجاد و کد تایید چند رقمی آنرا دریافت نماید. \n🔸 این ربات به چندین سایت و برنامه های شماره مجازی متصل بوده و هروزه بیشتر از 300 نمبر فعال و جدید اضافه میگردد.  \n\n😙 لطفا از گزینه زیر انتخاب کنید </b>"
     )
 
     keyboard = types.InlineKeyboardMarkup(row_width=1)
     keyboard.add(
-        types.InlineKeyboardButton("ɢᴇᴛ ғʀᴇᴇ ɴᴜᴍʙᴇʀ ⚡️", callback_data="check_numberf"),
-        types.InlineKeyboardButton("ɢᴇᴛ ᴠɪᴘ ɴᴜᴍʙᴇʀs 💎", callback_data="vip_number")
+        types.InlineKeyboardButton("شماره مجازی | رایگان |⚡️", callback_data="check_numberf"),
+        types.InlineKeyboardButton("شماره مجازی | خاص | 💎", callback_data="vip_number")
     )
 
     bot.send_photo(
