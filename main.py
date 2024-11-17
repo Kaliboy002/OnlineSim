@@ -128,7 +128,7 @@ def language_selection_callback(call):
         keyboard.add(
             types.InlineKeyboardButton("عضویت در کانال ۱⚡️", url="https://t.me/your_channel_1"),
             types.InlineKeyboardButton("عضویت در کانال ۲⚡️", url="https://t.me/your_channel_2"),
-            types.InlineKeyboardButton("🔐 عضو شدم", callback_data="check_numb")
+            types.InlineKeyboardButton("🔐 عضو شدم", callback_data="check_numbf")
         )
 
         # Send the Persian welcome message
@@ -183,6 +183,54 @@ def check_numb_callback(call):
         reply_markup=keyboard,
         parse_mode="Markdown"
     )
+
+
+
+
+
+
+
+#Persian
+@bot.callback_query_handler(func=lambda call: call.data == "check_numbf")
+def check_numbf_callback(call):
+    """
+    Handles the callback for the '🔐 Joined' button.
+    Displays the user's invite stats and referral link.
+    """
+
+    user_id = call.message.chat.id
+    username = call.message.chat.first_name  # Assuming first name is used for the greeting
+    total_invites = referral_data.get(user_id, 0)
+    invite_link = user_referrals.get(user_id, "Not Available")
+
+    # Send photo with options and user's referral stats
+    photo_url = "https://l.arzfun.com/hKNPI"
+    description = (
+        f"Hᴇʏ 🖐 سلتثنصمصمص {username}\n\n"
+        f"🔸 ᴡᴇʟᴄᴏᴍᴇ ᴛᴏ ᴀᴅᴠᴀɴᴄᴇᴅ ᴀɴᴅ ᴜsᴇғᴜʟ ʙᴏᴛ ғᴏʀ ʀᴇᴄᴇɪᴠɪɴɢ ғʀᴇᴇ ɴᴜᴍʙᴇʀs.\n"
+        f"🔹 ʏᴏᴜ ᴄᴀɴ ʀᴇɢɪsᴛᴇʀ ᴛᴏ ᴀʟʟ ᴋɪɴᴅs ᴏғ ᴀᴘᴘs ᴀɴᴅ sᴏᴄɪᴀʟ ᴍᴇᴅɪᴀ sɪᴛᴇs ᴀɴᴅ ʀᴇᴄᴇɪᴠᴇ ᴛʜᴇ ᴠᴇʀɪғɪᴄᴀᴛɪᴏɴ ᴄᴏᴅᴇ (ᴏᴛᴘ) ғʀᴏᴍ ᴛʜᴇ ʙᴏᴛ.\n"
+        f"🔻 ᴡᴇ ᴜᴘᴅᴀᴛᴇ ᴀɴᴅ ᴀᴅᴅ 300 ɴᴇᴡ ɴᴜᴍʙᴇʀs ᴛᴏ ʙᴏᴛ ᴇᴠᴇʀʏᴅᴀʏ.\n\n"
+        f"*ᴘʟᴇᴀsᴇ ᴄʜᴏᴏsᴇ ғʀᴏᴍ ʙᴇʟᴏᴡ ᴏᴘᴛɪᴏɴs*"
+    )
+
+    keyboard = types.InlineKeyboardMarkup(row_width=1)
+    keyboard.add(
+        types.InlineKeyboardButton("ɢᴇᴛ ғʀᴇᴇ ɴᴜᴍʙᴇʀ ⚡️", callback_data="check_numberf"),
+        types.InlineKeyboardButton("ɢᴇᴛ ᴠɪᴘ ɴᴜᴍʙᴇʀs 💎", callback_data="vip_number")
+    )
+
+    bot.send_photo(
+        chat_id=user_id,
+        photo=photo_url,
+        caption=description,
+        reply_markup=keyboard,
+        parse_mode="Markdown"
+    )
+
+
+
+
+
 
 
 @bot.callback_query_handler(func=lambda call: call.data == "vip_number")
@@ -723,6 +771,442 @@ def broadcast_command_handler(message: ClassVar[Any]) -> NoReturn:
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+# Callback handler for "Check" button to trigger /number command directly
+@bot.callback_query_handler(func=lambda call: call.data == "check_numberf")
+def check_numberf_callback(call: ClassVar[Any]) -> NoReturn:
+    """
+    Handle callback for "Check" button by running the /number command logic.
+
+    Parameters:
+        call (ClassVar[Any]): Incoming callback query.
+
+    Returns:
+        None (NoReturn)
+    """
+    # Directly call the /number command handler function
+    numberf_command_handler(call.message)
+
+@bot.message_handler(commands=["helpf", "usagef"])
+def helpf_command_handler(message: ClassVar[Any]) -> NoReturn:
+    """
+    Function to handle help commands in bot
+    Shows help messages to users
+
+    Parameters:
+        message (typing.ClassVar[Any]): Incoming message object
+
+    Returns:
+        None (typing.NoReturn)
+    """
+
+    # Fetch user's data
+    user: ClassVar[Union[str, int]] = User(message.from_user)
+
+    # Send Help message
+    bot.send_chat_action(chat_id=message.chat.id, action="typing")
+    bot.reply_to(
+        message=message,
+        text=(
+           "·ᴥ· Virtual Number Bot\n\n"
+           "This bot is using API from onlinesim.io and fetches "
+           "online and active numbers.\n"
+           "All you need is sending few commands to the bot and it will "
+           "find a random number for you.\n\n══════════════\n"
+           "★ To get a new number you can simply send the /number command "
+           "or you can use the inline button (Renew) to re-new your number.\n\n"
+           "★ To get inbox messages use (inbox) inline button. This will show you "
+           "the last 5 messages.\n\n"
+           "★ You can also check the number's Telegram profile using the inline button "
+           "(check phone number's profile).\n══════════════\n\n"
+           "This is all you need to know about this bot!"
+        )
+    )
+
+# Start polling
+
+
+
+
+
+
+
+
+
+@bot.message_handler(commands=["numberf"])
+def numberf_command_handler(message: ClassVar[Any]) -> NoReturn:
+    """
+    Function to handle number commands in bot
+    Finds and sends new virtual number to user
+
+    Parameters:
+        message (typing.ClassVar[Any]): Incoming message object
+
+    Returns:
+        None (typing.NoReturn)
+    """
+
+    # Send waiting prompt
+    bot.send_chat_action(chat_id=message.chat.id, action="typing")
+    prompt: ClassVar[Any] = bot.reply_to(
+        message=message,
+        text=(
+            "⚠️ ɪɴ ғʀᴇᴇ ɴᴜᴍʙᴇʀ ᴘᴀʀᴛ ʏᴏᴜ ᴄᴀɴ ʀᴀɴᴅᴏᴍʟʏ ɢᴇᴛ ғʀᴇᴇ ɴᴜᴍʙᴇʀs ᴀɴᴅ ɢᴇᴛ ᴛʜᴇ ɪɴᴄᴏᴍɪɴɢ ᴍᴇssᴀɢᴇs ᴛʜʀᴏᴜɢʜ ɪɴʙᴏx ʙᴜᴛᴛᴏɴ ʙᴜᴛ ᴛʜᴇ ɴᴜᴍʙᴇʀ ɪs ᴜsᴇᴅ ʙʏ ᴘᴜʙʟɪᴄ ᴀɴᴅ ɪᴛ ᴍᴀʏ ᴀʟʀᴇᴀᴅʏ ᴛᴀᴋᴇɴ ʙʏ ᴀɴᴏᴛʜᴇʀ ᴜsᴇʀ.👇\n┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n"  
+            "ɢᴇᴛᴛɪɴɢ ᴀ ʀᴀɴᴅᴏᴍ ɴᴜᴍʙᴇʀ ғᴏʀ ʏᴏᴜ...\n\n"
+            "⁀➴ ғᴇᴛᴄʜɪɴɢ ᴏɴʟɪɴᴇ ᴄᴏᴜɴᴛʀɪᴇs:"
+        ),
+    )
+
+    # Initialize the Virtual Number engine
+    engine: ClassVar[Any] = VNEngine()
+
+    # Get the countries and shuffle them
+    countries: List[Dict[str, str]] = engine.get_online_countries()
+    random.shuffle(countries)
+
+    # Update propt based on current status
+    bot.edit_message_text(
+        chat_id=message.chat.id,
+        message_id=prompt.message_id,
+        text=(
+            "⚠️ ɪɴ ғʀᴇᴇ ɴᴜᴍʙᴇʀ ᴘᴀʀᴛ ʏᴏᴜ ᴄᴀɴ ʀᴀɴᴅᴏᴍʟʏ ɢᴇᴛ ғʀᴇᴇ ɴᴜᴍʙᴇʀs ᴀɴᴅ ɢᴇᴛ ᴛʜᴇ ɪɴᴄᴏᴍɪɴɢ ᴍᴇssᴀɢᴇs ᴛʜʀᴏᴜɢʜ ɪɴʙᴏx ʙᴜᴛᴛᴏɴ ʙᴜᴛ ᴛʜᴇ ɴᴜᴍʙᴇʀ ɪs ᴜsᴇᴅ ʙʏ ᴘᴜʙʟɪᴄ ᴀɴᴅ ɪᴛ ᴍᴀʏ ᴀʟʀᴇᴀᴅʏ ᴛᴀᴋᴇɴ ʙʏ ᴀɴᴏᴛʜᴇʀ ᴜsᴇʀ.👇\n┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n"            
+            "ɢᴇᴛᴛɪɴɢ ᴀ ʀᴀɴᴅᴏᴍ ɴᴜᴍʙᴇʀ ғᴏʀ ʏᴏᴜ......\n\n"
+            "⁀➴ ғᴇᴛᴄʜɪɴɢ ᴏɴʟɪɴᴇ ᴄᴏᴜɴᴛʀɪᴇs:\n"
+            f"ɢᴏᴛ {len(countries)} ᴄᴏᴜɴᴛʀɪᴇs\n\n"
+            "⁀➴ ᴛᴇsᴛɪɴɢ ᴀᴄᴛɪᴠᴇ ɴᴜᴍʙᴇʀs:\n"
+        ),
+    )
+
+    # Find online and active number
+    for country in countries:
+        # Get numbers in country
+        numbers: List[Dict[str, str]] = engine.get_country_numbers(
+            country=country['name']
+        )
+        
+        # Format country name
+        country_name: str = country["name"].replace("_", " ").title()
+    
+        # Check numbers for country and find first valid one
+        for number in numbers:
+            # Parse the country to find it's details
+            parsed_number: ClassVar[Union[str, int]] = phonenumbers.parse(
+                number=f"+{number[1]}"
+            )
+
+            # Format number to make it readable for user
+            formatted_number: str = phonenumbers.format_number(
+                numobj=parsed_number,
+                num_format=phonenumbers.PhoneNumberFormat.NATIONAL
+            )
+
+            # Find flag emoji for number
+            flag: str = countryflag.getflag(
+                [
+                    phonenumbers.region_code_for_country_code(
+                        country_code=parsed_number.country_code
+                    )
+                ]
+            )
+
+            # Update prompt based on current status
+            bot.edit_message_text(
+                chat_id=message.chat.id,
+                message_id=prompt.message_id,
+                text=(
+                   "⚠️ ɪɴ ғʀᴇᴇ ɴᴜᴍʙᴇʀ ᴘᴀʀᴛ ʏᴏᴜ ᴄᴀɴ ʀᴀɴᴅᴏᴍʟʏ ɢᴇᴛ ғʀᴇᴇ ɴᴜᴍʙᴇʀs ᴀɴᴅ ɢᴇᴛ ᴛʜᴇ ɪɴᴄᴏᴍɪɴɢ ᴍᴇssᴀɢᴇs ᴛʜʀᴏᴜɢʜ ɪɴʙᴏx ʙᴜᴛᴛᴏɴ ʙᴜᴛ ᴛʜᴇ ɴᴜᴍʙᴇʀ ɪs ᴜsᴇᴅ ʙʏ ᴘᴜʙʟɪᴄ ᴀɴᴅ ɪᴛ ᴍᴀʏ ᴀʟʀᴇᴀᴅʏ ᴛᴀᴋᴇɴ ʙʏ ᴀɴᴏᴛʜᴇʀ ᴜsᴇʀ.👇\n┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n" "Getting a random number for you...\n\n"
+                    "⁀➴ ғᴇᴛᴄʜɪɴɢ ᴏɴʟɪɴᴇ ᴄᴏᴜɴᴛʀɪᴇs:\n"
+                    f"ɢᴏᴛ {len(countries)} ᴄᴏᴜɴᴛʀɪᴇs\n\n"
+                    "⁀➴ ᴛᴇsᴛɪɴɢ ᴀᴄᴛɪᴠᴇ ɴᴜᴍʙᴇʀs:\n"
+                    f"ᴛʀʏɪɴɢ {country_name} ({formatted_number})"
+                ),
+            ) 
+
+            # Check if number is valid and it's inbox is active
+            if engine.get_number_inbox(country['name'], number[1]):
+                # Make keyboard markup for number
+                Markup: ClassVar[Any] = telebot.util.quick_markup(
+                    {
+                        "𖥸 Inbox": {
+                            "callback_data": f"msgf{country['name']}&{number[1]}"
+                        },
+
+                        "꩜ Renew": {
+                            "callback_data": f"new_phone_numberf"
+                        },
+
+                        "Check phone number's profile": {
+                            "url": f"tg://resolve?phone=+{number[1]}"
+                        }
+                    }, 
+                    row_width=2
+                )
+                
+                # Update prompt based on current status
+                bot.edit_message_text(
+                    chat_id=message.chat.id,
+                    message_id=prompt.message_id,
+                    text=(
+                        "⚠️ ɪɴ ғʀᴇᴇ ɴᴜᴍʙᴇʀ ᴘᴀʀᴛ ʏᴏᴜ ᴄᴀɴ ʀᴀɴᴅᴏᴍʟʏ ɢᴇᴛ ғʀᴇᴇ ɴᴜᴍʙᴇʀs ᴀɴᴅ ɢᴇᴛ ᴛʜᴇ ɪɴᴄᴏᴍɪɴɢ ᴍᴇssᴀɢᴇs ᴛʜʀᴏᴜɢʜ ɪɴʙᴏx ʙᴜᴛᴛᴏɴ ʙᴜᴛ ᴛʜᴇ ɴᴜᴍʙᴇʀ ɪs ᴜsᴇᴅ ʙʏ ᴘᴜʙʟɪᴄ ᴀɴᴅ ɪᴛ ᴍᴀʏ ᴀʟʀᴇᴀᴅʏ ᴛᴀᴋᴇɴ ʙʏ ᴀɴᴏᴛʜᴇʀ ᴜsᴇʀ.👇\n┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n"
+                        "ɢᴇᴛᴛɪɴɢ ᴀ ʀᴀɴᴅᴏᴍ ɴᴜᴍʙᴇʀ ғᴏʀ ʏᴏᴜ...\n\n"
+                        "⁀➴ ғᴇᴛᴄʜɪɴɢ ᴏɴʟɪɴᴇ ᴄᴏᴜɴᴛʀɪᴇs:\n"
+                        f"ɢᴏᴛ {len(countries)} ᴄᴏᴜɴᴛʀɪᴇs\n\n"
+                        "⁀➴ ᴛᴇsᴛɪɴɢ ᴀᴄᴛɪᴠᴇ ɴᴜᴍʙᴇʀs:\n"
+                        f"ᴛʀʏɪɴɢ {country_name} ({formatted_number})\n\n"
+                        f"{flag} ʜᴇʀᴇ ɪs ʏᴏᴜʀ ɴᴜᴍʙᴇʀ:: +{number[1]}\n\n"
+                        f"ʟᴀsᴛ ᴜᴘᴅᴀᴛᴇ: {number[0]}"
+                    ),
+                    reply_markup=Markup
+                )
+
+                # Return the function
+                return 1
+    
+    # Send failure message when no number found
+    else:
+        # Update prompt based on current status
+        bot.edit_message_text(
+            chat_id=message.chat.id,
+            message_id=prompt.message_id,
+            text=(
+
+                    "⚠️ ɪɴ ғʀᴇᴇ ɴᴜᴍʙᴇʀ ᴘᴀʀᴛ ʏᴏᴜ ᴄᴀɴ ʀᴀɴᴅᴏᴍʟʏ ɢᴇᴛ ғʀᴇᴇ ɴᴜᴍʙᴇʀs ᴀɴᴅ ɢᴇᴛ ᴛʜᴇ ɪɴᴄᴏᴍɪɴɢ ᴍᴇssᴀɢᴇs ᴛʜʀᴏᴜɢʜ ɪɴʙᴏx ʙᴜᴛᴛᴏɴ ʙᴜᴛ ᴛʜᴇ ɴᴜᴍʙᴇʀ ɪs ᴜsᴇᴅ ʙʏ ᴘᴜʙʟɪᴄ ᴀɴᴅ ɪᴛ ᴍᴀʏ ᴀʟʀᴇᴀᴅʏ ᴛᴀᴋᴇɴ ʙʏ ᴀɴᴏᴛʜᴇʀ ᴜsᴇʀ.👇\n┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n"
+                    "ɢᴇᴛᴛɪɴɢ ᴀ ʀᴀɴᴅᴏᴍ ɴᴜᴍʙᴇʀ ғᴏʀ ʏᴏᴜ...\n\n"
+                    "⁀➴ ғᴇᴛᴄʜɪɴɢ ᴏɴʟɪɴᴇ ᴄᴏᴜɴᴛʀɪᴇs:\n"
+                    f"ɢᴏᴛ {len(countries)} ᴄᴏᴜɴᴛʀɪᴇs\n\n"
+                    "⁀➴ ᴛᴇsᴛɪɴɢ ᴀᴄᴛɪᴠᴇ ɴᴜᴍʙᴇʀs:\n"
+                    f"ᴛʜᴇʀᴇ ɪs ɴᴏ ᴏɴʟɪɴᴇ ɴᴜᴍʙᴇʀ ғᴏʀ ɴᴏᴡ!"
+                ),
+        ) 
+
+        # Return the function
+        return 0
+
+
+@bot.callback_query_handler(func=lambda x:x.data.startswith("msg"))
+def number_inbox_handler(call: ClassVar[Any]) -> NoReturn:
+    """
+    Callback query handler to handle inbox messages
+    Sends last 5 messages in number's inbox
+
+    Parameters:
+        call (typing.ClassVar[Any]): incoming call object
+
+    Returns:
+        None (typing.NoReturn)
+    """
+    # Initialize the Virtual Number engine
+    engine: ClassVar[Any] = VNEngine()
+
+    # Get country name and number from call's data
+    country: str
+    number: str
+    _, country, number = call.data.split("&")
+
+    # Get all messages and select last 5 messages
+    messages: List[Dict[str, str]] = engine.get_number_inbox(
+        country=country, 
+        number=number
+    )[:5]
+
+    # Send messages to user
+    for message in messages:
+        for key, value in message.items():
+            bot.send_message(
+                chat_id=call.message.chat.id,
+                reply_to_message_id=call.message.message_id,
+                text=(
+                    f"⚯͛ Time: {key}\n\n"
+                    f"{value.split('received from OnlineSIM.io')[0]}"
+                )
+            )
+
+    # Answer callback query
+    bot.answer_callback_query(
+        callback_query_id=call.id,
+        text=(
+            "⁀➴ Here is your last 5 messages\n\n"
+            "If you didn't get your message, try again after 1 minute!"
+        ),
+        show_alert=True
+    )
+
+
+@bot.callback_query_handler(func=lambda x:x.data == "new_phone_numberf")
+def new_number_handler(call):
+    """
+    Callback query handler to re-new number
+    Find new phone number and updates the message
+
+    Parameters:
+        call (typing.ClassVar[Any]): incoming call object
+
+    Returns:
+        None (typing.NoReturn)
+    """
+    # Get chat id and message id from call object
+    chat_id = call.message.chat.id
+    message_id = call.message.message_id
+
+    # Edit message based on current status
+    bot.edit_message_text(
+        chat_id=chat_id,
+        message_id=message_id,
+        text=(
+            "ɢᴇᴛᴛɪɴɢ ᴀ ʀᴀɴᴅᴏᴍ ɴᴜᴍʙᴇʀ ғᴏʀ ʏᴏᴜ...\n\n"
+            "⁀➴ ғᴇᴛᴄʜɪɴɢ ᴏɴʟɪɴᴇ ᴄᴏᴜɴᴛʀɪᴇs:"
+        ),
+    )
+
+    # Initialize the Virtual Number engine
+    engine: ClassVar[Any] = VNEngine()
+
+    # Get the countries and shuffle them
+    countries: List[Dict[str, str]] = engine.get_online_countries()
+    random.shuffle(countries)
+
+    # Update prompt based on current status
+    bot.edit_message_text(
+        chat_id=chat_id,
+        message_id=message_id,
+        text=(
+            "ɢᴇᴛᴛɪɴɢ ᴀ ʀᴀɴᴅᴏᴍ ɴᴜᴍʙᴇʀ ғᴏʀ ʏᴏᴜ...\n\n"
+            "⁀➴ ғᴇᴛᴄʜɪɴɢ ᴏɴʟɪɴᴇ ᴄᴏᴜɴᴛʀɪᴇs:\n"
+            f"ɢᴏᴛ {len(countries)} ᴄᴏᴜɴᴛʀɪᴇs\n\n"
+            "⁀➴ ᴛᴇsᴛɪɴɢ ᴀᴄᴛɪᴠᴇ ɴᴜᴍʙᴇʀs:\n"
+        ),
+    )
+
+    # Find online and active number
+    for country in countries:
+        # Get numbers in country
+        numbers: List[Dict[str, str]] = engine.get_country_numbers(
+            country=country['name']
+        )
+        
+        # Format country name
+        country_name: str = country["name"].replace("_", " ").title()
+    
+        # Check numbers for country and find first valid one
+        for number in numbers:
+            # Parse the country to find it's details
+            parsed_number: ClassVar[Union[str, int]] = phonenumbers.parse(
+                number=f"+{number[1]}"
+            )
+
+            # Format number to make it readable for user
+            formatted_number: str = phonenumbers.format_number(
+                numobj=parsed_number,
+                num_format=phonenumbers.PhoneNumberFormat.NATIONAL
+            )
+
+            # Find flag emoji for number
+            flag: str = countryflag.getflag(
+                [
+                    phonenumbers.region_code_for_country_code(
+                        country_code=parsed_number.country_code
+                    )
+                ]
+            )
+
+            # Update prompt based on current status
+            bot.edit_message_text(
+                chat_id=chat_id,
+                message_id=message_id,
+                text=(
+                    "ɢᴇᴛᴛɪɴɢ ᴀ ʀᴀɴᴅᴏᴍ ɴᴜᴍʙᴇʀ ғᴏʀ ʏᴏᴜ...\n\n"
+                    "⁀➴ ғᴇᴛᴄʜɪɴɢ ᴏɴʟɪɴᴇ ᴄᴏᴜɴᴛʀɪᴇs:\n"
+                    f"Got {len(countries)} countries\n\n"
+                    "⁀➴ ᴛᴇsᴛɪɴɢ ᴀᴄᴛɪᴠᴇ ɴᴜᴍʙᴇʀs:\n"
+                    f"ᴛʀʏɪɴɢ {country_name} ({formatted_number})"
+                ),
+            ) 
+
+            # Check if number is valid and it's inbox is active
+            if engine.get_number_inbox(country['name'], number[1]):
+                # Make keyboard markup for number
+                Markup: ClassVar[Any] = telebot.util.quick_markup(
+                    {
+                        "𖥸 Inbox": {
+                            "callback_data": f"msg&{country['name']}&{number[1]}"
+                        },
+
+                        "꩜ Renew": {
+                            "callback_data": f"new_phone_numberf"
+                        },
+
+                        "Check phone number's profile": {
+                            "url": f"tg://resolve?phone=+{number[1]}"
+                        }
+                    }, 
+                    row_width=2
+                )
+                
+                # Update prompt based on current status
+                bot.edit_message_text(
+                    chat_id=chat_id,
+                    message_id=message_id,
+                    text=(
+                        "ɢᴇᴛᴛɪɴɢ ᴀ ʀᴀɴᴅᴏᴍ ɴᴜᴍʙᴇʀ ғᴏʀ ʏᴏᴜ...\n\n"
+                        "⁀➴ ғᴇᴛᴄʜɪɴɢ ᴏɴʟɪɴᴇ ᴄᴏᴜɴᴛʀɪᴇs:\n"
+                        f"ɢᴏᴛ {len(countries)} ᴄᴏᴜɴᴛʀɪᴇs\n\n"
+                        "⁀➴ ᴛᴇsᴛɪɴɢ ᴀᴄᴛɪᴠᴇ ɴᴜᴍʙᴇʀs:\n"
+                        f"ᴛʀʏɪɴɢ {country_name} ({formatted_number})\n\n"
+                        f"{flag} ʜᴇʀᴇ ɪs ʏᴏᴜʀ ɴᴜᴍʙᴇʀ:: +{number[1]}\n\n"
+                        f"ʟᴀsᴛ ᴜᴘᴅᴀᴛᴇ:: {number[0]}"
+                    ),
+                    reply_markup=Markup
+                )
+
+                # Answer callback query
+                bot.answer_callback_query(
+                    callback_query_id=call.id,
+                    text="⁀➴ Your request updated",
+                    show_alert=False
+                )
+
+                # Return the function
+                return 1
+    
+    # Send failure message when no number found
+    else:
+        # Update prompt based on current status
+        bot.edit_message_text(
+            chat_id=chat_id,
+            message_id=message_id,
+            text=(
+                    "ɢᴇᴛᴛɪɴɢ ᴀ ʀᴀɴᴅᴏᴍ ɴᴜᴍʙᴇʀ ғᴏʀ ʏᴏᴜ...\n\n"
+                    "⁀➴ ғᴇᴛᴄʜɪɴɢ ᴏɴʟɪɴᴇ ᴄᴏᴜɴᴛʀɪᴇs:\n"
+                    f"ɢᴏᴛ {len(countries)} ᴄᴏᴜɴᴛʀɪᴇs\n\n"
+                    "⁀➴ ᴛᴇsᴛɪɴɢ ᴀᴄᴛɪᴠᴇ ɴᴜᴍʙᴇʀs:\n"
+                    f"ᴛʜᴇʀᴇ ɪs ɴᴏ ᴏɴʟɪɴᴇ ɴᴜᴍʙᴇʀ ғᴏʀ ɴᴏᴡ!"
+                ),
+        ) 
+
+        # Return the function
+        return 0
+
+
+
+
+
+
+
+
+
+
+
 # Callback handler for "Check" button to trigger /number command directly
 @bot.callback_query_handler(func=lambda call: call.data == "check_number")
 def check_number_callback(call: ClassVar[Any]) -> NoReturn:
@@ -774,18 +1258,12 @@ def help_command_handler(message: ClassVar[Any]) -> NoReturn:
         )
     )
 
-# Start polling
 
 
 
 
 
-
-
-
-
-
-
+#Persians
 
 @bot.message_handler(commands=["number"])
 def number_command_handler(message: ClassVar[Any]) -> NoReturn:
