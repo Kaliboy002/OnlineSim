@@ -141,8 +141,8 @@ def language_selection_callback(call):
         # Create the channel join buttons for Persian
         keyboard = types.InlineKeyboardMarkup(row_width=1)
         keyboard.add(
-            types.InlineKeyboardButton("عضویت در کانال اول⚡️", url="https://t.me/your_channel_1"),
-            types.InlineKeyboardButton("عضویت در کانال دوم⚡️", url="https://t.me/your_channel_2"),
+            types.InlineKeyboardButton("عضو در کانال اول⚡️", url="https://t.me/your_channel_1"),
+            types.InlineKeyboardButton("عضو در کانال دوم⚡️", url="https://t.me/your_channel_2"),
             types.InlineKeyboardButton("🔐 عضـو شـدم", callback_data="check_numbf")
         )
 
@@ -231,7 +231,7 @@ def check_numbf_callback(call):
         photo=photo_url,
         caption=description,
         reply_markup=keyboard,
-        parse_mode="Markdown"
+        parse_mode="HTML"
     )
 
 
