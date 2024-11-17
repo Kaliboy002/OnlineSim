@@ -33,8 +33,6 @@ user_referrals: Dict[int, str] = {}  # {user_id: invite_link}
 INVITES_NEEDED = 2
 
 
-
-
 @bot.message_handler(commands=["start", "restart"])
 def start_command_handler(message):
     """
@@ -93,9 +91,16 @@ def start_command_handler(message):
     # Send the language selection message
     bot.send_message(
         chat_id=user_id,
-        text="Please choose your language:\n\nلطفاً زبان خود را انتخاب کنید:",
+        text=(
+            "🇺🇸 𝐒𝐞𝐥𝐞𝐜𝐭 𝐭𝐡𝐞 𝐥𝐚𝐧𝐠𝐮𝐚𝐠𝐞 𝐨𝐟 𝐲𝐨𝐮𝐫 𝐩𝐫𝐞𝐟𝐞𝐫𝐞𝐧𝐜𝐞 𝐟𝐫𝐨𝐦 𝐛𝐞𝐥𝐨𝐰 𝐭𝐨 𝐜𝐨𝐧𝐭𝐢𝐧𝐮𝐞\n\n"
+            "🇦🇫 **برای ادامه، لطفا زبان مورد نظر خود را از گزینه زیر انتخاب کنید**"
+        ),
+        parse_mode="Markdown",
         reply_markup=language_keyboard
     )
+
+
+
 
 @bot.callback_query_handler(func=lambda call: call.data in ["select_english", "select_persian"])
 def language_selection_callback(call):
