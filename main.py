@@ -934,7 +934,7 @@ def numberf_command_handler(message: ClassVar[Any]) -> NoReturn:
             ) 
 
             # Check if number is valid and it's inbox is active
-            if engine.get_number_inboxf(country['name'], number[1]):
+            if engine.get_number_inbox(country['name'], number[1]):
                 # Make keyboard markup for number
                 Markup: ClassVar[Any] = telebot.util.quick_markup(
                     {
@@ -995,7 +995,7 @@ def numberf_command_handler(message: ClassVar[Any]) -> NoReturn:
 
 
 @bot.callback_query_handler(func=lambda x:x.data.startswith("msg"))
-def number_inboxf_handler(call: ClassVar[Any]) -> NoReturn:
+def number_inbox_handler(call: ClassVar[Any]) -> NoReturn:
     """
     Callback query handler to handle inbox messages
     Sends last 5 messages in number's inbox
@@ -1134,7 +1134,7 @@ def new_number_handler(call):
             ) 
 
             # Check if number is valid and it's inbox is active
-            if engine.get_number_inboxf(country['name'], number[1]):
+            if engine.get_number_inbox(country['name'], number[1]):
                 # Make keyboard markup for number
                 Markup: ClassVar[Any] = telebot.util.quick_markup(
                     {
