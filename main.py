@@ -223,7 +223,7 @@ def check_numbf_callback(call):
     keyboard = types.InlineKeyboardMarkup(row_width=1)
     keyboard.add(
         types.InlineKeyboardButton("شماره مجازی | رایگان |⚡️", callback_data="check_numberf"),
-        types.InlineKeyboardButton("شماره مجازی | خاص | 💎", callback_data="vip_number")
+        types.InlineKeyboardButton("شماره مجازی | خاص | 💎", callback_data="vip_numberf")
     )
 
     bot.send_photo(
