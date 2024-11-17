@@ -276,19 +276,20 @@ def vip_number_callback(call):
         types.InlineKeyboardButton("🇯🇵 +819012388528", callback_data="🇯🇵 +819012388528")
     )
 
-    # Send message with number selection options
-    bot.send_message(
-        chat_id=user_id,
-        text=(
-            "ɪɴ ᴠɪᴘ ɴᴜᴍʙᴇʀ ᴘᴀʀᴛ ʏᴏᴜ ᴄᴀɴ ɢᴇᴛ ʏᴏᴜʀ ᴏᴡɴ ᴅᴇsɪʀᴇᴅ ɴᴜᴍʙᴇʀ ᴀɴᴅ ʀᴇᴄᴇɪᴠᴇ ɪɴᴄᴏᴍɪɴɢ ᴍᴇssᴀɢᴇs ᴇᴠᴇʀʏᴛɪᴍᴇ. "
-            "ʙᴜᴛ ғɪʀsᴛ ʏᴏᴜ ɴᴇᴇᴅ ᴛᴏ ʜᴀᴠᴇ ᴀᴛ ʟᴇᴀsᴛ 5 ɪɴᴠɪᴛᴇs ᴛᴏ ᴜɴʟᴏᴄᴋ ᴛʜɪs ᴘᴀʀᴛ.\n\n"
-            f"👤 **ʏᴏᴜʀ ᴛᴏᴛᴀʟ ɪɴᴠɪᴛᴇ** : {total_invites} \n"
-            f"🔐 **ʏᴏᴜʀ ɪɴᴠɪᴛᴇ ʟɪɴᴋ** : {invite_link} \n\n"
-            "ᴄᴏᴘʏ ᴀɴᴅ sʜᴀʀᴇ ʏᴏᴜʀ ɪɴᴠɪᴛᴇ ʟɪɴᴋ ᴡɪᴛʜ ʏᴏᴜʀ ғʀɪᴇɴᴅs ᴛᴏ ɢᴇᴛ ᴍᴏʀᴇ ɪɴᴠɪᴛᴇs."
-        ),
-        parse_mode="Markdown",
-        reply_markup=keyboard
-    )
+# Send message with number selection options
+bot.send_message(
+    chat_id=user_id,
+    text=(
+        "ɪɴ ᴠɪᴘ ɴᴜᴍʙᴇʀ ᴘᴀʀᴛ ʏᴏᴜ ᴄᴀɴ ɢᴇᴛ ʏᴏᴜʀ ᴏᴡɴ ᴅᴇsɪʀᴇᴅ ɴᴜᴍʙᴇʀ ᴀɴᴅ ʀᴇᴄᴇɪᴠᴇ ɪɴᴄᴏᴍɪɴɢ ᴍᴇssᴀɢᴇs ᴇᴠᴇʀʏᴛɪᴍᴇ. "
+        "ʙᴜᴛ ғɪʀsᴛ ʏᴏᴜ ɴᴇᴇᴅ ᴛᴏ ʜᴀᴠᴇ ᴀᴛ ʟᴇᴀsᴛ 5 ɪɴᴠɪᴛᴇs ᴛᴏ ᴜɴʟᴏᴄᴋ ᴛʜɪs ᴘᴀʀᴛ.\n\n"
+        f"👤 **ʏᴏᴜʀ ᴛᴏᴛᴀʟ ɪɴᴠɪᴛᴇ** : {total_invites} \n"
+        f"🔐 **ʏᴏᴜʀ ɪɴᴠɪᴛᴇ ʟɪɴᴋ** : {invite_link} \n\n"
+        "ᴄᴏᴘʏ ᴀɴᴅ sʜᴀʀᴇ ʏᴏᴜʀ ɪɴᴠɪᴛᴇ ʟɪɴᴋ ᴡɪᴛʜ ʏᴏᴜʀ ғʀɪᴇɴᴅs ᴛᴏ ɢᴇᴛ ᴍᴏʀᴇ ɪɴᴠɪᴛᴇs."
+    ),
+    parse_mode="Markdown",  # Ensure Markdown is enabled for formatting
+    reply_markup=keyboard
+)
+
 
 
 @bot.callback_query_handler(func=lambda call: call.data in ["🇩🇪 +4917623489057", "🇬🇧 +447923456781", "🇫🇷 +33689234157", "🇪🇸 +34678934512", "🇮🇹 +393491823756", "🇳🇱 +316234539576", "🇸🇪 +467120559875", "🇵🇱 +48679934985", "🇳🇴 +47983475612", "🇩🇰 +45234776129", "🇷🇺 +79812307689", "🇺🇸 +12140076334", "🇨🇦 +14168913521", "🇦🇺 +61489034767", "🇦🇫 +93798865312", "🇮🇩 +628108362098", "🇹🇷 +905123489672", "🇮🇷 +98973706502", "🇵🇰 +929148765432", "🇮🇳 +919841736203", "🇯🇵 +819012388528"])
