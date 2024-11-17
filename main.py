@@ -236,7 +236,6 @@ def check_numbf_callback(call):
 
 
 
-
 @bot.callback_query_handler(func=lambda call: call.data == "vip_number")
 def vip_number_callback(call):
     """
@@ -246,9 +245,9 @@ def vip_number_callback(call):
     """
 
     # Get user details
-    **user_id = call.message.chat.id**  # Fetch user ID from the callback
-    **total_invites = referral_data.get(user_id, 0)**  # Retrieve the total invites
-    **invite_link = user_referrals.get(user_id, "ᴜɴᴋɴᴏᴡɴ!")**  # Retrieve the invite link
+    user_id = call.message.chat.id
+    total_invites = referral_data.get(user_id, 0)  # Retrieve the total invites
+    invite_link = user_referrals.get(user_id, "ᴜɴᴋɴᴏᴡɴ!")  # Retrieve the invite link
 
     # Create the inline keyboard with the number buttons
     keyboard = types.InlineKeyboardMarkup(row_width=2)
@@ -278,17 +277,18 @@ def vip_number_callback(call):
 
     # Send message with number selection options
     bot.send_message(
-        **chat_id=user_id,**  # Using the properly defined variable
+        chat_id=user_id,
         text=(
             "ɪɴ ᴠɪᴘ ɴᴜᴍʙᴇʀ ᴘᴀʀᴛ ʏᴏᴜ ᴄᴀɴ ɢᴇᴛ ʏᴏᴜʀ ᴏᴡɴ ᴅᴇsɪʀᴇᴅ ɴᴜᴍʙᴇʀ ᴀɴᴅ ʀᴇᴄᴇɪᴠᴇ ɪɴᴄᴏᴍɪɴɢ ᴍᴇssᴀɢᴇs ᴇᴠᴇʀʏᴛɪᴍᴇ. "
             "ʙᴜᴛ ғɪʀsᴛ ʏᴏᴜ ɴᴇᴇᴅ ᴛᴏ ʜᴀᴠᴇ ᴀᴛ ʟᴇᴀsᴛ 5 ɪɴᴠɪᴛᴇs ᴛᴏ ᴜɴʟᴏᴄᴋ ᴛʜɪs ᴘᴀʀᴛ.\n\n"
-            f"👤 **ʏᴏᴜʀ ᴛᴏᴛᴀʟ ɪɴᴠɪᴛᴇ** : {total_invites} \n"
-            f"🔐 **ʏᴏᴜʀ ɪɴᴠɪᴛᴇ ʟɪɴᴋ** : {invite_link} \n\n"
+            f"👤 ʏᴏᴜʀ ᴛᴏᴛᴀʟ ɪɴᴠɪᴛᴇ : {total_invites} \n"
+            f"🔐 ʏᴏᴜʀ ɪɴᴠɪᴛᴇ ʟɪɴᴋ : {invite_link} \n\n"
             "ᴄᴏᴘʏ ᴀɴᴅ sʜᴀʀᴇ ʏᴏᴜʀ ɪɴᴠɪᴛᴇ ʟɪɴᴋ ᴡɪᴛʜ ʏᴏᴜʀ ғʀɪᴇɴᴅs ᴛᴏ ɢᴇᴛ ᴍᴏʀᴇ ɪɴᴠɪᴛᴇs."
         ),
-        parse_mode="Markdown",  # Ensure Markdown is enabled for formatting
         reply_markup=keyboard
     )
+
+
 
 
 
