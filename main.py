@@ -343,17 +343,112 @@ def get_otp_callback(call):
 
 
 
-#finsih
+#finsihpersan
+
+
+@bot.callback_query_handler(func=lambda call: call.data == "vip_numberf")
+def vip_numberf_callback(call):
+    """
+    Sends the VIP number options when 'VIP number' button is clicked.
+    Shows a list of numbers the user can choose from and includes the user's
+    total invites and invite link in the message.
+    """
+
+    # Get user details
+    user_id = call.message.chat.id
+    total_invites = referral_data.get(user_id, 0)  # Retrieve the total invites
+    invite_link = user_referrals.get(user_id, "ᴜɴᴋɴᴏᴡɴ!")  # Retrieve the invite link
+
+    # Create the inline keyboard with the number buttons
+    keyboard = types.InlineKeyboardMarkup(row_width=2)
+    keyboard.add(
+        types.InlineKeyboardButton("🇩🇪 +4917623489057", callback_data="🇩🇪 +4917623489051"),
+        types.InlineKeyboardButton("🇬🇧 +447923456781", callback_data="🇬🇧 +447923456782"),
+        types.InlineKeyboardButton("🇫🇷 +33689234157", callback_data="🇫🇷 +33689234153"),
+        types.InlineKeyboardButton("🇪🇸 +34678934512", callback_data="🇪🇸 +34678934514"),
+        types.InlineKeyboardButton("🇮🇹 +393491823756", callback_data="🇮🇹 +393491823755"),
+        types.InlineKeyboardButton("🇳🇱 +316234539576", callback_data="🇳🇱 +316234539576"),
+        types.InlineKeyboardButton("🇸🇪 +467120559875", callback_data="🇸🇪 +467120559827"),
+        types.InlineKeyboardButton("🇵🇱 +48679934985", callback_data="🇵🇱 +48679934918"),
+        types.InlineKeyboardButton("🇳🇴 +47983475612", callback_data="🇳🇴 +47983475619"),
+        types.InlineKeyboardButton("🇩🇰 +45234776129", callback_data="🇩🇰 +45234776122"),
+        types.InlineKeyboardButton("🇷🇺 +79812307689", callback_data="🇷🇺 +79812307681"),
+        types.InlineKeyboardButton("🇺🇸 +12140076334", callback_data="🇺🇸 +12140076330"),
+        types.InlineKeyboardButton("🇨🇦 +14168913521", callback_data="🇨🇦 +14168913529"),
+        types.InlineKeyboardButton("🇦🇺 +61489034767", callback_data="🇦🇺 +61489034768"),
+        types.InlineKeyboardButton("🇦🇫 +93798865312", callback_data="🇦🇫 +93798865317"),
+        types.InlineKeyboardButton("🇮🇩 +628108362098", callback_data="🇮🇩 +628108362096"),
+        types.InlineKeyboardButton("🇹🇷 +905123489672", callback_data="🇹🇷 +905123489675"),
+        types.InlineKeyboardButton("🇮🇷 +98973706502", callback_data="🇮🇷 +98973706504"),
+        types.InlineKeyboardButton("🇵🇰 +929148765432", callback_data="🇵🇰 +929148765433"),
+        types.InlineKeyboardButton("🇮🇳 +919841736203", callback_data="🇮🇳 +919841736202"),
+        types.InlineKeyboardButton("🇯🇵 +819012388528", callback_data="🇯🇵 +819012388521")
+    )
+
+    # Send message with number selection options
+    bot.send_message(
+        chat_id=user_id,
+        text=(
+            "در این بخش ربات شما میتونید شماره مخصوص دلخواه و همیشگی خود را از لیست زیر انتخاب نموده و کد تایید را دریافت نماید، با این حال برای باز کردن و دسترسی این بخش ربات شما باید 5 نفر را با لینک مخصوص خود دعوت کنید\n\n🔐 <b>تعداد دعوت شما : {total_invites} \n🖇 لینک دعوت شما : {invite_link} </b>\n\nلینک بالا را کپی و به دوستانتان برای دعوت بیشتر به اشتراک بگذارید🚀"
+        ),
+        parse_mode="HTML",
+        reply_markup=keyboard
+    )
+
+@bot.callback_query_handler(func=lambda call: call.data in ["🇩🇪 +4917623489051", "🇬🇧 +447923456782", "🇫🇷 +33689234153", "🇪🇸 +34678934514", "🇮🇹 +393491823755", "🇳🇱 +316234539576", "🇸🇪 +467120559827", "🇵🇱 +48679934918", "🇳🇴 +47983475619", "🇩🇰 +45234776122", "🇷🇺 +79812307681", "🇺🇸 +12140076330", "🇨🇦 +14168913529", "🇦🇺 +61489034768", "🇦🇫 +93798865317", "🇮🇩 +628108362096", "🇹🇷 +905123489675", "🇮🇷 +98973706504", "🇵🇰 +929148765433", "🇮🇳 +919841736202", "🇯🇵 +819012388521"])
+def number_buttons_callback(call):
+    """
+    Handles the callback for when any of the number buttons is clicked.
+    Checks if the user has enough invites to unlock the number.
+    """
+
+    user_id = call.message.chat.id
+    total_invites = referral_data.get(user_id, 0)
+    number = call.data
+
+    if total_invites >= INVITES_NEEDED:
+        # User has enough invites to unlock the number
+        bot.send_message(
+            chat_id=user_id,
+            text=f"🥳 ᴄᴏɴɢʀᴀᴛᴜʟᴀᴛɪᴏɴs, ʏᴏᴜ ᴜɴʟᴏᴄᴋᴇᴅ ᴛʜɪs ɴᴜᴍʙᴇʀ {number}"
+        )
+
+        # Create InlineKeyboardMarkup with the 'Get OTP' button
+        keyboard = types.InlineKeyboardMarkup(row_width=1)
+        keyboard.add(types.InlineKeyboardButton("ɢᴇᴛ ᴄᴏᴅᴇ (ᴏᴛᴘ) 📩", callback_data=f"get_otp_{number}"))
+
+        # Send the message with the OTP button
+        bot.send_message(
+            chat_id=user_id,
+            text="ᴄᴏᴘʏ ᴛʜᴇ ɴᴜᴍʙᴇʀ ʏᴏᴜ ʜᴀᴠᴇ ᴜɴʟᴏᴄᴋᴇᴅ ᴀɴᴅ ʀᴇǫᴜᴇsᴛ ᴠᴇʀɪғɪᴄᴀᴛɪᴏɴ ᴄᴏᴅᴇ (ᴏᴛᴘ) ғʀᴏᴍ ʏᴏᴜʀ ᴅᴇsɪʀᴇᴅ ᴘʟᴀᴛғᴏʀᴍs ᴏʀ sɪᴛᴇ ᴀɴᴅ ʀᴇᴄᴇɪᴠᴇ ᴛʜᴇ ᴏᴛᴘ ᴏʀ ᴠᴇʀɪғɪᴄᴀᴛɪᴏɴ ᴄᴏᴅᴇ ʙʏ ᴄʟɪᴄᴋɪɴɢ ʙᴇʟᴏᴡ ʙᴜᴛᴛᴏɴ👇",
+            reply_markup=keyboard
+        )
+    else:
+        # User does not have enough invites
+        bot.send_message(
+            chat_id=user_id,
+            text="😕 sᴏʀʀʏ ʏᴏᴜ ᴅᴏɴ'ᴛ ʜᴀᴠᴇ ᴇɴᴏᴜɢʜ ɪɴᴠɪᴛᴇs ᴛᴏ ᴜɴʟᴏᴄᴋ ᴛʜɪs ɴᴜᴍʙᴇʀ\n"
+                 f"➕ ʏᴏᴜ ɴᴇᴇᴅ {INVITES_NEEDED - total_invites} ᴍᴏʀᴇ ɪɴᴠɪᴛᴇs ᴛᴏ ᴏᴘᴇɴ 🔐"
+        )
+
+@bot.callback_query_handler(func=lambda call: call.data.startswith("get_otp_"))
+def get_otp_callback(call):
+    """
+    Handles the callback for the 'Get OTP' button.
+    Sends a randomly generated 5-digit OTP when the button is clicked.
+    """
+
+    otp = random.randint(10000, 99999)
+    bot.send_message(
+        chat_id=call.message.chat.id,
+        text=f"⁀➴ ʏᴏᴜʀ ᴏᴛᴘ ɪs : {otp}"
+    )
 
 
 
 
-# Global variables for dynamic URLs and invites
-channel_urls = {
-    "channel_1": "https://t.me/your_channel_1",
-    "channel_2": "https://t.me/your_channel_2",
-}
-invites_needed = 2
+
+
 
 
 @bot.message_handler(commands=["panel"])
