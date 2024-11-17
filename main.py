@@ -16,6 +16,10 @@ from src.vneng import VNEngine
 bot: ClassVar[Any] = telebot.TeleBot(utils.get_token())
 print(f":: Bot is running with ID: {bot.get_me().id}")
 
+# Global variables for channel URLs and invites needed
+channel_1_url = "https://t.me/your_channel_1"
+channel_2_url = "https://t.me/your_channel_2"
+
 # Define admin ID (replace with the actual admin user ID)
 ADMIN_ID = 7046488481  # Replace with your admin's Telegram ID
 
@@ -339,97 +343,142 @@ def get_otp_callback(call):
 #finsih
 
 
+
 @bot.message_handler(commands=["panel"])
 def admin_panel(message):
     """
-    Handles the /panel command for the admin to modify settings.
-    Provides options to change the channel URLs and the required invites.
+    Admin panel command. Displays two buttons:
+    1. Change the channel URLs
+    2. Change the invite count
     """
-    if message.from_user.id != ADMIN_ID:
-        bot.send_message(message.chat.id, "🚫 You are not authorized to access this panel.")
-        return
-
-    # Create the admin panel buttons
-    panel_keyboard = types.InlineKeyboardMarkup(row_width=1)
-    panel_keyboard.add(
-        types.InlineKeyboardButton("🔗 Change Channel URLs", callback_data="change_urls"),
-        types.InlineKeyboardButton("🎯 Change Invite Requirement", callback_data="change_invites")
-    )
-
-    bot.send_message(
-        chat_id=ADMIN_ID,
-        text="Welcome to the admin panel. Select an option to modify settings:",
-        reply_markup=panel_keyboard
-    )
+    if message.chat.id == ADMIN_ID:
+        markup = types.InlineKeyboardMarkup(row_width=1)
+        markup.add(
+            types.InlineKeyboardButton("Change Channel URLs", callback_data="change_urls"),
+            types.InlineKeyboardButton("Change Invites Needed", callback_data="change_invites")
+        )
+        bot.send_message(
+            chat_id=ADMIN_ID,
+            text="Welcome to the Admin Panel. Please select an option:",
+            reply_markup=markup
+        )
+    else:
+        bot.send_message(chat_id=message.chat.id, text="Unauthorized access.")
 
 
-@bot.callback_query_handler(func=lambda call: call.data in ["change_urls", "change_invites"])
-def admin_panel_callback(call):
+@bot.callback_query_handler(func=lambda call: call.data == "change_urls")
+def change_channel_urls(call):
     """
-    Handles the buttons in the admin panel for changing URLs and invite requirements.
+    Handles the change of channel URLs. Asks for new URLs in sequence.
     """
-    if call.from_user.id != ADMIN_ID:
-        bot.answer_callback_query(call.id, "🚫 You are not authorized to perform this action.")
-        return
-
-    if call.data == "change_urls":
-        bot.send_message(call.message.chat.id, "Send the **first URL** (e.g., channel or bot link):", parse_mode="Markdown")
-        bot.register_next_step_handler(call.message, get_first_url)
-
-    elif call.data == "change_invites":
-        bot.send_message(call.message.chat.id, "Send the new **number of invites required**:", parse_mode="Markdown")
-        bot.register_next_step_handler(call.message, set_new_invites)
+    if call.message.chat.id == ADMIN_ID:
+        bot.send_message(
+            chat_id=ADMIN_ID,
+            text="Please send the new URL for Channel 1:"
+        )
+        bot.register_next_step_handler(call.message, get_channel_1_url)
 
 
-def get_first_url(message):
+def get_channel_1_url(message):
     """
-    Receives the first URL and asks for the second one.
+    Receives the new URL for Channel 1 and asks for Channel 2.
     """
-    first_url = message.text
-    if not first_url.startswith("http"):
-        bot.send_message(message.chat.id, "❌ Invalid URL. Please send a valid link starting with 'http'.")
-        return
-    # Store or process the first URL here
-    global first_channel_url
-    first_channel_url = first_url  # Save it globally or in a database
-    bot.send_message(message.chat.id, "Now send the **second URL**:")
-    bot.register_next_step_handler(message, get_second_url)
+    global channel_1_url
+    if message.chat.id == ADMIN_ID:
+        channel_1_url = message.text.strip()
+        bot.send_message(
+            chat_id=ADMIN_ID,
+            text=f"Channel 1 URL updated to: {channel_1_url}\n\nNow, send the new URL for Channel 2:"
+        )
+        bot.register_next_step_handler(message, get_channel_2_url)
 
 
-def get_second_url(message):
+def get_channel_2_url(message):
     """
-    Receives the second URL and confirms both URLs.
+    Receives the new URL for Channel 2 and confirms the update.
     """
-    second_url = message.text
-    if not second_url.startswith("http"):
-        bot.send_message(message.chat.id, "❌ Invalid URL. Please send a valid link starting with 'http'.")
-        return
-    # Store or process the second URL here
-    global second_channel_url
-    second_channel_url = second_url  # Save it globally or in a database
-
-    bot.send_message(
-        message.chat.id,
-        f"✅ URLs updated successfully!\n\n"
-        f"🔗 First URL: {first_channel_url}\n"
-        f"🔗 Second URL: {second_channel_url}"
-    )
+    global channel_2_url
+    if message.chat.id == ADMIN_ID:
+        channel_2_url = message.text.strip()
+        bot.send_message(
+            chat_id=ADMIN_ID,
+            text=f"Channel 2 URL updated to: {channel_2_url}\n\nBoth URLs have been successfully updated."
+        )
 
 
-def set_new_invites(message):
+@bot.callback_query_handler(func=lambda call: call.data == "change_invites")
+def change_invites(call):
     """
-    Sets the new number of invites required.
+    Handles the change of invites needed. Asks for the new invite count.
     """
-    try:
-        new_invites = int(message.text)
-        if new_invites <= 0:
-            raise ValueError("Invite number must be positive.")
-        global INVITES_NEEDED
-        INVITES_NEEDED = new_invites  # Update the global variable or save to a database
-        bot.send_message(message.chat.id, f"✅ Invite requirement updated to: {INVITES_NEEDED}")
-    except ValueError:
-        bot.send_message(message.chat.id, "❌ Invalid number. Please send a positive integer.")
-        bot.register_next_step_handler(message, set_new_invites)
+    if call.message.chat.id == ADMIN_ID:
+        bot.send_message(
+            chat_id=ADMIN_ID,
+            text="Please send the new amount of invites needed:"
+        )
+        bot.register_next_step_handler(call.message, get_invites_needed)
+
+
+def get_invites_needed(message):
+    """
+    Receives the new invite count and updates the global variable.
+    """
+    global INVITES_NEEDED
+    if message.chat.id == ADMIN_ID:
+        try:
+            INVITES_NEEDED = int(message.text.strip())
+            bot.send_message(
+                chat_id=ADMIN_ID,
+                text=f"The number of invites needed has been updated to: {INVITES_NEEDED}"
+            )
+        except ValueError:
+            bot.send_message(
+                chat_id=ADMIN_ID,
+                text="Invalid input. Please send a valid number."
+            )
+            bot.register_next_step_handler(message, get_invites_needed)
+
+
+@bot.callback_query_handler(func=lambda call: call.data in ["select_english", "select_persian"])
+def language_selection_callback(call):
+    """
+    Handles language selection and sends the corresponding welcome message.
+    """
+    user_id = call.message.chat.id
+
+    # Determine the selected language
+    if call.data == "select_english":
+        keyboard = types.InlineKeyboardMarkup(row_width=1)
+        keyboard.add(
+            types.InlineKeyboardButton("Join Channel 1⚡️", url=channel_1_url),
+            types.InlineKeyboardButton("Join Channel 2⚡️", url=channel_2_url),
+            types.InlineKeyboardButton("🔐 Joined", callback_data="check_numb")
+        )
+        bot.send_message(
+            chat_id=user_id,
+            text=(
+                "⚠️ To use this bot, you must join our Telegram channels.\n"
+                "Hey user, you have to join both of these channels.\n\n"
+                "If you have joined, then click the 'Joined' button to confirm your membership."
+            ),
+            reply_markup=keyboard
+        )
+    elif call.data == "select_persian":
+        keyboard = types.InlineKeyboardMarkup(row_width=1)
+        keyboard.add(
+            types.InlineKeyboardButton("عضویت در کانال ۱⚡️", url=channel_1_url),
+            types.InlineKeyboardButton("عضویت در کانال ۲⚡️", url=channel_2_url),
+            types.InlineKeyboardButton("🔐 عضو شدم", callback_data="check_numbf")
+        )
+        bot.send_message(
+            chat_id=user_id,
+            text=(
+                "⚠️ برای استفاده از این ربات، شما باید در کانال‌های تلگرام ما عضو شوید.\n"
+                "کاربر عزیز، شما باید در هر دو کانال زیر عضو شوید.\n\n"
+                "اگر عضو شده‌اید، روی دکمه 🔐 عضو شدم کلیک کنید."
+            ),
+            reply_markup=keyboard
+        )
 
 
 
