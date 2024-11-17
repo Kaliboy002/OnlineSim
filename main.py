@@ -415,26 +415,32 @@ def number_buttons_callback(call):
         # User has enough invites to unlock the number
         bot.send_message(
             chat_id=user_id,
-            text=f"🥳 ᴄᴏɴɢʀᴀᴛᴜʟᴀᴛɪᴏɴs, ʏᴏᴜ ᴜɴʟᴏᴄᴋᴇᴅ ᴛʜɪs ɴᴜᴍʙᴇʀ {number}"
+            text=f"🥳 <b>مبارک، شما با موفقانه باز نمودید این نمبر را </b>{number}",
+            parse_mode="HTML"
         )
 
         # Create InlineKeyboardMarkup with the 'Get OTP' button
         keyboard = types.InlineKeyboardMarkup(row_width=1)
-        keyboard.add(types.InlineKeyboardButton("ɢᴇᴛ ᴄᴏᴅᴇ (ᴏᴛᴘ) 📩", callback_data=f"get_otp_{number}"))
+        keyboard.add(types.InlineKeyboardButton("دریافت کد 📩", callback_data=f"get_otp_{number}"))
 
         # Send the message with the OTP button
         bot.send_message(
             chat_id=user_id,
-            text="ᴄᴏᴘʏ ᴛʜᴇ ɴᴜᴍʙᴇʀ ʏᴏᴜ ʜᴀᴠᴇ ᴜɴʟᴏᴄᴋᴇᴅ ᴀɴᴅ ʀᴇǫᴜᴇsᴛ ᴠᴇʀɪғɪᴄᴀᴛɪᴏɴ ᴄᴏᴅᴇ (ᴏᴛᴘ) ғʀᴏᴍ ʏᴏᴜʀ ᴅᴇsɪʀᴇᴅ ᴘʟᴀᴛғᴏʀᴍs ᴏʀ sɪᴛᴇ ᴀɴᴅ ʀᴇᴄᴇɪᴠᴇ ᴛʜᴇ ᴏᴛᴘ ᴏʀ ᴠᴇʀɪғɪᴄᴀᴛɪᴏɴ ᴄᴏᴅᴇ ʙʏ ᴄʟɪᴄᴋɪɴɢ ʙᴇʟᴏᴡ ʙᴜᴛᴛᴏɴ👇",
+            text="<b>نمبر کی باز کردید را در سایت یا پلتفرم مورد نظر خود برای ایجاد حساب وغیره موارد وارد نماید و بعدا برای دریافت کد تایید چند رقمی بالای گزینه زیر کلیک نماید. 👇</b>",
+            parse_mode="HTML",
             reply_markup=keyboard
         )
     else:
         # User does not have enough invites
         bot.send_message(
             chat_id=user_id,
-            text="😕 sᴏʀʀʏ ʏᴏᴜ ᴅᴏɴ'ᴛ ʜᴀᴠᴇ ᴇɴᴏᴜɢʜ ɪɴᴠɪᴛᴇs ᴛᴏ ᴜɴʟᴏᴄᴋ ᴛʜɪs ɴᴜᴍʙᴇʀ\n"
-                 f"➕ ʏᴏᴜ ɴᴇᴇᴅ {INVITES_NEEDED - total_invites} ᴍᴏʀᴇ ɪɴᴠɪᴛᴇs ᴛᴏ ᴏᴘᴇɴ 🔐"
+            text=(
+                "😕 متاسفانه شما دعوت کافی برای باز کردن این نمبر ندارید\n"
+                f"<b>➕ شما به {INVITES_NEEDED - total_invites} دعوت بیشتر نیاژ دارید 🔐</b>"
+            ),
+            parse_mode="HTML"
         )
+
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith("get_otp_"))
 def get_otp_callback(call):
@@ -442,11 +448,11 @@ def get_otp_callback(call):
     Handles the callback for the 'Get OTP' button.
     Sends a randomly generated 5-digit OTP when the button is clicked.
     """
-
     otp = random.randint(10000, 99999)
     bot.send_message(
         chat_id=call.message.chat.id,
-        text=f"⁀➴ ʏᴏᴜʀ ᴏᴛᴘ ɪs : {otp}"
+        text=f"⁀➴ کد شما است : <b>{otp}</b>",
+        parse_mode="HTML"
     )
 
 
