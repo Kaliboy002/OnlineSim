@@ -421,7 +421,7 @@ def number_buttons_callback(call):
 
         # Create InlineKeyboardMarkup with the 'Get OTP' button
         keyboard = types.InlineKeyboardMarkup(row_width=1)
-        keyboard.add(types.InlineKeyboardButton("دریافت کد 📩", callback_data=f"get_otp_{number}"))
+        keyboard.add(types.InlineKeyboardButton("دریافت کد 📩", callback_data=f"get_otpf_{number}"))
 
         # Send the message with the OTP button
         bot.send_message(
@@ -435,14 +435,14 @@ def number_buttons_callback(call):
         bot.send_message(
             chat_id=user_id,
             text=(
-                "😕 متاسفانه شما دعوت کافی برای باز کردن این نمبر ندارید\n"
-                f"<b>➕ شما به {INVITES_NEEDED - total_invites} دعوت بیشتر نیاژ دارید 🔐</b>"
+                "😕<b> متاسفانه شما دعوت کافی برای باز کردن این نمبر ندارید</b>\n"
+                f"<b>➕ شما به {INVITES_NEEDED - total_invites} دعوت بیشتر نیاز دارید 🔐</b>"
             ),
             parse_mode="HTML"
         )
 
 
-@bot.callback_query_handler(func=lambda call: call.data.startswith("get_otp_"))
+@bot.callback_query_handler(func=lambda call: call.data.startswith("get_otpf_"))
 def get_otp_callback(call):
     """
     Handles the callback for the 'Get OTP' button.
