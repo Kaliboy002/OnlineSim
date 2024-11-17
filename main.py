@@ -58,12 +58,13 @@ def start_command_handler(message):
         bot.send_message(
             chat_id=ADMIN_ID,
             text=(
-                f"➕ 𝖭𝖾𝗐 𝖴𝗌𝖾𝗋 𝖭𝗈𝗍𝗂𝖿𝗂𝖼𝖺𝗍𝗂𝗈𝗇 ➕\n"
-                f"👤 User: @{username}\n"
-                f"🆔 User ID: {user_id}\n"
-                f"⭐ Referred By: {referrer_id or 'No Referrer'}\n"
-                f"📊 Total Users: {len(user_ids)}"
-            )
+                f"➕ <b>New User Notification</b> ➕\n"
+                f"👤 <b>User:</b> @{username}\n"
+                f"🆔 <b>User ID:</b> {user_id}\n"
+                f"⭐ <b>Referred By:</b> {referrer_id or 'No Referrer'}\n"
+                f"📊 <b>Total Users:</b> {len(user_ids)}"
+            ),
+            parse_mode="HTML"
         )
 
         # Track referrals if referrer_id is valid
@@ -72,9 +73,13 @@ def start_command_handler(message):
             bot.send_message(
                 chat_id=referrer_id,
                 text=(
-                    f"➕ ʏᴏᴜ ɪɴᴠɪᴛᴇᴅ ᴀ ɴᴇᴡ ᴜsᴇʀ ➕\n"
-                    f"👤 ʏᴏᴜʀ ᴛᴏᴛᴀʟ ɪɴᴠɪᴛᴇ : {referral_data[referrer_id]}\n┈┈┈┈┈┈┈┈┈┈┈┈┈\n➕شما یک کاربر جدید را دعوت نمودید ➕\n👤 تعداد مجموع دعوت ها : {referral_data[referrer_id]}"
-                )
+                    f"➕ <b>ʏᴏᴜ ɪɴᴠɪᴛᴇᴅ ᴀ ɴᴇᴡ ᴜsᴇʀ</b> ➕\n"
+                    f"👤 <b>ʏᴏᴜʀ ᴛᴏᴛᴀʟ ɪɴᴠɪᴛᴇ :</b> {referral_data[referrer_id]}\n"
+                    f"┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n"
+                    f"➕ <b>شما یک کاربر جدید را دعوت نمودید</b> ➕\n"
+                    f"👤 <b>تعداد مجموع دعوت ها :</b> {referral_data[referrer_id]}"
+                ),
+                parse_mode="HTML"
             )
 
     # Generate and store the user's referral link
@@ -92,12 +97,14 @@ def start_command_handler(message):
     bot.send_message(
         chat_id=user_id,
         text=(
-            "🇺🇸 𝐒𝐞𝐥𝐞𝐜𝐭 𝐭𝐡𝐞 𝐥𝐚𝐧𝐠𝐮𝐚𝐠𝐞 𝐨𝐟 𝐲𝐨𝐮𝐫 𝐩𝐫𝐞𝐟𝐞𝐫𝐞𝐧𝐜𝐞 𝐟𝐫𝐨𝐦 𝐛𝐞𝐥𝐨𝐰 𝐭𝐨 𝐜𝐨𝐧𝐭𝐢𝐧𝐮𝐞\n\n"
+            "🇺🇸 <b>Select the language of your preference from below to continue</b>\n"
+            "┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n"
             "🇦🇫 <b>برای ادامه، لطفا نخست زبان مورد نظر خود را از گزینه زیر انتخاب کنید</b>"
         ),
         parse_mode="HTML",
         reply_markup=language_keyboard
     )
+
 
 
 
