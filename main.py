@@ -939,7 +939,7 @@ def numberf_command_handler(message: ClassVar[Any]) -> NoReturn:
                 Markup: ClassVar[Any] = telebot.util.quick_markup(
                     {
                         "𖥸 Inbox": {
-                            "callback_data": f"msg{country['name']}&{number[1]}"
+                            "callback_data": f"msgf{country['name']}&{number[1]}"
                         },
 
                         "꩜ Renew": {
@@ -994,7 +994,7 @@ def numberf_command_handler(message: ClassVar[Any]) -> NoReturn:
         return 0
 
 
-@bot.callback_query_handler(func=lambda x:x.data.startswith("msg"))
+@bot.callback_query_handler(func=lambda x:x.data.startswith("msgf"))
 def number_inbox_handler(call: ClassVar[Any]) -> NoReturn:
     """
     Callback query handler to handle inbox messages
@@ -1139,7 +1139,7 @@ def new_number_handler(call):
                 Markup: ClassVar[Any] = telebot.util.quick_markup(
                     {
                         "𖥸 Inbox": {
-                            "callback_data": f"msg&{country['name']}&{number[1]}"
+                            "callback_data": f"msgf&{country['name']}&{number[1]}"
                         },
 
                         "꩜ Renew": {
