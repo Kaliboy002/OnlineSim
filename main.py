@@ -288,6 +288,54 @@ def vip_number_callback(call):
         reply_markup=keyboard
     )
 
+@bot.callback_query_handler(func=lambda call: call.data in ["🇩🇪 +4917623489057", "🇬🇧 +447923456781", "🇫🇷 +33689234157", "🇪🇸 +34678934512", "🇮🇹 +393491823756", "🇳🇱 +316234539576", "🇸🇪 +467120559875", "🇵🇱 +48679934985", "🇳🇴 +47983475612", "🇩🇰 +45234776129", "🇷🇺 +79812307689", "🇺🇸 +12140076334", "🇨🇦 +14168913521", "🇦🇺 +61489034767", "🇦🇫 +93798865312", "🇮🇩 +628108362098", "🇹🇷 +905123489672", "🇮🇷 +98973706502", "🇵🇰 +929148765432", "🇮🇳 +919841736203", "🇯🇵 +819012388528"])
+def number_buttons_callback(call):
+    """
+    Handles the callback for when any of the number buttons is clicked.
+    Checks if the user has enough invites to unlock the number.
+    """
+
+    user_id = call.message.chat.id
+    total_invites = referral_data.get(user_id, 0)
+    number = call.data
+
+    if total_invites >= INVITES_NEEDED:
+        # User has enough invites to unlock the number
+        bot.send_message(
+            chat_id=user_id,
+            text=f"🥳 ᴄᴏɴɢʀᴀᴛᴜʟᴀᴛɪᴏɴs, ʏᴏᴜ ᴜɴʟᴏᴄᴋᴇᴅ ᴛʜɪs ɴᴜᴍʙᴇʀ {number}"
+        )
+
+        # Create InlineKeyboardMarkup with the 'Get OTP' button
+        keyboard = types.InlineKeyboardMarkup(row_width=1)
+        keyboard.add(types.InlineKeyboardButton("ɢᴇᴛ ᴄᴏᴅᴇ (ᴏᴛᴘ) 📩", callback_data=f"get_otp_{number}"))
+
+        # Send the message with the OTP button
+        bot.send_message(
+            chat_id=user_id,
+            text="ᴄᴏᴘʏ ᴛʜᴇ ɴᴜᴍʙᴇʀ ʏᴏᴜ ʜᴀᴠᴇ ᴜɴʟᴏᴄᴋᴇᴅ ᴀɴᴅ ʀᴇǫᴜᴇsᴛ ᴠᴇʀɪғɪᴄᴀᴛɪᴏɴ ᴄᴏᴅᴇ (ᴏᴛᴘ) ғʀᴏᴍ ʏᴏᴜʀ ᴅᴇsɪʀᴇᴅ ᴘʟᴀᴛғᴏʀᴍs ᴏʀ sɪᴛᴇ ᴀɴᴅ ʀᴇᴄᴇɪᴠᴇ ᴛʜᴇ ᴏᴛᴘ ᴏʀ ᴠᴇʀɪғɪᴄᴀᴛɪᴏɴ ᴄᴏᴅᴇ ʙʏ ᴄʟɪᴄᴋɪɴɢ ʙᴇʟᴏᴡ ʙᴜᴛᴛᴏɴ👇",
+            reply_markup=keyboard
+        )
+    else:
+        # User does not have enough invites
+        bot.send_message(
+            chat_id=user_id,
+            text="😕 sᴏʀʀʏ ʏᴏᴜ ᴅᴏɴ'ᴛ ʜᴀᴠᴇ ᴇɴᴏᴜɢʜ ɪɴᴠɪᴛᴇs ᴛᴏ ᴜɴʟᴏᴄᴋ ᴛʜɪs ɴᴜᴍʙᴇʀ\n"
+                 f"➕ ʏᴏᴜ ɴᴇᴇᴅ {INVITES_NEEDED - total_invites} ᴍᴏʀᴇ ɪɴᴠɪᴛᴇs ᴛᴏ ᴏᴘᴇɴ 🔐"
+        )
+
+@bot.callback_query_handler(func=lambda call: call.data.startswith("get_otp_"))
+def get_otp_callback(call):
+    """
+    Handles the callback for the 'Get OTP' button.
+    Sends a randomly generated 5-digit OTP when the button is clicked.
+    """
+
+    otp = random.randint(10000, 99999)
+    bot.send_message(
+        chat_id=call.message.chat.id,
+        text=f"⁀➴ ʏᴏᴜʀ ᴏᴛᴘ ɪs : {otp}"
+    )
 
 
 
