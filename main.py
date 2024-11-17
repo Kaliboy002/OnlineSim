@@ -344,141 +344,119 @@ def get_otp_callback(call):
 
 
 
+
+# Global variables for dynamic URLs and invites
+channel_urls = {
+    "channel_1": "https://t.me/your_channel_1",
+    "channel_2": "https://t.me/your_channel_2",
+}
+invites_needed = 2
+
+
 @bot.message_handler(commands=["panel"])
 def admin_panel(message):
     """
-    Admin panel command. Displays two buttons:
-    1. Change the channel URLs
-    2. Change the invite count
+    Admin panel for the bot. Admin can change channel URLs or invites needed.
     """
     if message.chat.id == ADMIN_ID:
         markup = types.InlineKeyboardMarkup(row_width=1)
         markup.add(
             types.InlineKeyboardButton("Change Channel URLs", callback_data="change_urls"),
-            types.InlineKeyboardButton("Change Invites Needed", callback_data="change_invites")
+            types.InlineKeyboardButton("Change Invites Needed", callback_data="change_invites"),
         )
         bot.send_message(
-            chat_id=ADMIN_ID,
-            text="Welcome to the Admin Panel. Please select an option:",
-            reply_markup=markup
+            ADMIN_ID, "Welcome to the Admin Panel. Select an option:", reply_markup=markup
         )
     else:
-        bot.send_message(chat_id=message.chat.id, text="Unauthorized access.")
+        bot.send_message(message.chat.id, "Unauthorized access.")
 
 
 @bot.callback_query_handler(func=lambda call: call.data == "change_urls")
 def change_channel_urls(call):
     """
-    Handles the change of channel URLs. Asks for new URLs in sequence.
+    Admin starts the process of changing channel URLs.
     """
-    if call.message.chat.id == ADMIN_ID:
-        bot.send_message(
-            chat_id=ADMIN_ID,
-            text="Please send the new URL for Channel 1:"
-        )
-        bot.register_next_step_handler(call.message, get_channel_1_url)
+    bot.send_message(ADMIN_ID, "Send the new URL for Channel 1:")
+    bot.register_next_step_handler_by_chat_id(ADMIN_ID, set_channel_1_url)
 
 
-def get_channel_1_url(message):
+def set_channel_1_url(message):
     """
-    Receives the new URL for Channel 1 and asks for Channel 2.
+    Sets the new URL for Channel 1.
     """
-    global channel_1_url
     if message.chat.id == ADMIN_ID:
-        channel_1_url = message.text.strip()
+        global channel_urls
+        channel_urls["channel_1"] = message.text.strip()
         bot.send_message(
-            chat_id=ADMIN_ID,
-            text=f"Channel 1 URL updated to: {channel_1_url}\n\nNow, send the new URL for Channel 2:"
+            ADMIN_ID, f"Channel 1 URL updated to: {channel_urls['channel_1']}\nSend the new URL for Channel 2:"
         )
-        bot.register_next_step_handler(message, get_channel_2_url)
+        bot.register_next_step_handler_by_chat_id(ADMIN_ID, set_channel_2_url)
 
 
-def get_channel_2_url(message):
+def set_channel_2_url(message):
     """
-    Receives the new URL for Channel 2 and confirms the update.
+    Sets the new URL for Channel 2.
     """
-    global channel_2_url
     if message.chat.id == ADMIN_ID:
-        channel_2_url = message.text.strip()
+        global channel_urls
+        channel_urls["channel_2"] = message.text.strip()
         bot.send_message(
-            chat_id=ADMIN_ID,
-            text=f"Channel 2 URL updated to: {channel_2_url}\n\nBoth URLs have been successfully updated."
+            ADMIN_ID, f"Channel 2 URL updated to: {channel_urls['channel_2']}\nBoth URLs have been updated successfully."
         )
 
 
 @bot.callback_query_handler(func=lambda call: call.data == "change_invites")
-def change_invites(call):
+def change_invites_needed(call):
     """
-    Handles the change of invites needed. Asks for the new invite count.
+    Admin starts the process of changing the invites needed.
     """
-    if call.message.chat.id == ADMIN_ID:
-        bot.send_message(
-            chat_id=ADMIN_ID,
-            text="Please send the new amount of invites needed:"
-        )
-        bot.register_next_step_handler(call.message, get_invites_needed)
+    bot.send_message(ADMIN_ID, "Send the new number of invites needed:")
+    bot.register_next_step_handler_by_chat_id(ADMIN_ID, set_invites_needed)
 
 
-def get_invites_needed(message):
+def set_invites_needed(message):
     """
-    Receives the new invite count and updates the global variable.
+    Updates the number of invites needed.
     """
-    global INVITES_NEEDED
-    if message.chat.id == ADMIN_ID:
-        try:
-            INVITES_NEEDED = int(message.text.strip())
-            bot.send_message(
-                chat_id=ADMIN_ID,
-                text=f"The number of invites needed has been updated to: {INVITES_NEEDED}"
-            )
-        except ValueError:
-            bot.send_message(
-                chat_id=ADMIN_ID,
-                text="Invalid input. Please send a valid number."
-            )
-            bot.register_next_step_handler(message, get_invites_needed)
+    global invites_needed
+    try:
+        invites_needed = int(message.text.strip())
+        bot.send_message(ADMIN_ID, f"Invites needed updated to: {invites_needed}")
+    except ValueError:
+        bot.send_message(ADMIN_ID, "Invalid input. Please send a valid number.")
+        bot.register_next_step_handler_by_chat_id(ADMIN_ID, set_invites_needed)
 
 
-@bot.callback_query_handler(func=lambda call: call.data in ["select_english", "select_persian"])
-def language_selection_callback(call):
+@bot.message_handler(commands=["start"])
+def start_command(message):
     """
-    Handles language selection and sends the corresponding welcome message.
+    Start command for users to join channels.
     """
-    user_id = call.message.chat.id
+    keyboard = types.InlineKeyboardMarkup(row_width=1)
+    keyboard.add(
+        types.InlineKeyboardButton("Join Channel 1", url=channel_urls["channel_1"]),
+        types.InlineKeyboardButton("Join Channel 2", url=channel_urls["channel_2"]),
+        types.InlineKeyboardButton("Joined", callback_data="check_joined"),
+    )
+    bot.send_message(
+        message.chat.id,
+        f"To use this bot, you must join the following channels:\n\n"
+        f"1. {channel_urls['channel_1']}\n"
+        f"2. {channel_urls['channel_2']}\n\n"
+        f"After joining, click 'Joined' to proceed.",
+        reply_markup=keyboard,
+    )
 
-    # Determine the selected language
-    if call.data == "select_english":
-        keyboard = types.InlineKeyboardMarkup(row_width=1)
-        keyboard.add(
-            types.InlineKeyboardButton("Join Channel 1⚡️", url=channel_1_url),
-            types.InlineKeyboardButton("Join Channel 2⚡️", url=channel_2_url),
-            types.InlineKeyboardButton("🔐 Joined", callback_data="check_numb")
-        )
-        bot.send_message(
-            chat_id=user_id,
-            text=(
-                "⚠️ To use this bot, you must join our Telegram channels.\n"
-                "Hey user, you have to join both of these channels.\n\n"
-                "If you have joined, then click the 'Joined' button to confirm your membership."
-            ),
-            reply_markup=keyboard
-        )
-    elif call.data == "select_persian":
-        keyboard = types.InlineKeyboardMarkup(row_width=1)
-        keyboard.add(
-            types.InlineKeyboardButton("عضویت در کانال ۱⚡️", url=channel_1_url),
-            types.InlineKeyboardButton("عضویت در کانال ۲⚡️", url=channel_2_url),
-            types.InlineKeyboardButton("🔐 عضو شدم", callback_data="check_numbf")
-        )
-        bot.send_message(
-            chat_id=user_id,
-            text=(
-                "⚠️ برای استفاده از این ربات، شما باید در کانال‌های تلگرام ما عضو شوید.\n"
-                "کاربر عزیز، شما باید در هر دو کانال زیر عضو شوید.\n\n"
-                "اگر عضو شده‌اید، روی دکمه 🔐 عضو شدم کلیک کنید."
-            ),
-            reply_markup=keyboard
-        )
+
+@bot.callback_query_handler(func=lambda call: call.data == "check_joined")
+def check_joined(call):
+    """
+    Verifies if the user joined the channels (dummy logic for now).
+    """
+    bot.send_message(
+        call.message.chat.id, f"You need at least {invites_needed} invites to proceed."
+    )
+
 
 
 
