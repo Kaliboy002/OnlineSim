@@ -28,6 +28,9 @@ user_referrals: Dict[int, str] = {}  # {user_id: invite_link}
 # Amount of invites needed to unlock OTP
 INVITES_NEEDED = 2
 
+
+
+
 @bot.message_handler(commands=["start", "restart"])
 def start_command_handler(message):
     """
@@ -76,26 +79,70 @@ def start_command_handler(message):
     invite_link = f"https://t.me/{bot.get_me().username}?start={user_id}"
     user_referrals[user_id] = invite_link
 
-    # Create the channel join buttons
-    keyboard = types.InlineKeyboardMarkup(row_width=1)
-    keyboard.add(
-        types.InlineKeyboardButton("Jᴏɪɴ ᴄʜᴀɴɴᴇʟ 𝟷⚡️", url="https://t.me/your_channel_1"),
-        types.InlineKeyboardButton("Jᴏɪɴ ᴄʜᴀɴɴᴇʟ 2⚡️", url="https://t.me/your_channel_2"),
-        types.InlineKeyboardButton("🔐𝗝𝗼𝗶𝗻𝗲𝗱", callback_data="check_numb")
+    # Create the language selection buttons
+    language_keyboard = types.InlineKeyboardMarkup(row_width=2)
+    language_keyboard.add(
+        types.InlineKeyboardButton("English", callback_data="select_english"),
+        types.InlineKeyboardButton("فارسی", callback_data="select_persian")
     )
 
-    # Send welcome message with the referral link
+    # Send the language selection message
     bot.send_message(
         chat_id=user_id,
-        text=(
-            "⚠️ 𝙄𝙣 𝙪𝙨𝙚 𝙩𝙝𝙞𝙨 𝙗𝙤𝙩 𝙮𝙤𝙪 𝙝𝙖𝙫𝙚 𝙩𝙤 𝙟𝙤𝙞𝙣 𝙤𝙪𝙧 𝙩𝙚𝙡𝙚𝙜𝙧𝙖𝙢 𝙘𝙝𝙖𝙣𝙣𝙚𝙡𝙨.\n"
-            "Hᴇʏ ᴜsᴇʀ, ʏᴏᴜ ʜᴀᴠᴇ ᴛᴏ Jᴏɪɴ ʙᴏᴛʜ ᴛʜᴇsᴇ ᴄʜᴀɴɴᴇʟs.\n\n"
-            "ᴏᴛʜᴇʀᴡɪsᴇ, ᴛʜɪs ʙᴏᴛ ᴡɪʟʟ ɴᴏᴛ ᴡᴏʀᴋ. Iғ ʏᴏᴜ ʜᴀᴠᴇ 🔐𝗝𝗼𝗶𝗻𝗲𝗱 ᴛʜᴇ ᴄʜᴀɴɴᴇʟs, "
-            "ᴛʜᴇɴ ᴄʟɪᴄᴋ ᴛʜᴇ Jᴏɪɴᴇᴅ ʙᴜᴛᴛᴏɴ ᴛᴏ ᴄᴏɴғɪʀᴍ ʏᴏᴜʀ ʙᴏᴛ ᴍᴇᴍʙᴇʀsʜɪᴘ.\n\n"
-        ),
-        parse_mode="Markdown",
-        reply_markup=keyboard
+        text="Please choose your language:\n\nلطفاً زبان خود را انتخاب کنید:",
+        reply_markup=language_keyboard
     )
+
+@bot.callback_query_handler(func=lambda call: call.data in ["select_english", "select_persian"])
+def language_selection_callback(call):
+    """
+    Handles language selection and sends the corresponding welcome message.
+    """
+    user_id = call.message.chat.id
+
+    # Determine the selected language
+    if call.data == "select_english":
+        # Create the channel join buttons for English
+        keyboard = types.InlineKeyboardMarkup(row_width=1)
+        keyboard.add(
+            types.InlineKeyboardButton("Jᴏɪɴ ᴄʜᴀɴɴᴇʟ 𝟷⚡️", url="https://t.me/your_channel_1"),
+            types.InlineKeyboardButton("Jᴏɪɴ ᴄʜᴀɴɴᴇʟ 2⚡️", url="https://t.me/your_channel_2"),
+            types.InlineKeyboardButton("🔐𝗝𝗼𝗶𝗻𝗲𝗱", callback_data="check_numb")
+        )
+
+        # Send the English welcome message
+        bot.send_message(
+            chat_id=user_id,
+            text=(
+                "⚠️ 𝙄𝙣 𝙪𝙨𝙚 𝙩𝙝𝙞𝙨 𝙗𝙤𝙩 𝙮𝙤𝙪 𝙝𝙖𝙫𝙚 𝙩𝙤 𝙟𝙤𝙞𝙣 𝙤𝙪𝙧 𝙩𝙚𝙡𝙚𝙜𝙧𝙖𝙢 𝙘𝙝𝙖𝙣𝙣𝙚𝙡𝙨.\n"
+                "Hᴇʏ ᴜsᴇʀ, ʏᴏᴜ ʜᴀᴠᴇ ᴛᴏ Jᴏɪɴ ʙᴏᴛʜ ᴛʜᴇsᴇ ᴄʜᴀɴɴᴇʟs.\n\n"
+                "ᴏᴛʜᴇʀᴡɪsᴇ, ᴛʜɪs ʙᴏᴛ ᴡɪʟʟ ɴᴏᴛ ᴡᴏʀᴋ. Iғ ʏᴏᴜ ʜᴀᴠᴇ 🔐𝗝𝗼𝗶𝗻𝗲𝗱 ᴛʜᴇ ᴄʜᴀɴɴᴇʟs, "
+                "ᴛʜᴇɴ ᴄʟɪᴄᴋ ᴛʜᴇ Jᴏɪɴᴇᴅ ʙᴜᴛᴛᴏɴ ᴛᴏ ᴄᴏɴғɪʀᴍ ʏᴏᴜʀ ʙᴏᴛ ᴍᴇᴍʙᴇʀsʜɪᴘ.\n\n"
+            ),
+            parse_mode="Markdown",
+            reply_markup=keyboard
+        )
+    elif call.data == "select_persian":
+        # Create the channel join buttons for Persian
+        keyboard = types.InlineKeyboardMarkup(row_width=1)
+        keyboard.add(
+            types.InlineKeyboardButton("عضویت در کانال ۱⚡️", url="https://t.me/your_channel_1"),
+            types.InlineKeyboardButton("عضویت در کانال ۲⚡️", url="https://t.me/your_channel_2"),
+            types.InlineKeyboardButton("🔐 عضو شدم", callback_data="check_numb")
+        )
+
+        # Send the Persian welcome message
+        bot.send_message(
+            chat_id=user_id,
+            text=(
+                "⚠️ برای استفاده از این ربات، شما باید در کانال‌های تلگرام ما عضو شوید.\n"
+                "کاربر عزیز، شما باید در هر دو کانال زیر عضو شوید.\n\n"
+                "در غیر این صورت، این ربات کار نخواهد کرد. اگر عضو شده‌اید، "
+                "روی دکمه 🔐 عضو شدم کلیک کنید تا عضویت شما تایید شود.\n\n"
+            ),
+            parse_mode="Markdown",
+            reply_markup=keyboard
+        )
 
 # Start the bot polling
 
