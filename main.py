@@ -713,39 +713,15 @@ def broadcast_command_handler(message: ClassVar[Any]) -> NoReturn:
     else:
         bot.reply_to(message, "⚠️ Reply to a message with /broadcast to send it to all users.")
 
-@bot.message_handler(commands=["number"])
-def number_command_handler(message: ClassVar[Any]) -> NoReturn:
-    """
-    Function to handle /number command and send a virtual number.
 
-    Parameters:
-        message (typing.ClassVar[Any]): Incoming message object
 
-    Returns:
-        None (typing.NoReturn)
-    """
-    # Fetch user's data
-    user: ClassVar[Union[str, int]] = User(message.from_user)
 
-    # Check if the user joined the necessary channels before allowing the number command
-    if not utils.has_joined_channels(message.from_user.id):
-        bot.send_message(
-            chat_id=message.chat.id,
-            text="⚠️ Please join the required channels first to access this feature."
-        )
-        return
 
-    # Simulate sending a virtual number
-    bot.send_chat_action(chat_id=message.chat.id, action="typing")
-    bot.send_message(
-        chat_id=message.chat.id,
-        text=(
-            f"🌐 Here is your virtual number, {user.pn}!\n"
-            "Your generated virtual number is +1234567890 (example).\n"
-            "You can use this number for various purposes.\n\n"
-            "If you'd like another number, just press the button again!"
-        )
-    )
+
+
+
+
+
 
 # Callback handler for "Check" button to trigger /number command directly
 @bot.callback_query_handler(func=lambda call: call.data == "check_number")
