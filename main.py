@@ -336,10 +336,106 @@ def get_otp_callback(call):
     )
 
 
+#finsih
+
+
+@bot.message_handler(commands=["panel"])
+def admin_panel(message):
+    """
+    Handles the /panel command for the admin to modify settings.
+    Provides options to change the channel URLs and the required invites.
+    """
+    if message.from_user.id != ADMIN_ID:
+        bot.send_message(message.chat.id, "🚫 You are not authorized to access this panel.")
+        return
+
+    # Create the admin panel buttons
+    panel_keyboard = types.InlineKeyboardMarkup(row_width=1)
+    panel_keyboard.add(
+        types.InlineKeyboardButton("🔗 Change Channel URLs", callback_data="change_urls"),
+        types.InlineKeyboardButton("🎯 Change Invite Requirement", callback_data="change_invites")
+    )
+
+    bot.send_message(
+        chat_id=ADMIN_ID,
+        text="Welcome to the admin panel. Select an option to modify settings:",
+        reply_markup=panel_keyboard
+    )
+
+
+@bot.callback_query_handler(func=lambda call: call.data in ["change_urls", "change_invites"])
+def admin_panel_callback(call):
+    """
+    Handles the buttons in the admin panel for changing URLs and invite requirements.
+    """
+    if call.from_user.id != ADMIN_ID:
+        bot.answer_callback_query(call.id, "🚫 You are not authorized to perform this action.")
+        return
+
+    if call.data == "change_urls":
+        bot.send_message(call.message.chat.id, "Send the **first URL** (e.g., channel or bot link):", parse_mode="Markdown")
+        bot.register_next_step_handler(call.message, get_first_url)
+
+    elif call.data == "change_invites":
+        bot.send_message(call.message.chat.id, "Send the new **number of invites required**:", parse_mode="Markdown")
+        bot.register_next_step_handler(call.message, set_new_invites)
+
+
+def get_first_url(message):
+    """
+    Receives the first URL and asks for the second one.
+    """
+    first_url = message.text
+    if not first_url.startswith("http"):
+        bot.send_message(message.chat.id, "❌ Invalid URL. Please send a valid link starting with 'http'.")
+        return
+    # Store or process the first URL here
+    global first_channel_url
+    first_channel_url = first_url  # Save it globally or in a database
+    bot.send_message(message.chat.id, "Now send the **second URL**:")
+    bot.register_next_step_handler(message, get_second_url)
+
+
+def get_second_url(message):
+    """
+    Receives the second URL and confirms both URLs.
+    """
+    second_url = message.text
+    if not second_url.startswith("http"):
+        bot.send_message(message.chat.id, "❌ Invalid URL. Please send a valid link starting with 'http'.")
+        return
+    # Store or process the second URL here
+    global second_channel_url
+    second_channel_url = second_url  # Save it globally or in a database
+
+    bot.send_message(
+        message.chat.id,
+        f"✅ URLs updated successfully!\n\n"
+        f"🔗 First URL: {first_channel_url}\n"
+        f"🔗 Second URL: {second_channel_url}"
+    )
+
+
+def set_new_invites(message):
+    """
+    Sets the new number of invites required.
+    """
+    try:
+        new_invites = int(message.text)
+        if new_invites <= 0:
+            raise ValueError("Invite number must be positive.")
+        global INVITES_NEEDED
+        INVITES_NEEDED = new_invites  # Update the global variable or save to a database
+        bot.send_message(message.chat.id, f"✅ Invite requirement updated to: {INVITES_NEEDED}")
+    except ValueError:
+        bot.send_message(message.chat.id, "❌ Invalid number. Please send a positive integer.")
+        bot.register_next_step_handler(message, set_new_invites)
 
 
 
 
+
+#what the hell
 
 
 @bot.message_handler(commands=["top"])
