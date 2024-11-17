@@ -89,8 +89,8 @@ def start_command_handler(message):
     # Create the language selection buttons
     language_keyboard = types.InlineKeyboardMarkup(row_width=2)
     language_keyboard.add(
-        types.InlineKeyboardButton("English", callback_data="select_english"),
-        types.InlineKeyboardButton("فارسی", callback_data="select_persian")
+        types.InlineKeyboardButton("🇬🇧 English", callback_data="select_english"),
+        types.InlineKeyboardButton("فارسـی 🇦🇫🇮🇷", callback_data="select_persian")
     )
 
     # Send the language selection message
@@ -142,21 +142,21 @@ def language_selection_callback(call):
         # Create the channel join buttons for Persian
         keyboard = types.InlineKeyboardMarkup(row_width=1)
         keyboard.add(
-            types.InlineKeyboardButton("عضویت در کانال ۱⚡️", url="https://t.me/your_channel_1"),
-            types.InlineKeyboardButton("عضویت در کانال ۲⚡️", url="https://t.me/your_channel_2"),
-            types.InlineKeyboardButton("🔐 عضو شدم", callback_data="check_numbf")
+            types.InlineKeyboardButton("عضویت در کانال اول⚡️", url="https://t.me/your_channel_1"),
+            types.InlineKeyboardButton("عضویت در کانال دوم⚡️", url="https://t.me/your_channel_2"),
+            types.InlineKeyboardButton("🔐 عضـو شـدم", callback_data="check_numbf")
         )
 
         # Send the Persian welcome message
         bot.send_message(
             chat_id=user_id,
             text=(
-                "⚠️ برای استفاده از این ربات، شما باید در کانال‌های تلگرام ما عضو شوید.\n"
+                "⚠️<b> برای استفاده از این ربات، شما باید در کانال‌های تلگرام ما عضو شوید</b>.\n"
                 "کاربر عزیز، شما باید در هر دو کانال زیر عضو شوید.\n\n"
                 "در غیر این صورت، این ربات کار نخواهد کرد. اگر عضو شده‌اید، "
                 "روی دکمه 🔐 عضو شدم کلیک کنید تا عضویت شما تایید شود.\n\n"
             ),
-            parse_mode="Markdown",
+            parse_mode="HTML",
             reply_markup=keyboard
         )
 
