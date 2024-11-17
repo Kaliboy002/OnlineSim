@@ -305,25 +305,25 @@ def number_buttons_callback(call):
         # User has enough invites to unlock the number
         bot.send_message(
             chat_id=user_id,
-            text=f"You unlocked this number ({number})!\n\nClick below to get your OTP."
+            text=f"🥳 ᴄᴏɴɢʀᴀᴛᴜʟᴀᴛɪᴏɴs, ʏᴏᴜ ᴜɴʟᴏᴄᴋᴇᴅ ᴛʜɪs ɴᴜᴍʙᴇʀ {number}"
         )
 
         # Create InlineKeyboardMarkup with the 'Get OTP' button
         keyboard = types.InlineKeyboardMarkup(row_width=1)
-        keyboard.add(types.InlineKeyboardButton("Get OTP", callback_data=f"get_otp_{number}"))
+        keyboard.add(types.InlineKeyboardButton("ɢᴇᴛ ᴄᴏᴅᴇ (ᴏᴛᴘ) 📩", callback_data=f"get_otp_{number}"))
 
         # Send the message with the OTP button
         bot.send_message(
             chat_id=user_id,
-            text="Click the button below to get your OTP.",
+            text="ᴄᴏᴘʏ ᴛʜᴇ ɴᴜᴍʙᴇʀ ʏᴏᴜ ʜᴀᴠᴇ ᴜɴʟᴏᴄᴋᴇᴅ ᴀɴᴅ ʀᴇǫᴜᴇsᴛ ᴠᴇʀɪғɪᴄᴀᴛɪᴏɴ ᴄᴏᴅᴇ (ᴏᴛᴘ) ғʀᴏᴍ ʏᴏᴜʀ ᴅᴇsɪʀᴇᴅ ᴘʟᴀᴛғᴏʀᴍs ᴏʀ sɪᴛᴇ ᴀɴᴅ ʀᴇᴄᴇɪᴠᴇ ᴛʜᴇ ᴏᴛᴘ ᴏʀ ᴠᴇʀɪғɪᴄᴀᴛɪᴏɴ ᴄᴏᴅᴇ ʙʏ ᴄʟɪᴄᴋɪɴɢ ʙᴇʟᴏᴡ ʙᴜᴛᴛᴏɴ👇",
             reply_markup=keyboard
         )
     else:
         # User does not have enough invites
         bot.send_message(
             chat_id=user_id,
-            text="❌ You do not have enough invites to unlock this number.\n"
-                 f"You need {INVITES_NEEDED - total_invites} more invite(s) to proceed."
+            text="😕 sᴏʀʀʏ ʏᴏᴜ ᴅᴏɴ'ᴛ ʜᴀᴠᴇ ᴇɴᴏᴜɢʜ ɪɴᴠɪᴛᴇs ᴛᴏ ᴜɴʟᴏᴄᴋ ᴛʜɪs ɴᴜᴍʙᴇʀ\n"
+                 f"➕ ʏᴏᴜ ɴᴇᴇᴅ {INVITES_NEEDED - total_invites} ᴍᴏʀᴇ ɪɴᴠɪᴛᴇs ᴛᴏ ᴏᴘᴇɴ 🔐"
         )
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith("get_otp_"))
@@ -336,7 +336,7 @@ def get_otp_callback(call):
     otp = random.randint(10000, 99999)
     bot.send_message(
         chat_id=call.message.chat.id,
-        text=f"Your OTP is: {otp}"
+        text=f"⁀➴ ʏᴏᴜʀ ᴏᴛᴘ ɪs : {otp}"
     )
 
 
