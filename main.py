@@ -939,7 +939,7 @@ def numberf_command_handler(message: ClassVar[Any]) -> NoReturn:
                 Markup: ClassVar[Any] = telebot.util.quick_markup(
                     {
                         "𖥸 Inbox": {
-                            "callback_data": f"msgf{country['name']}&{number[1]}"
+                            "callback_data": f"msg{country['name']}&{number[1]}"
                         },
 
                         "꩜ Renew": {
