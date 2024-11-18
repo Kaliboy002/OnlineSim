@@ -787,7 +787,7 @@ def process_add_one_user(message):
             points = int(message.text)
             user_id = int(user_identifier) if user_identifier.isdigit() else None
 
-          if user_id and user_id in user_ids:
+if user_id and user_id in user_ids:
     referral_data[user_id] = referral_data.get(user_id, 0) + points
     bot.send_message(
         chat_id=user_id,
