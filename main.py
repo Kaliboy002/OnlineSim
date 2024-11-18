@@ -1592,72 +1592,68 @@ def number_command_handler(message: ClassVar[Any]) -> NoReturn:
             )
 
 
+ # Check if number is valid and it's inbox is active
+            if engine.get_number_inbox(country['name'], number[1]):
+                # Make keyboard markup for number
+                Markup: ClassVar[Any] = telebot.util.quick_markup(
+                    {
+                        "𖥸 Inbox": {
+                            "callback_data": f"msgk{country['name']}&{number[1]}"
+                        },
 
-def handle_number_inbox(engine, bot, message, prompt, country, number, countries):
-    """
-    Function to handle number inbox check and messaging logic.
-    """
-# Check if number is valid and it's inbox is active
-if engine.get_number_inbox(country['name'], number[1]):
-    # Make keyboard markup for number
-    Markup: ClassVar[Any] = telebot.util.quick_markup(
-        {
-            "𖥸 Inbox": {
-                "callback_data": f"msg{country['name']}&{number[1]}"
-            },
+                        "꩜ Renew": {
+                            "callback_data": f"new_phone_numberf"
+                        },
 
-            "꩜ Renew": {
-                "callback_data": f"new_phone_number"
-            },
+                        "Check phone number's profile": {
+                            "url": f"tg://resolve?phone=+{number[1]}"
+                        }
+                    }, 
+                    row_width=2
+                )
+                
+                # Update prompt based on current status
+                bot.edit_message_text(
+                    chat_id=message.chat.id,
+                    message_id=prompt.message_id,
+                    text=(
+                        "⚠️ ɪɴ ғʀᴇᴇ ɴᴜᴍʙᴇʀ ᴘᴀʀᴛ ʏᴏᴜ ᴄᴀɴ ʀᴀɴᴅᴏᴍʟʏ ɢᴇᴛ ғʀᴇᴇ ɴᴜᴍʙᴇʀs ᴀɴᴅ ɢᴇᴛ ᴛʜᴇ ɪɴᴄᴏᴍɪɴɢ ᴍᴇssᴀɢᴇs ᴛʜʀᴏᴜɢʜ ɪɴʙᴏx ʙᴜᴛᴛᴏɴ ʙᴜᴛ ᴛʜᴇ ɴᴜᴍʙᴇʀ ɪs ᴜsᴇᴅ ʙʏ ᴘᴜʙʟɪᴄ ᴀɴᴅ ɪᴛ ᴍᴀʏ ᴀʟʀᴇᴀᴅʏ ᴛᴀᴋᴇɴ ʙʏ ᴀɴᴏᴛʜᴇʀ ᴜsᴇʀ.👇\n┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n"
+                        "ɢᴇᴛᴛɪɴɢ ᴀ ʀᴀɴᴅᴏᴍ ɴᴜᴍʙᴇʀ ғᴏʀ ʏᴏᴜ...\n\n"
+                        "⁀➴ ғᴇᴛᴄʜɪɴɢ ᴏɴʟɪɴᴇ ᴄᴏᴜɴᴛʀɪᴇs:\n"
+                        f"ɢᴏᴛ {len(countries)} ᴄᴏᴜɴᴛʀɪᴇs\n\n"
+                        "⁀➴ ᴛᴇsᴛɪɴɢ ᴀᴄᴛɪᴠᴇ ɴᴜᴍʙᴇʀs:\n"
+                        f"ᴛʀʏɪɴɢ {country_name} ({formatted_number})\n\n"
+                        f"{flag} ʜᴇʀᴇ ɪs ʏᴏᴜʀ ɴᴜᴍʙᴇʀ:: +{number[1]}\n\n"
+                        f"ʟᴀsᴛ ᴜᴘᴅᴀᴛᴇ: {number[0]}"
+                    ),
+                    reply_markup=Markup
+                )
 
-            "Check phone number's profile": {
-                "url": f"tg://resolve?phone=+{number[1]}"
-            }
-        }, 
-        row_width=2
-    )
+                # Return the function
+                return 1
     
-    # Update prompt based on current status
-    bot.edit_message_text(
-        chat_id=message.chat.id,
-        message_id=prompt.message_id,
-        text=(
-            "⚠️ در قسمت شماره رایگان شما می‌توانید به صورت تصادفی شماره‌های رایگان دریافت کنید و پیام‌های دریافتی را از طریق دکمه اینباکس مشاهده کنید، اما شماره ممکن است توسط دیگر کاربران استفاده شده باشد و ممکن است قبلاً گرفته شده باشد.👇\n┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n"
-            "در حال دریافت یک شماره تصادفی برای شما...\n\n"
-            "⁀➴ در حال جستجوی کشورهای آنلاین:\n"
-            f"تعداد {len(countries)} کشور یافت شد\n\n"
-            "⁀➴ در حال تست شماره‌های فعال:\n"
-            f"در حال تست {country_name} ({formatted_number})\n\n"
-            f"{flag} این شماره شما است:: +{number[1]}\n\n"
-            f"آخرین به‌روزرسانی: {number[0]}"
-        ),
-        reply_markup=Markup
-    )
+    # Send failure message when no number found
+    else:
+        # Update prompt based on current status
+        bot.edit_message_text(
+            chat_id=message.chat.id,
+            message_id=prompt.message_id,
+            text=(
 
-    # Return the function
-    return 1
+                    "⚠️ ɪɴ ғʀᴇᴇ ɴᴜᴍʙᴇʀ ᴘᴀʀᴛ ʏᴏᴜ ᴄᴀɴ ʀᴀɴᴅᴏᴍʟʏ ɢᴇᴛ ғʀᴇᴇ ɴᴜᴍʙᴇʀs ᴀɴᴅ ɢᴇᴛ ᴛʜᴇ ɪɴᴄᴏᴍɪɴɢ ᴍᴇssᴀɢᴇs ᴛʜʀᴏᴜɢʜ ɪɴʙᴏx ʙᴜᴛᴛᴏɴ ʙᴜᴛ ᴛʜᴇ ɴᴜᴍʙᴇʀ ɪs ᴜsᴇᴅ ʙʏ ᴘᴜʙʟɪᴄ ᴀɴᴅ ɪᴛ ᴍᴀʏ ᴀʟʀᴇᴀᴅʏ ᴛᴀᴋᴇɴ ʙʏ ᴀɴᴏᴛʜᴇʀ ᴜsᴇʀ.👇\n┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n"
+                    "ɢᴇᴛᴛɪɴɢ ᴀ ʀᴀɴᴅᴏᴍ ɴᴜᴍʙᴇʀ ғᴏʀ ʏᴏᴜ...\n\n"
+                    "⁀➴ ғᴇᴛᴄʜɪɴɢ ᴏɴʟɪɴᴇ ᴄᴏᴜɴᴛʀɪᴇs:\n"
+                    f"ɢᴏᴛ {len(countries)} ᴄᴏᴜɴᴛʀɪᴇs\n\n"
+                    "⁀➴ ᴛᴇsᴛɪɴɢ ᴀᴄᴛɪᴠᴇ ɴᴜᴍʙᴇʀs:\n"
+                    f"ᴛʜᴇʀᴇ ɪs ɴᴏ ᴏɴʟɪɴᴇ ɴᴜᴍʙᴇʀ ғᴏʀ ɴᴏᴡ!"
+                ),
+        ) 
 
-# Send failure message when no number found
-else:
-    # Update prompt based on current status
-    bot.edit_message_text(
-        chat_id=message.chat.id,
-        message_id=prompt.message_id,
-        text=(
-            "⚠️ در قسمت شماره رایگان شما می‌توانید به صورت تصادفی شماره‌های رایگان دریافت کنید و پیام‌های دریافتی را از طریق دکمه اینباکس مشاهده کنید، اما شماره ممکن است توسط دیگر کاربران استفاده شده باشد و ممکن است قبلاً گرفته شده باشد.👇\n┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n"
-            "در حال دریافت یک شماره تصادفی برای شما...\n\n"
-            "⁀➴ در حال جستجوی کشورهای آنلاین:\n"
-            f"تعداد {len(countries)} کشور یافت شد\n\n"
-            "⁀➴ در حال تست شماره‌های فعال:\n"
-            f"در حال حاضر شماره آنلاین برای تست وجود ندارد!"
-        ),
-    ) 
-
-    # Return the function
-    return 0
+        # Return the function
+        return 0
 
 
-@bot.callback_query_handler(func=lambda x:x.data.startswith("msg"))
+@bot.callback_query_handler(func=lambda x:x.data.startswith("msgk"))
 def number_inbox_handler(call: ClassVar[Any]) -> NoReturn:
     """
     Callback query handler to handle inbox messages
@@ -1690,7 +1686,7 @@ def number_inbox_handler(call: ClassVar[Any]) -> NoReturn:
                 chat_id=call.message.chat.id,
                 reply_to_message_id=call.message.message_id,
                 text=(
-                    f"⚯͛ زمان: {key}\n\n"
+                    f"⚯͛ Time: {key}\n\n"
                     f"{value.split('received from OnlineSIM.io')[0]}"
                 )
             )
@@ -1699,11 +1695,11 @@ def number_inbox_handler(call: ClassVar[Any]) -> NoReturn:
     bot.answer_callback_query(
         callback_query_id=call.id,
         text=(
-            "⁀➴ اینجا آخرین 5 پیام شما است\n\n"
-            "اگر پیام خود را دریافت نکردید، دوباره بعد از 1 دقیقه تلاش کنید!"
+            "⁀➴ Here is your last 5 messages\n\n"
+            "If you didn't get your message, try again after 1 minute!"
         ),
         show_alert=True
-    )
+        )
 
 
 
