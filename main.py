@@ -1177,12 +1177,12 @@ def number_command_handler(message: ClassVar[Any]) -> NoReturn:
                         f"Got {len(countries)} countries\n\n"
                         "⁀➴ Testing active numbers:\n"
                         f"Trying {country_name} ({formatted_number})\n\n"
-                        f"{flag} <b>Here is your number</b>: +{number[1]}\n\n"
+                        f"{flag} 𝗛𝗲𝗿𝗲 𝗶𝘀 𝘆𝗼𝘂𝗿 𝗻𝘂𝗺𝗯𝗲𝗿: +{number[1]}\n\n"
                         f"Last Update: {number[0]}"
-                 ),
-            parse_mode="HTML",
-            reply_markup=keyboard
-    )
+       
+                    ),
+                    reply_markup=Markup
+        )
 
                 # Return the function
                 return 1
@@ -1375,7 +1375,7 @@ def new_number_handler(call):
                         f"Got {len(countries)} countries\n\n"
                         "⁀➴ Testing active numbers:\n"
                         f"Trying {country_name} ({formatted_number})\n\n"
-                        f"{flag} Here is your number: +{number[1]}\n\n"
+                        f"{flag} 𝗛𝗲𝗿𝗲 𝗶𝘀 𝘆𝗼𝘂𝗿 𝗻𝘂𝗺𝗯𝗲𝗿: +{number[1]}\n\n"
                         f"Last Update: {number[0]}"
                     ),
                     reply_markup=Markup
