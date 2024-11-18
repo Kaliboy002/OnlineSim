@@ -1,8 +1,9 @@
-## Standard library imports
+# Standard library imports
 import json
 import random
 import time
 from typing import ClassVar, NoReturn, Any, Union, Set, Dict  # Add Dict for type hints
+
 # Related third-party module imports
 import telebot
 from telebot import types  # Correctly import types here
@@ -10,18 +11,27 @@ import phonenumbers
 import countryflag
 import sys
 import io
-import logging
+import logging  # For logging messages, especially useful for debugging
+
 # Local application module imports
 from src import utils
 from src.utils import User
 from src.vneng import VNEngine
+
+# Set up logging to capture errors and debug information
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+
 # Initialize the bot token
 bot: ClassVar[Any] = telebot.TeleBot(utils.get_token())
 print(f":: Bot is running with ID: {bot.get_me().id}")
 
-# Global variables for channel URLs and invites needed
-channel_1_url = "https://t.me/your_channel_1"
-channel_2_url = "https://t.me/your_channel_2"
+# Example debug logging for Persian text handling
+logging.debug("Bot is initialized and running!")
+
+# Ensure the environment uses UTF-8 encoding for Persian text handling
+reload(sys)
+sys.setdefaultencoding('utf-8')  # For Python 2.x, not needed in Python 3.x as UTF-8 is default
+
 
 # Define admin ID (replace with the actual admin user ID)
 ADMIN_ID = 7046488481  # Replace with your admin's Telegram ID
