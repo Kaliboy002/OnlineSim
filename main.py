@@ -1626,8 +1626,9 @@ def number_command_handler(message: ClassVar[Any]) -> NoReturn:
                         f"{flag}<b> شماره با موفقیت ساخته شد ✦</b>: +{number[1]}\n\n"
                         f"⏳<b> آخرین آپديت</b>: {number[0]}"
                     ),
-                    parse_mode="HTML",
-    )
+        parse_mode="HTML",
+            reply_markup=keyboard
+                )
 
                 # Return the function
                 return 1
