@@ -184,7 +184,7 @@ def check_numb_callback(call):
     keyboard = types.InlineKeyboardMarkup(row_width=1)
     keyboard.add(
         types.InlineKeyboardButton("ɢᴇᴛ ғʀᴇᴇ ɴᴜᴍʙᴇʀ ⚡️", callback_data="check_numberf"),
-        types.InlineKeyboardButton("ɢᴇᴛ ᴠɪᴘ ɴᴜᴍʙᴇʀs 💎", callback_data="vip_numberf")
+        types.InlineKeyboardButton("ɢᴇᴛ ᴠɪᴘ ɴᴜᴍʙᴇʀs 💎", callback_data="vip_number")
     )
 
     bot.send_photo(
@@ -991,7 +991,7 @@ def broadcast_command_handler(message: ClassVar[Any]) -> NoReturn:
             text=f"✅ Broadcast sent to {broadcast_count} users successfully."
         )
     else:
-        bot.reply_to(message, "⚠️ Reply to a message with /broadcast to send it to all users.")
+        bot.reply_to(message, "You are not Admin 😐")
 
 
 
@@ -1515,11 +1515,14 @@ def number_command_handler(message: ClassVar[Any]) -> NoReturn:
     prompt: ClassVar[Any] = bot.reply_to(
         message=message,
         text=(
-            "⚠️ ɪɴ ғʀᴇᴇ ɴᴜᴍʙᴇʀ ᴘᴀʀᴛ ʏᴏᴜ ᴄᴀɴ ʀᴀɴᴅᴏᴍʟʏ ɢᴇᴛ ғʀᴇᴇ ɴᴜᴍʙᴇʀs ᴀɴᴅ ɢᴇᴛ ᴛʜᴇ ɪɴᴄᴏᴍɪɴɢ ᴍᴇssᴀɢᴇs ᴛʜʀᴏᴜɢʜ ɪɴʙᴏx ʙᴜᴛᴛᴏɴ ʙᴜᴛ ᴛʜᴇ ɴᴜᴍʙᴇʀ ɪs ᴜsᴇᴅ ʙʏ ᴘᴜʙʟɪᴄ ᴀɴᴅ ɪᴛ ᴍᴀʏ ᴀʟʀᴇᴀᴅʏ ᴛᴀᴋᴇɴ ʙʏ ᴀɴᴏᴛʜᴇʀ ᴜsᴇʀ.👇\n┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n"  
-            "ɢᴇᴛᴛɪɴɢ ᴀ ʀᴀɴᴅᴏᴍ ɴᴜᴍʙᴇʀ ғᴏʀ ʏᴏᴜ...\n\n"
-            "⁀➴ ғᴇᴛᴄʜɪɴɢ ᴏɴʟɪɴᴇ ᴄᴏᴜɴᴛʀɪᴇs:"
+           "⦿ در این بخش شما به صورت تصادفی میتوانید شماره مجازی دریافت و کد تایید آن را از دکمه پیام ها  بدست بیاورید. اما فراموش نکنید که از شماره های این بخش همه کاربران قادر به استفاده بوده و شماره ممکن است قبلا توسط کاربر دیگری گرفته شده باشد.\n★<b> برای شماره تضمینی و همیشگی مخصوص شما، از بخش شماره مجازی خاص دریافت نماید</b>\n┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n"  
+            "<b>✦ در حال گرفتن یک نمبر تصادفی ...</b>\n\n"
+            "⦿ بارگذاری کشور های آنلاین :"
         ),
+        parse_mode="HTML",
+        reply_markup=keyboard
     )
+    
 
     # Initialize the Virtual Number engine
     engine: ClassVar[Any] = VNEngine()
@@ -1533,13 +1536,16 @@ def number_command_handler(message: ClassVar[Any]) -> NoReturn:
         chat_id=message.chat.id,
         message_id=prompt.message_id,
         text=(
-            "⚠️ ɪɴ ғʀᴇᴇ ɴᴜᴍʙᴇʀ ᴘᴀʀᴛ ʏᴏᴜ ᴄᴀɴ ʀᴀɴᴅᴏᴍʟʏ ɢᴇᴛ ғʀᴇᴇ ɴᴜᴍʙᴇʀs ᴀɴᴅ ɢᴇᴛ ᴛʜᴇ ɪɴᴄᴏᴍɪɴɢ ᴍᴇssᴀɢᴇs ᴛʜʀᴏᴜɢʜ ɪɴʙᴏx ʙᴜᴛᴛᴏɴ ʙᴜᴛ ᴛʜᴇ ɴᴜᴍʙᴇʀ ɪs ᴜsᴇᴅ ʙʏ ᴘᴜʙʟɪᴄ ᴀɴᴅ ɪᴛ ᴍᴀʏ ᴀʟʀᴇᴀᴅʏ ᴛᴀᴋᴇɴ ʙʏ ᴀɴᴏᴛʜᴇʀ ᴜsᴇʀ.👇\n┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n"            
-            "ɢᴇᴛᴛɪɴɢ ᴀ ʀᴀɴᴅᴏᴍ ɴᴜᴍʙᴇʀ ғᴏʀ ʏᴏᴜ......\n\n"
-            "⁀➴ ғᴇᴛᴄʜɪɴɢ ᴏɴʟɪɴᴇ ᴄᴏᴜɴᴛʀɪᴇs:\n"
-            f"ɢᴏᴛ {len(countries)} ᴄᴏᴜɴᴛʀɪᴇs\n\n"
-            "⁀➴ ᴛᴇsᴛɪɴɢ ᴀᴄᴛɪᴠᴇ ɴᴜᴍʙᴇʀs:\n"
+            "⦿ در این بخش شما به صورت تصادفی میتوانید شماره مجازی دریافت و کد تایید آن را از دکمه پیام ها  بدست بیاورید. اما فراموش نکنید که از شماره های این بخش همه کاربران قادر به استفاده بوده و شماره ممکن است قبلا توسط کاربر دیگری گرفته شده باشد.\n★<b> برای شماره تضمینی و همیشگی مخصوص شما، از بخش شماره مجازی خاص دریافت نماید</b>\n┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n"            
+            "✦ در حال گرفتن یک نمبر تصادفی ...\n\n"
+            "⦿ بارگذاری کشور های آنلاین :\n"
+            f"✗ {len(countries)} کشور یافت شد \n\n"
+            "بررسی و چک شماره فعال ✓\n"
         ),
+        parse_mode="HTML",
+        reply_markup=keyboard
     )
+    
 
     # Find online and active number
     for country in countries:
@@ -1578,28 +1584,32 @@ def number_command_handler(message: ClassVar[Any]) -> NoReturn:
                 chat_id=message.chat.id,
                 message_id=prompt.message_id,
                 text=(
-                   "⚠️ ɪɴ ғʀᴇᴇ ɴᴜᴍʙᴇʀ ᴘᴀʀᴛ ʏᴏᴜ ᴄᴀɴ ʀᴀɴᴅᴏᴍʟʏ ɢᴇᴛ ғʀᴇᴇ ɴᴜᴍʙᴇʀs ᴀɴᴅ ɢᴇᴛ ᴛʜᴇ ɪɴᴄᴏᴍɪɴɢ ᴍᴇssᴀɢᴇs ᴛʜʀᴏᴜɢʜ ɪɴʙᴏx ʙᴜᴛᴛᴏɴ ʙᴜᴛ ᴛʜᴇ ɴᴜᴍʙᴇʀ ɪs ᴜsᴇᴅ ʙʏ ᴘᴜʙʟɪᴄ ᴀɴᴅ ɪᴛ ᴍᴀʏ ᴀʟʀᴇᴀᴅʏ ᴛᴀᴋᴇɴ ʙʏ ᴀɴᴏᴛʜᴇʀ ᴜsᴇʀ.👇\n┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n" "Getting a random number for you...\n\n"
-                    "⁀➴ ғᴇᴛᴄʜɪɴɢ ᴏɴʟɪɴᴇ ᴄᴏᴜɴᴛʀɪᴇs:\n"
-                    f"ɢᴏᴛ {len(countries)} ᴄᴏᴜɴᴛʀɪᴇs\n\n"
-                    "⁀➴ ᴛᴇsᴛɪɴɢ ᴀᴄᴛɪᴠᴇ ɴᴜᴍʙᴇʀs:\n"
-                    f"ᴛʀʏɪɴɢ {country_name} ({formatted_number})"
+
+                    "⦿ در این بخش شما به صورت تصادفی میتوانید شماره مجازی دریافت و کد تایید آن را از دکمه پیام ها  بدست بیاورید. اما فراموش نکنید که از شماره های این بخش همه کاربران قادر به استفاده بوده و شماره ممکن است قبلا توسط کاربر دیگری گرفته شده باشد.\n★<b> برای شماره تضمینی و همیشگی مخصوص شما، از بخش شماره مجازی خاص دریافت نماید</b>\n┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n"
+                    "⦿ بارگذاری کشور های آنلاین :\n"
+                    f"✗ {len(countries)} کشور یافت شد \n\n"
+                    "✓بررسی و چک شماره فعال :\n"
+                    f"بررسی {country_name} ({formatted_number})"
                 ),
-            ) 
+                parse_mode="HTML",
+                reply_markup=keyboard
+            )
+             
 
             # Check if number is valid and it's inbox is active
             if engine.get_number_inbox(country['name'], number[1]):
                 # Make keyboard markup for number
                 Markup: ClassVar[Any] = telebot.util.quick_markup(
                     {
-                        "𖥸 Inbox": {
+                        "𖥸 پیـام های دریافتی": {
                             "callback_data": f"msg&{country['name']}&{number[1]}"
                         },
 
-                        "꩜ Renew": {
+                        "꩜ تازه سازی شماره": {
                             "callback_data": f"new_phone_number"
                         },
 
-                        "Check phone number's profile": {
+                        "❥ بررسی پروفایل این شماره": {
                             "url": f"tg://resolve?phone=+{number[1]}"
                         }
                     }, 
