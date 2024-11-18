@@ -996,11 +996,6 @@ def broadcast_command_handler(message: ClassVar[Any]) -> NoReturn:
 
 
 
-
-
-
-          
-
 # Callback handler for "Check" button to trigger /number command directly
 @bot.callback_query_handler(func=lambda call: call.data == "check_number")
 def check_number_callback(call: ClassVar[Any]) -> NoReturn:
@@ -1020,7 +1015,8 @@ def check_number_callback(call: ClassVar[Any]) -> NoReturn:
 def help_command_handler(message: ClassVar[Any]) -> NoReturn:
     """
     Function to handle help commands in bot
-    Shows help messages to use
+    Shows help messages to users
+
     Parameters:
         message (typing.ClassVar[Any]): Incoming message object
 
@@ -1051,10 +1047,18 @@ def help_command_handler(message: ClassVar[Any]) -> NoReturn:
         )
     )
 
+# Start polling
 
 
 
-#Persians
+
+
+
+
+
+
+
+
 
 @bot.message_handler(commands=["number"])
 def number_command_handler(message: ClassVar[Any]) -> NoReturn:
@@ -1074,9 +1078,8 @@ def number_command_handler(message: ClassVar[Any]) -> NoReturn:
     prompt: ClassVar[Any] = bot.reply_to(
         message=message,
         text=(
-            "⚠️  در بخش شماره رایگان شما می‌توانید به صورت تصادفی شماره‌های رایگان دریافت کرده و پیام‌های دریافتی را از طریق دکمه صندوق ورودی دریافت کنید، اما ممکن است شماره توسط دیگران استفاده شده باشد👇\n┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n"  
-            "در حال دریافت شماره تصادفی برای شما...\n\n"
-            "⁀➴ در حال جستجو برای کشور‌های آنلاین:"
+            "Getting a random number for you...\n\n"
+            "⁀➴ Fetching online countries:"
         ),
     )
 
@@ -1092,11 +1095,10 @@ def number_command_handler(message: ClassVar[Any]) -> NoReturn:
         chat_id=message.chat.id,
         message_id=prompt.message_id,
         text=(
-            "⚠️ در بخش شماره رایگان شما می‌توانید به صورت تصادفی شماره‌های رایگان دریافت کرده و پیام‌های دریافتی را از طریق دکمه صندوق ورودی دریافت کنید، اما ممکن است شماره توسط دیگران استفاده شده باشد👇\n┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n"            
-            "در حال دریافت شماره تصادفی برای شما......\n\n"
-            "⁀➴ در حال جستجو برای کشور‌های آنلاین:\n"
-            f"تعداد {len(countries)} کشور پیدا شد\n\n"
-            "⁀➴ در حال آزمایش شماره‌های فعال:\n"
+            "Getting a random number for you...\n\n"
+            "⁀➴ Fetching online countries:\n"
+            f"Got {len(countries)} countries\n\n"
+            "⁀➴ Testing active numbers:\n"
         ),
     )
 
@@ -1137,74 +1139,70 @@ def number_command_handler(message: ClassVar[Any]) -> NoReturn:
                 chat_id=message.chat.id,
                 message_id=prompt.message_id,
                 text=(
-                   "⚠️ در بخش شماره رایگان شما می‌توانید به صورت تصادفی شماره‌های رایگان دریافت کرده و پیام‌های دریافتی را از طریق دکمه صندوق ورودی دریافت کنید، اما ممکن است شماره توسط دیگران استفاده شده باشد👇\n┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n" 
-                   "در حال دریافت شماره تصادفی برای شما...\n\n"
-                   "⁀➴ در حال جستجو برای کشور‌های آنلاین:\n"
-                   f"تعداد {len(countries)} کشور پیدا شد\n\n"
-                   "⁀➴ در حال آزمایش شماره‌های فعال:\n"
+                    "Getting a random number for you...\n\n"
+                    "⁀➴ Fetching online countries:\n"
+                    f"Got {len(countries)} countries\n\n"
+                    "⁀➴ Testing active numbers:\n"
+                    f"Trying {country_name} ({formatted_number})"
                 ),
-            )
+            ) 
 
+            # Check if number is valid and it's inbox is active
+            if engine.get_number_inbox(country['name'], number[1]):
+                # Make keyboard markup for number
+                Markup: ClassVar[Any] = telebot.util.quick_markup(
+                    {
+                        "𖥸 Inbox": {
+                            "callback_data": f"msg&{country['name']}&{number[1]}"
+                        },
 
+                        "꩜ Renew": {
+                            "callback_data": f"new_phone_number"
+                        },
 
-    # Check if number is valid and it's inbox is active
-if engine.get_number_inbox(country['name'], number[1]):
-    # Make keyboard markup for number
-    Markup: ClassVar[Any] = telebot.util.quick_markup(
-        {
-            "𖥸 Inbox": {
-                "callback_data": f"msg&{country['name']}&{number[1]}"
-            },
+                        "Check phone number's profile": {
+                            "url": f"tg://resolve?phone=+{number[1]}"
+                        }
+                    }, 
+                    row_width=2
+                )
+                
+                # Update prompt based on current status
+                bot.edit_message_text(
+                    chat_id=message.chat.id,
+                    message_id=prompt.message_id,
+                    text=(
+                        "Getting a random number for you...\n\n"
+                        "⁀➴ Fetching online countries:\n"
+                        f"Got {len(countries)} countries\n\n"
+                        "⁀➴ Testing active numbers:\n"
+                        f"Trying {country_name} ({formatted_number})\n\n"
+                        f"{flag} Here is your number: +{number[1]}\n\n"
+                        f"Last Update: {number[0]}"
+                    ),
+                    reply_markup=Markup
+                )
 
-            "꩜ Renew": {
-                "callback_data": f"new_phone_number"
-            },
-
-            "Check phone number's profile": {
-                "url": f"tg://resolve?phone=+{number[1]}"
-            }
-        }, 
-        row_width=2
-    )
+                # Return the function
+                return 1
     
-    # Update prompt based on current status
-    bot.edit_message_text(
-        chat_id=message.chat.id,
-        message_id=prompt.message_id,
-        text=(
-            "⚠️ در بخش شماره رایگان شما می‌توانید به صورت تصادفی شماره‌های رایگان دریافت کرده و پیام‌های دریافتی را از طریق دکمه صندوق ورودی دریافت کنید، اما ممکن است شماره توسط دیگران استفاده شده باشد👇\n┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n"
-            "در حال دریافت شماره تصادفی برای شما...\n\n"
-            "⁀➴ در حال جستجو برای کشور‌های آنلاین:\n"
-            f"تعداد {len(countries)} کشور پیدا شد\n\n"
-            "⁀➴ در حال آزمایش شماره‌های فعال:\n"
-            f"در حال تلاش برای شماره {country_name} ({formatted_number})\n\n"
-            f"{flag} این شماره شماست:: +{number[1]}\n\n"
-            f"آخرین به روز رسانی: {number[0]}"
-        ),
-        reply_markup=Markup
-    )
+    # Send failure message when no number found
+    else:
+        # Update prompt based on current status
+        bot.edit_message_text(
+            chat_id=message.chat.id,
+            message_id=prompt.message_id,
+            text=(
+                    "Getting a random number for you...\n\n"
+                    "⁀➴ Fetching online countries:\n"
+                    f"Got {len(countries)} countries\n\n"
+                    "⁀➴ Testing active numbers:\n"
+                    f"There is no online number for now!"
+                ),
+        ) 
 
-    # Return the function
-
-
-# Send failure message when no number found
-else:
-    # Update prompt based on current status
-    bot.edit_message_text(
-        chat_id=message.chat.id,
-        message_id=prompt.message_id,
-        text=(
-            "⚠️ در بخش شماره رایگان شما می‌توانید به صورت تصادفی شماره‌های رایگان دریافت کرده و پیام‌های دریافتی را از طریق دکمه صندوق ورودی دریافت کنید، اما ممکن است شماره توسط دیگران استفاده شده باشد👇\n┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n"
-            "در حال دریافت شماره تصادفی برای شما...\n\n"
-            "⁀➴ در حال جستجو برای کشور‌های آنلاین:\n"
-            f"تعداد {len(countries)} کشور پیدا شد\n\n"
-            "⁀➴ در حال آزمایش شماره‌های فعال:\n"
-            f"هیچ شماره آنلاین برای حالا پیدا نشد!"
-        ),
-    ) 
-
-    # Return the function
-  #  return 0
+        # Return the function
+        return 0
 
 
 @bot.callback_query_handler(func=lambda x:x.data.startswith("msg"))
@@ -1277,8 +1275,8 @@ def new_number_handler(call):
         chat_id=chat_id,
         message_id=message_id,
         text=(
-            "در حال دریافت یک شماره تصادفی برای شما...\n\n"
-            "⁀➴ در حال دریافت کشورهای آنلاین:"
+            "Getting a random number for you...\n\n"
+            "⁀➴ Fetching online countries:"
         ),
     )
 
@@ -1294,10 +1292,10 @@ def new_number_handler(call):
         chat_id=chat_id,
         message_id=message_id,
         text=(
-            "در حال دریافت یک شماره تصادفی برای شما...\n\n"
-            "⁀➴ در حال دریافت کشورهای آنلاین:\n"
-            f"تعداد کشورهای آنلاین: {len(countries)}\n\n"
-            "⁀➴ در حال تست شماره‌های فعال:\n"
+            "Getting a random number for you...\n\n"
+            "⁀➴ Fetching online countries:\n"
+            f"Got {len(countries)} countries\n\n"
+            "⁀➴ Testing active numbers:\n"
         ),
     )
 
@@ -1338,77 +1336,81 @@ def new_number_handler(call):
                 chat_id=chat_id,
                 message_id=message_id,
                 text=(
-                    "در حال دریافت یک شماره تصادفی برای شما...\n\n"
-                    "⁀➴ در حال دریافت کشورهای آنلاین:\n"
-                    f"تعداد کشورهای آنلاین: {len(countries)}\n\n"
-                    "⁀➴ در حال تست شماره‌های فعال:\n"
-                    f"در حال تست {country_name} ({formatted_number})"
+                    "Getting a random number for you...\n\n"
+                    "⁀➴ Fetching online countries:\n"
+                    f"Got {len(countries)} countries\n\n"
+                    "⁀➴ Testing active numbers:\n"
+                    f"Trying {country_name} ({formatted_number})"
                 ),
             ) 
 
-     # Check if number is valid and it's inbox is active
-if engine.get_number_inbox(country['name'], number[1]):
-    # Make keyboard markup for number
-    Markup: ClassVar[Any] = telebot.util.quick_markup(
-        {
-            "𖥸 Inbox": {
-                "callback_data": f"msg&{country['name']}&{number[1]}"
-            },
+            # Check if number is valid and it's inbox is active
+            if engine.get_number_inbox(country['name'], number[1]):
+                # Make keyboard markup for number
+                Markup: ClassVar[Any] = telebot.util.quick_markup(
+                    {
+                        "𖥸 Inbox": {
+                            "callback_data": f"msg&{country['name']}&{number[1]}"
+                        },
 
-            "꩜ Renew": {
-                "callback_data": f"new_phone_number"
-            },
+                        "꩜ Renew": {
+                            "callback_data": f"new_phone_number"
+                        },
 
-            "Check phone number's profile": {
-                "url": f"tg://resolve?phone=+{number[1]}"
-            }
-        }, 
-        row_width=2
-    )
+                        "Check phone number's profile": {
+                            "url": f"tg://resolve?phone=+{number[1]}"
+                        }
+                    }, 
+                    row_width=2
+                )
+                
+                # Update prompt based on current status
+                bot.edit_message_text(
+                    chat_id=chat_id,
+                    message_id=message_id,
+                    text=(
+                        "Getting a random number for you...\n\n"
+                        "⁀➴ Fetching online countries:\n"
+                        f"Got {len(countries)} countries\n\n"
+                        "⁀➴ Testing active numbers:\n"
+                        f"Trying {country_name} ({formatted_number})\n\n"
+                        f"{flag} Here is your number: +{number[1]}\n\n"
+                        f"Last Update: {number[0]}"
+                    ),
+                    reply_markup=Markup
+                )
+
+                # Answer callback query
+                bot.answer_callback_query(
+                    callback_query_id=call.id,
+                    text="⁀➴ Your request updated",
+                    show_alert=False
+                )
+
+                # Return the function
+                return 1
     
-    # Update prompt based on current status
-    bot.edit_message_text(
-        chat_id=chat_id,
-        message_id=message_id,
-        text=(
-            "در حال دریافت یک شماره تصادفی برای شما...\n\n"
-            "⁀➴ در حال دریافت کشور‌های آنلاین:\n"
-            f"دارای {len(countries)} کشور\n\n"
-            "⁀➴ در حال آزمایش شماره‌های فعال:\n"
-            f"در حال تلاش برای {country_name} ({formatted_number})\n\n"
-            f"{flag} این شماره شماست: +{number[1]}\n\n"
-            f"آخرین بروزرسانی: {number[0]}"
-        ),
-        reply_markup=Markup
-    )
+    # Send failure message when no number found
+    else:
+        # Update prompt based on current status
+        bot.edit_message_text(
+            chat_id=chat_id,
+            message_id=message_id,
+            text=(
+                    "Getting a random number for you...\n\n"
+                    "⁀➴ Fetching online countries:\n"
+                    f"Got {len(countries)} countries\n\n"
+                    "⁀➴ Testing active numbers:\n"
+                    f"There is no online number for now!"
+                ),
+        ) 
 
-    # Answer callback query
-    bot.answer_callback_query(
-        callback_query_id=call.id,
-        text="⁀➴ درخواست شما بروزرسانی شد",
-        show_alert=False
-    )
+        # Return the function
+        return 0
 
-    # Return the function
-    # return 1
 
-# Send failure message when no number found
-else:
-    # Update prompt based on current status
-    bot.edit_message_text(
-        chat_id=chat_id,
-        message_id=message_id,
-        text=(
-                "در حال دریافت یک شماره تصادفی برای شما...\n\n"
-                "⁀➴ در حال دریافت کشور‌های آنلاین:\n"
-                f"دارای {len(countries)} کشور\n\n"
-                "⁀➴ در حال آزمایش شماره‌های فعال:\n"
-                f"فعلاً هیچ شماره آنلاین برای شما موجود نیست!"
-            ),
-    ) 
+          
 
-    # Return the function
-    # return 0
 
 
 # Run the bot in polling mode with enhanced error handling
