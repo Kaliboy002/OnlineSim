@@ -8,6 +8,9 @@ import telebot
 from telebot import types  # Correctly import types here
 import phonenumbers
 import countryflag
+import sys
+import io
+import logging
 # Local application module imports
 from src import utils
 from src.utils import User
