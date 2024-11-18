@@ -1207,7 +1207,7 @@ else:
     ) 
 
     # Return the function
-    return 0
+  #  return 0
 
 
 @bot.callback_query_handler(func=lambda x:x.data.startswith("msg"))
