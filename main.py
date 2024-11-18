@@ -1590,7 +1590,9 @@ def number_command_handler(message: ClassVar[Any]) -> NoReturn:
                 ),
                 parse_mode="HTML",
             )
-             def handle_number_inbox(engine, bot, message, prompt, country, number, countries):
+
+            
+            def handle_number_inbox(engine, bot, message, prompt, country, number, countries):
     """
     Function to handle number inbox check and messaging logic.
     """
@@ -1632,10 +1634,12 @@ def number_command_handler(message: ClassVar[Any]) -> NoReturn:
             reply_markup=Markup,  # Attach the keyboard
             parse_mode="HTML",
         )
+        
 
         # Return success
         return 1
 
+    
     else:
         # Send failure message when no number found
         bot.edit_message_text(
