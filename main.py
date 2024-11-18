@@ -1465,74 +1465,78 @@ def help_command_handler(message: ClassVar[Any]) -> NoReturn:
 
 #Persians
 
-@bot.message_handler(commands=["number"])
+    @bot.message_handler(commands=["number"])
 def number_command_handler(message: ClassVar[Any]) -> NoReturn:
     """
-    Function to handle number commands in bot
-    Finds and sends new virtual number to user
+    تابعی برای مدیریت دستورات شماره در ربات
+    شماره مجازی جدید را به کاربر می‌دهد
 
-    Parameters:
-        message (typing.ClassVar[Any]): Incoming message object
+    پارامترها:
+        message (typing.ClassVar[Any]): شیء پیام ورودی
 
-    Returns:
+    بازگشتی:
         None (typing.NoReturn)
     """
 
-    # Send waiting prompt
+    # ارسال پیام انتظار
     bot.send_chat_action(chat_id=message.chat.id, action="typing")
     prompt: ClassVar[Any] = bot.reply_to(
         message=message,
         text=(
-            "⚠️ ɪɴ ғʀᴇᴇ ɴᴜᴍʙᴇʀ ᴘᴀʀᴛ ʏᴏᴜ ᴄᴀɴ ʀᴀɴᴅᴏᴍʟʏ ɢᴇᴛ ғʀᴇᴇ ɴᴜᴍʙᴇʀs ᴀɴᴅ ɢᴇᴛ ᴛʜᴇ ɪɴᴄᴏᴍɪɴɢ ᴍᴇssᴀɢᴇs ᴛʜʀᴏᴜɢʜ ɪɴʙᴏx ʙᴜᴛᴛᴏɴ ʙᴜᴛ ᴛʜᴇ ɴᴜᴍʙᴇʀ ɪs ᴜsᴇᴅ ʙʏ ᴘᴜʙʟɪᴄ ᴀɴᴅ ɪᴛ ᴍᴀʏ ᴀʟʀᴇᴀᴅʏ ᴛᴀᴋᴇɴ ʙʏ ᴀɴᴏᴛʜᴇʀ ᴜsᴇʀ.👇\n┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n"  
-            "ɢᴇᴛᴛɪɴɢ ᴀ ʀᴀɴᴅᴏᴍ ɴᴜᴍʙᴇʀ ғᴏʀ ʏᴏᴜ...\n\n"
-            "⁀➴ ғᴇᴛᴄʜɪɴɢ ᴏɴʟɪɴᴇ ᴄᴏᴜɴᴛʀɪᴇs:"
+            "⚠️ در بخش شماره رایگان، شما می‌توانید به صورت تصادفی شماره‌های رایگان دریافت کنید "
+            "و پیام‌های ورودی را از طریق دکمه اینباکس دریافت کنید اما شماره ممکن است توسط "
+            "عموم استفاده شده باشد و ممکن است قبلاً توسط کاربر دیگری گرفته شده باشد.👇\n┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n"
+            "در حال دریافت شماره تصادفی برای شما...\n\n"
+            "⁀➴ در حال جستجوی کشورهای آنلاین:"
         ),
     )
 
-    # Initialize the Virtual Number engine
+    # راه اندازی موتور شماره مجازی
     engine: ClassVar[Any] = VNEngine()
 
-    # Get the countries and shuffle them
+    # دریافت کشورهای آنلاین و مخلوط کردن آن‌ها
     countries: List[Dict[str, str]] = engine.get_online_countries()
     random.shuffle(countries)
 
-    # Update propt based on current status
+    # بروزرسانی پیام بر اساس وضعیت فعلی
     bot.edit_message_text(
         chat_id=message.chat.id,
         message_id=prompt.message_id,
         text=(
-            "⚠️ ɪɴ ғʀᴇᴇ ɴᴜᴍʙᴇʀ ᴘᴀʀᴛ ʏᴏᴜ ᴄᴀɴ ʀᴀɴᴅᴏᴍʟʏ ɢᴇᴛ ғʀᴇᴇ ɴᴜᴍʙᴇʀs ᴀɴᴅ ɢᴇᴛ ᴛʜᴇ ɪɴᴄᴏᴍɪɴɢ ᴍᴇssᴀɢᴇs ᴛʜʀᴏᴜɢʜ ɪɴʙᴏx ʙᴜᴛᴛᴏɴ ʙᴜᴛ ᴛʜᴇ ɴᴜᴍʙᴇʀ ɪs ᴜsᴇᴅ ʙʏ ᴘᴜʙʟɪᴄ ᴀɴᴅ ɪᴛ ᴍᴀʏ ᴀʟʀᴇᴀᴅʏ ᴛᴀᴋᴇɴ ʙʏ ᴀɴᴏᴛʜᴇʀ ᴜsᴇʀ.👇\n┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n"            
-            "ɢᴇᴛᴛɪɴɢ ᴀ ʀᴀɴᴅᴏᴍ ɴᴜᴍʙᴇʀ ғᴏʀ ʏᴏᴜ......\n\n"
-            "⁀➴ ғᴇᴛᴄʜɪɴɢ ᴏɴʟɪɴᴇ ᴄᴏᴜɴᴛʀɪᴇs:\n"
-            f"ɢᴏᴛ {len(countries)} ᴄᴏᴜɴᴛʀɪᴇs\n\n"
-            "⁀➴ ᴛᴇsᴛɪɴɢ ᴀᴄᴛɪᴠᴇ ɴᴜᴍʙᴇʀs:\n"
+            "⚠️ در بخش شماره رایگان، شما می‌توانید به صورت تصادفی شماره‌های رایگان دریافت کنید "
+            "و پیام‌های ورودی را از طریق دکمه اینباکس دریافت کنید اما شماره ممکن است توسط "
+            "عموم استفاده شده باشد و ممکن است قبلاً توسط کاربر دیگری گرفته شده باشد.👇\n┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n"
+            "در حال دریافت شماره تصادفی برای شما......\n\n"
+            "⁀➴ در حال جستجوی کشورهای آنلاین:\n"
+            f"دریافت {len(countries)} کشور\n\n"
+            "⁀➴ در حال آزمایش شماره‌های فعال:\n"
         ),
     )
 
-    # Find online and active number
+    # پیدا کردن شماره آنلاین و فعال
     for country in countries:
-        # Get numbers in country
+        # دریافت شماره‌ها در کشور
         numbers: List[Dict[str, str]] = engine.get_country_numbers(
             country=country['name']
         )
         
-        # Format country name
+        # فرمت نام کشور
         country_name: str = country["name"].replace("_", " ").title()
     
-        # Check numbers for country and find first valid one
+        # بررسی شماره‌ها برای کشور و پیدا کردن اولین شماره معتبر
         for number in numbers:
-            # Parse the country to find it's details
+            # تجزیه کشور برای پیدا کردن جزئیات آن
             parsed_number: ClassVar[Union[str, int]] = phonenumbers.parse(
                 number=f"+{number[1]}"
             )
 
-            # Format number to make it readable for user
+            # فرمت شماره برای نمایش بهتر به کاربر
             formatted_number: str = phonenumbers.format_number(
                 numobj=parsed_number,
                 num_format=phonenumbers.PhoneNumberFormat.NATIONAL
             )
 
-            # Find flag emoji for number
+            # پیدا کردن پرچم کشور برای شماره
             flag: str = countryflag.getflag(
                 [
                     phonenumbers.region_code_for_country_code(
@@ -1541,19 +1545,23 @@ def number_command_handler(message: ClassVar[Any]) -> NoReturn:
                 ]
             )
 
-            # Update prompt based on current status
+            # بروزرسانی پیام بر اساس وضعیت فعلی
             bot.edit_message_text(
                 chat_id=message.chat.id,
                 message_id=prompt.message_id,
                 text=(
-                   "⚠️ ɪɴ ғʀᴇᴇ ɴᴜᴍʙᴇʀ ᴘᴀʀᴛ ʏᴏᴜ ᴄᴀɴ ʀᴀɴᴅᴏᴍʟʏ ɢᴇᴛ ғʀᴇᴇ ɴᴜᴍʙᴇʀs ᴀɴᴅ ɢᴇᴛ ᴛʜᴇ ɪɴᴄᴏᴍɪɴɢ ᴍᴇssᴀɢᴇs ᴛʜʀᴏᴜɢʜ ɪɴʙᴏx ʙᴜᴛᴛᴏɴ ʙᴜᴛ ᴛʜᴇ ɴᴜᴍʙᴇʀ ɪs ᴜsᴇᴅ ʙʏ ᴘᴜʙʟɪᴄ ᴀɴᴅ ɪᴛ ᴍᴀʏ ᴀʟʀᴇᴀᴅʏ ᴛᴀᴋᴇɴ ʙʏ ᴀɴᴏᴛʜᴇʀ ᴜsᴇʀ.👇\n┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n" "Getting a random number for you...\n\n"
-                    "⁀➴ ғᴇᴛᴄʜɪɴɢ ᴏɴʟɪɴᴇ ᴄᴏᴜɴᴛʀɪᴇs:\n"
-                    f"ɢᴏᴛ {len(countries)} ᴄᴏᴜɴᴛʀɪᴇs\n\n"
-                    "⁀➴ ᴛᴇsᴛɪɴɢ ᴀᴄᴛɪᴠᴇ ɴᴜᴍʙᴇʀs:\n"
-                    f"ᴛʀʏɪɴɢ {country_name} ({formatted_number})"
+                   "⚠️ در بخش شماره رایگان، شما می‌توانید به صورت تصادفی شماره‌های رایگان دریافت کنید "
+                   "و پیام‌های ورودی را از طریق دکمه اینباکس دریافت کنید اما شماره ممکن است توسط "
+                   "عموم استفاده شده باشد و ممکن است قبلاً توسط کاربر دیگری گرفته شده باشد.👇\n┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n"
+                   "در حال دریافت شماره تصادفی برای شما...\n\n"
+                   "⁀➴ در حال جستجوی کشورهای آنلاین:\n"
+                   f"دریافت {len(countries)} کشور\n\n"
+                   "⁀➴ در حال آزمایش شماره‌های فعال:\n"
                 ),
-            ) 
+            )
 
+
+    
             # Check if number is valid and it's inbox is active
             if engine.get_number_inbox(country['name'], number[1]):
                 # Make keyboard markup for number
