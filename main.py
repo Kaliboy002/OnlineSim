@@ -719,7 +719,10 @@ def process_reset_one_user(message):
             text=" <b>😕 Your invite reset to 0 ✗</b>\n"
             "┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n"
             " <b>😕 تعداد دعوت شما به 0 کاهش یافت ✗</b>"
-        )
+           ),
+        reply_markup=keyboard,
+        parse_mode="HTML"
+    )
         bot.send_message(
             chat_id=ADMIN_ID,
             text=f"✅ Reset points of user {user_id} to 0."
@@ -744,7 +747,10 @@ def reset_all_users_callback(call):
             text=" <b>😕 Your invite reduced to 0 ✗</b>\n"
             "┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n"
             " <b>😕 تعداد دعوت شما به 0 کاهش یافت ✗</b>"
-        )
+           ),
+        reply_markup=keyboard,
+        parse_mode="HTML"
+    )
 
     bot.send_message(
         chat_id=ADMIN_ID,
@@ -783,8 +789,13 @@ def process_add_one_user(message):
                 referral_data[user_id] = referral_data.get(user_id, 0) + points
                 bot.send_message(
                     chat_id=user_id,
-                    text=f"🎉 {points} invite(s) have been added to your account!"
-                )
+                    text=f"" <b>😚 {points} invites added to your account  ★</b>\n"
+            "┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n"
+            " <b>😚 به حساب شما {points} دعوت اضافه شد ★</b>"
+               ),
+        reply_markup=keyboard,
+        parse_mode="HTML"
+    )
                 bot.send_message(
                     chat_id=ADMIN_ID,
                     text=f"✅ Added {points} invite(s) to user {user_id}."
@@ -822,8 +833,13 @@ def process_add_all_users(message):
             referral_data[user_id] = referral_data.get(user_id, 0) + points
             bot.send_message(
                 chat_id=user_id,
-                text=f"🎉 {points} invite(s) have been added to your account!"
-            )
+                text=f"" <b>😚 {points} invites added to your account  ★</b>\n"
+            "┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n"
+            " <b>😚 به حساب شما {points} دعوت اضافه شد ★</b>"
+               ),
+        reply_markup=keyboard,
+        parse_mode="HTML"
+    )
 
         bot.send_message(
             chat_id=ADMIN_ID,
@@ -860,8 +876,14 @@ def process_reduce_one_user(message):
                 referral_data[user_id] = max(referral_data.get(user_id, 0) - points, 0)
                 bot.send_message(
                     chat_id=user_id,
-                    text=f"❌ {points} invite(s) have been deducted from your account."
-                )
+                    text=f" <b>😕 {points} invites reduced from your account ✗</b>\n"
+            "┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n"
+            " <b>😕 از حساب شما {points} دعوت کم شد ✗</b>"
+                   ),
+        reply_markup=keyboard,
+        parse_mode="HTML"
+)
+
                 bot.send_message(
                     chat_id=ADMIN_ID,
                     text=f"✅ Deducted {points} invite(s) from user {user_id}."
@@ -899,8 +921,14 @@ def process_reduce_all_users(message):
             referral_data[user_id] = max(referral_data.get(user_id, 0) - points, 0)
             bot.send_message(
                 chat_id=user_id,
-                text=f"❌ {points} invite(s) have been deducted from your account."
-            )
+                text=f"<b>😕 {points} invites reduced from your account ✗</b>\n"
+            "┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n"
+            " <b>😕 از حساب شما {points} دعوت کم شد ✗</b>"
+                   ),
+        reply_markup=keyboard,
+        parse_mode="HTML"
+)
+
 
         bot.send_message(
             chat_id=ADMIN_ID,
