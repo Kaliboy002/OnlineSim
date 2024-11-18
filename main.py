@@ -1393,7 +1393,7 @@ if engine.get_number_inbox(country['name'], number[1]):
     )
 
     # Return the function
-    return 1
+    # return 1
 
 # Send failure message when no number found
 else:
@@ -1411,7 +1411,7 @@ else:
     ) 
 
     # Return the function
-    return 0
+    # return 0
 
 
 # Run the bot in polling mode with enhanced error handling
