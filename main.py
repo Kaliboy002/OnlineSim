@@ -762,7 +762,6 @@ def reset_all_users_callback(call):
 
 
 
-
 # Adding points to one user
 @bot.callback_query_handler(func=lambda call: call.data == "add_one_user")
 def add_one_user_callback(call):
@@ -770,19 +769,26 @@ def add_one_user_callback(call):
     Handles the button for adding points to a single user.
     Prompts the admin to enter the user ID or username.
     """
-
     bot.send_message(chat_id=call.message.chat.id, text="Please send the user ID or username:")
     bot.register_next_step_handler_by_chat_id(call.message.chat.id, process_add_one_user)
+
 
 def process_add_one_user(message):
     """
     Processes the user ID or username entered by the admin.
     Prompts for the amount of points to add.
     """
-
+    global user_identifier  # Ensure `user_identifier` is accessible in other functions
     user_identifier = message.text
 
+    bot.send_message(chat_id=message.chat.id, text="Enter the amount of invites to add:")
+    bot.register_next_step_handler_by_chat_id(message.chat.id, process_points_amount)
+
+
 def process_points_amount(message):
+    """
+    Processes the points amount entered by the admin for a specific user.
+    """
     try:
         points = int(message.text)
         user_id = int(user_identifier) if user_identifier.isdigit() else None
@@ -798,28 +804,19 @@ def process_points_amount(message):
                 ),
                 parse_mode="HTML"
             )
-    except Exception as e:
-        print(f"Error: {e}")
 
+            bot.send_message(
+                chat_id=ADMIN_ID,
+                text=f"✅ Added {points} invite(s) to user {user_id}."
+            )
+        else:
+            bot.send_message(
+                chat_id=ADMIN_ID,
+                text=f"❌ User ID/Username {user_identifier} not found."
+            )
+    except ValueError:
+        bot.send_message(chat_id=ADMIN_ID, text="❌ Invalid amount. Please try again.")
 
-
-
-
-
-                bot.send_message(
-                    chat_id=ADMIN_ID,
-                    text=f"✅ Added {points} invite(s) to user {user_id}."
-                )
-            else:
-                bot.send_message(
-                    chat_id=ADMIN_ID,
-                    text=f"❌ User ID/Username {user_identifier} not found."
-                )
-        except ValueError:
-            bot.send_message(chat_id=ADMIN_ID, text="❌ Invalid amount. Please try again.")
-
-    bot.send_message(chat_id=ADMIN_ID, text="Enter the amount of invites to add:")
-    bot.register_next_step_handler_by_chat_id(message.chat.id, process_points_amount)
 
 # Adding points to all users
 @bot.callback_query_handler(func=lambda call: call.data == "add_all_users")
@@ -828,29 +825,27 @@ def add_all_users_callback(call):
     Handles the button for adding points to all users.
     Prompts the admin to enter the amount of points to add.
     """
-
     bot.send_message(chat_id=call.message.chat.id, text="Enter the amount of invites to add to all users:")
     bot.register_next_step_handler_by_chat_id(call.message.chat.id, process_add_all_users)
+
 
 def process_add_all_users(message):
     """
     Processes the amount of points to add for all users.
     """
-
     try:
         points = int(message.text)
         for user_id in user_ids:
             referral_data[user_id] = referral_data.get(user_id, 0) + points
             bot.send_message(
                 chat_id=user_id,
-                text=(f" <b>😚 {points} invites added to your account  ★</b>\n"
-            "┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n"
-            " <b>😚 به حساب شما {points} دعوت اضافه شد ★</b>"
-        ),
+                text=(
+                    f"<b>😚 {points} invites added to your account ★</b>\n"
+                    "┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n"
+                    f"<b>😚 به حساب شما {points} دعوت اضافه شد ★</b>"
+                ),
                 parse_mode="HTML"
-        )
-
-
+            )
 
         bot.send_message(
             chat_id=ADMIN_ID,
@@ -858,6 +853,7 @@ def process_add_all_users(message):
         )
     except ValueError:
         bot.send_message(chat_id=ADMIN_ID, text="❌ Invalid amount. Please try again.")
+
 
 # Reducing points from one user
 @bot.callback_query_handler(func=lambda call: call.data == "reduce_one_user")
