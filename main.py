@@ -1626,8 +1626,8 @@ def number_command_handler(message: ClassVar[Any]) -> NoReturn:
                         f"{flag}<b> شماره با موفقیت ساخته شد ✦</b>: +{number[1]}\n\n"
                         f"⏳<b> آخرین آپديت</b>: {number[0]}"
                     ),
-                    reply_markup=Markup
-                )
+                    parse_mode="HTML",
+    )
 
                 # Return the function
                 return 1
@@ -1648,7 +1648,7 @@ def number_command_handler(message: ClassVar[Any]) -> NoReturn:
                     "<b>بررسی و چک شماره فعال ✓</b>\n"
                     f"<b>✗متاسفانه فعلا هیچ شماره فعال پیدا نشد</b>"
                 ),
-               reply_markup=Markup
+            parse_mode="HTML",
         )
            
          
