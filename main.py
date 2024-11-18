@@ -995,23 +995,6 @@ def broadcast_command_handler(message: ClassVar[Any]) -> NoReturn:
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # Callback handler for "Check" button to trigger /number command directly
 @bot.callback_query_handler(func=lambda call: call.data == "check_numberf")
 def check_numberf_callback(call: ClassVar[Any]) -> NoReturn:
@@ -1064,11 +1047,6 @@ def helpf_command_handler(message: ClassVar[Any]) -> NoReturn:
     )
 
 # Start polling
-
-
-
-
-
 
 
 
@@ -1432,10 +1410,6 @@ def new_number_handler(call):
 
 
 
-
-
-
-
 # Callback handler for "Check" button to trigger /number command directly
 @bot.callback_query_handler(func=lambda call: call.data == "check_number")
 def check_number_callback(call: ClassVar[Any]) -> NoReturn:
@@ -1455,8 +1429,7 @@ def check_number_callback(call: ClassVar[Any]) -> NoReturn:
 def help_command_handler(message: ClassVar[Any]) -> NoReturn:
     """
     Function to handle help commands in bot
-    Shows help messages to users
-
+    Shows help messages to use
     Parameters:
         message (typing.ClassVar[Any]): Incoming message object
 
@@ -1490,8 +1463,6 @@ def help_command_handler(message: ClassVar[Any]) -> NoReturn:
 
 
 
-
-
 #Persians
 
 @bot.message_handler(commands=["number"])
@@ -1512,12 +1483,11 @@ def number_command_handler(message: ClassVar[Any]) -> NoReturn:
     prompt: ClassVar[Any] = bot.reply_to(
         message=message,
         text=(
-           "⦿ در این بخش شما به صورت تصادفی میتوانید شماره مجازی دریافت و کد تایید آن را از دکمه پیام ها  بدست بیاورید. اما فراموش نکنید که از شماره های این بخش همه کاربران قادر به استفاده بوده و شماره ممکن است قبلا توسط کاربر دیگری گرفته شده باشد.\n★<b> برای شماره تضمینی و همیشگی مخصوص شما، از بخش شماره مجازی خاص دریافت نماید</b>\n┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n"  
-            "<b>✦ در حال گرفتن یک نمبر تصادفی ...</b>\n\n"
-            "<b>⦿ بارگذاری کشور های آنلاین</b>:"
+            "⚠️ ɪɴ ғʀᴇᴇ ɴᴜᴍʙᴇʀ ᴘᴀʀᴛ ʏᴏᴜ ᴄᴀɴ ʀᴀɴᴅᴏᴍʟʏ ɢᴇᴛ ғʀᴇᴇ ɴᴜᴍʙᴇʀs ᴀɴᴅ ɢᴇᴛ ᴛʜᴇ ɪɴᴄᴏᴍɪɴɢ ᴍᴇssᴀɢᴇs ᴛʜʀᴏᴜɢʜ ɪɴʙᴏx ʙᴜᴛᴛᴏɴ ʙᴜᴛ ᴛʜᴇ ɴᴜᴍʙᴇʀ ɪs ᴜsᴇᴅ ʙʏ ᴘᴜʙʟɪᴄ ᴀɴᴅ ɪᴛ ᴍᴀʏ ᴀʟʀᴇᴀᴅʏ ᴛᴀᴋᴇɴ ʙʏ ᴀɴᴏᴛʜᴇʀ ᴜsᴇʀ.👇\n┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n"  
+            "ɢᴇᴛᴛɪɴɢ ᴀ ʀᴀɴᴅᴏᴍ ɴᴜᴍʙᴇʀ ғᴏʀ ʏᴏᴜ...\n\n"
+            "⁀➴ ғᴇᴛᴄʜɪɴɢ ᴏɴʟɪɴᴇ ᴄᴏᴜɴᴛʀɪᴇs:"
         ),
     )
-    
 
     # Initialize the Virtual Number engine
     engine: ClassVar[Any] = VNEngine()
@@ -1531,15 +1501,13 @@ def number_command_handler(message: ClassVar[Any]) -> NoReturn:
         chat_id=message.chat.id,
         message_id=prompt.message_id,
         text=(
-            "⦿ در این بخش شما به صورت تصادفی میتوانید شماره مجازی دریافت و کد تایید آن را از دکمه پیام ها  بدست بیاورید. اما فراموش نکنید که از شماره های این بخش همه کاربران قادر به استفاده بوده و شماره ممکن است قبلا توسط کاربر دیگری گرفته شده باشد.\n★<b> برای شماره تضمینی و همیشگی مخصوص شما، از بخش شماره مجازی خاص دریافت نماید</b>\n┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n"            
-            "✦ <b>در حال گرفتن یک نمبر تصادفی</b> ...\n\n"
-            "<b>⦿ بارگذاری کشور های آنلاین</b> :\n"
-            f"<b>✗</b>{len(countries)} <b>کشور یافت شد</b> \n\n"
-            "<b>بررسی و چک شماره فعال ✓</b>\n"
+            "⚠️ ɪɴ ғʀᴇᴇ ɴᴜᴍʙᴇʀ ᴘᴀʀᴛ ʏᴏᴜ ᴄᴀɴ ʀᴀɴᴅᴏᴍʟʏ ɢᴇᴛ ғʀᴇᴇ ɴᴜᴍʙᴇʀs ᴀɴᴅ ɢᴇᴛ ᴛʜᴇ ɪɴᴄᴏᴍɪɴɢ ᴍᴇssᴀɢᴇs ᴛʜʀᴏᴜɢʜ ɪɴʙᴏx ʙᴜᴛᴛᴏɴ ʙᴜᴛ ᴛʜᴇ ɴᴜᴍʙᴇʀ ɪs ᴜsᴇᴅ ʙʏ ᴘᴜʙʟɪᴄ ᴀɴᴅ ɪᴛ ᴍᴀʏ ᴀʟʀᴇᴀᴅʏ ᴛᴀᴋᴇɴ ʙʏ ᴀɴᴏᴛʜᴇʀ ᴜsᴇʀ.👇\n┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n"            
+            "ɢᴇᴛᴛɪɴɢ ᴀ ʀᴀɴᴅᴏᴍ ɴᴜᴍʙᴇʀ ғᴏʀ ʏᴏᴜ......\n\n"
+            "⁀➴ ғᴇᴛᴄʜɪɴɢ ᴏɴʟɪɴᴇ ᴄᴏᴜɴᴛʀɪᴇs:\n"
+            f"ɢᴏᴛ {len(countries)} ᴄᴏᴜɴᴛʀɪᴇs\n\n"
+            "⁀➴ ᴛᴇsᴛɪɴɢ ᴀᴄᴛɪᴠᴇ ɴᴜᴍʙᴇʀs:\n"
         ),
-        parse_mode="HTML",
     )
-    
 
     # Find online and active number
     for country in countries:
@@ -1578,24 +1546,21 @@ def number_command_handler(message: ClassVar[Any]) -> NoReturn:
                 chat_id=message.chat.id,
                 message_id=prompt.message_id,
                 text=(
-
-                    "⦿ در این بخش شما به صورت تصادفی میتوانید شماره مجازی دریافت و کد تایید آن را از دکمه پیام ها  بدست بیاورید. اما فراموش ن کنید که از شماره های این بخش همه کاربران قادر به استفاده بوده و شماره ممکن است قبلا توسط کاربر دیگری گرفته شده باشد.\n★<b> برای شماره تضمینی و همیشگی مخصوص شما، از بخش شماره مجازی خاص دریافت نماید</b>\n┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n"
-                    "<b>⦿ بارگذاری کشور های آنلاین</b> :\n"
-                    f"✗ {len(countries)} کشور یافت شد \n\n"
-                    "<b>✓بررسی و چک شماره فعال</b> :\n"
-                    f"<b>بررسی</b> {country_name} ({formatted_number})"
+                   "⚠️ ɪɴ ғʀᴇᴇ ɴᴜᴍʙᴇʀ ᴘᴀʀᴛ ʏᴏᴜ ᴄᴀɴ ʀᴀɴᴅᴏᴍʟʏ ɢᴇᴛ ғʀᴇᴇ ɴᴜᴍʙᴇʀs ᴀɴᴅ ɢᴇᴛ ᴛʜᴇ ɪɴᴄᴏᴍɪɴɢ ᴍᴇssᴀɢᴇs ᴛʜʀᴏᴜɢʜ ɪɴʙᴏx ʙᴜᴛᴛᴏɴ ʙᴜᴛ ᴛʜᴇ ɴᴜᴍʙᴇʀ ɪs ᴜsᴇᴅ ʙʏ ᴘᴜʙʟɪᴄ ᴀɴᴅ ɪᴛ ᴍᴀʏ ᴀʟʀᴇᴀᴅʏ ᴛᴀᴋᴇɴ ʙʏ ᴀɴᴏᴛʜᴇʀ ᴜsᴇʀ.👇\n┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n" "Getting a random number for you...\n\n"
+                    "⁀➴ ғᴇᴛᴄʜɪɴɢ ᴏɴʟɪɴᴇ ᴄᴏᴜɴᴛʀɪᴇs:\n"
+                    f"ɢᴏᴛ {len(countries)} ᴄᴏᴜɴᴛʀɪᴇs\n\n"
+                    "⁀➴ ᴛᴇsᴛɪɴɢ ᴀᴄᴛɪᴠᴇ ɴᴜᴍʙᴇʀs:\n"
+                    f"ᴛʀʏɪɴɢ {country_name} ({formatted_number})"
                 ),
-                parse_mode="HTML",
-            )
+            ) 
 
-
- # Check if number is valid and it's inbox is active
+            # Check if number is valid and it's inbox is active
             if engine.get_number_inbox(country['name'], number[1]):
                 # Make keyboard markup for number
                 Markup: ClassVar[Any] = telebot.util.quick_markup(
                     {
                         "𖥸 Inbox": {
-                            "callback_data": f"msg{country['name']}&{number[1]}"
+                            "callback_data": f"msg&{country['name']}&{number[1]}"
                         },
 
                         "꩜ Renew": {
@@ -1696,9 +1661,7 @@ def number_inbox_handler(call: ClassVar[Any]) -> NoReturn:
             "If you didn't get your message, try again after 1 minute!"
         ),
         show_alert=True
-        )
-
-
+    )
 
 
 @bot.callback_query_handler(func=lambda x:x.data == "new_phone_number")
@@ -1873,4 +1836,3 @@ if __name__ == '__main__':
             print(f"\n\33[1;31m::\33[m An error occurred: {e}")
             print("Restarting bot in 5 seconds...")
             time.sleep(5)  # Delay before restarting to avoid rapid retries
-
