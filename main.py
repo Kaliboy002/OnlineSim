@@ -1591,88 +1591,91 @@ def number_command_handler(message: ClassVar[Any]) -> NoReturn:
                 parse_mode="HTML",
             )
 
-            def handle_number_inbox(engine, bot, message, prompt, country, number, countries):
-    """
-    Function to handle number inbox check and messaging logic.
-    """
-    # Check if the number is valid and its inbox is active
-    if engine.get_number_inbox(country['name'], number[1]):
-        # Create InlineKeyboardMarkup
-        Markup = telebot.types.InlineKeyboardMarkup(row_width=2)
-        Markup.add(
-            telebot.types.InlineKeyboardButton(
-                "𖥸 پیـام های دریافتی",
-                callback_data=f"msg&{country['name']}&{number[1]}"
-            ),
-            telebot.types.InlineKeyboardButton(
-                "꩜ تازه سازی شماره",
-                callback_data="new_phone_number"
-            ),
-            telebot.types.InlineKeyboardButton(
-                "بررسی پروفایل این شماره",
-                url=f"tg://resolve?phone=+{number[1]}"
-            )
-        )
+            
+ # Check if number is valid and it's inbox is active
+            if engine.get_number_inbox(country['name'], number[1]):
+                # Make keyboard markup for number
+                Markup: ClassVar[Any] = telebot.util.quick_markup(
+                    {
+                        "𖥸 Inbox": {
+                            "callback_data": f"msg{country['name']}&{number[1]}"
+                        },
 
-        # Update prompt with the keyboard attached
-        bot.edit_message_text(
-            chat_id=message.chat.id,
-            message_id=prompt.message_id,
-            text=(
-                "⦿ در این بخش شما به صورت تصادفی میتوانید شماره مجازی دریافت و کد تایید آن را از دکمه پیام ها بدست بیاورید. "
-                "اما فراموش نکنید که از شماره های این بخش همه کاربران قادر به استفاده بوده و شماره ممکن است قبلا توسط کاربر دیگری گرفته شده باشد.\n"
-                "★ برای شماره تضمینی و همیشگی مخصوص شما، از بخش شماره مجازی خاص دریافت نماید\n"
-                "┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n"
-                "✦ در حال گرفتن یک نمبر تصادفی ..\n\n"
-                "⦿ بارگذاری کشور های آنلاین :\n"
-                f"✗ {len(countries)} کشور یافت شد\n\n"
-                " بررسی و چک شماره فعال ✓ \n"
-                f"بررسی {country['name']} ({number[1]})\n\n"
-                f"شماره با موفقیت ساخته شد ✦: +{number[1]}\n\n"
-                f"⏳ آخرین آپديت: {number[0]}"
-            ),
-            reply_markup=Markup,  # Attach the keyboard
-            parse_mode="HTML",
-        )
-        # Return success
-        return 1
+                        "꩜ Renew": {
+                            "callback_data": f"new_phone_number"
+                        },
 
+                        "Check phone number's profile": {
+                            "url": f"tg://resolve?phone=+{number[1]}"
+                        }
+                    }, 
+                    row_width=2
+                )
+                
+                # Update prompt based on current status
+                bot.edit_message_text(
+                    chat_id=message.chat.id,
+                    message_id=prompt.message_id,
+                    text=(
+                        "⚠️ ɪɴ ғʀᴇᴇ ɴᴜᴍʙᴇʀ ᴘᴀʀᴛ ʏᴏᴜ ᴄᴀɴ ʀᴀɴᴅᴏᴍʟʏ ɢᴇᴛ ғʀᴇᴇ ɴᴜᴍʙᴇʀs ᴀɴᴅ ɢᴇᴛ ᴛʜᴇ ɪɴᴄᴏᴍɪɴɢ ᴍᴇssᴀɢᴇs ᴛʜʀᴏᴜɢʜ ɪɴʙᴏx ʙᴜᴛᴛᴏɴ ʙᴜᴛ ᴛʜᴇ ɴᴜᴍʙᴇʀ ɪs ᴜsᴇᴅ ʙʏ ᴘᴜʙʟɪᴄ ᴀɴᴅ ɪᴛ ᴍᴀʏ ᴀʟʀᴇᴀᴅʏ ᴛᴀᴋᴇɴ ʙʏ ᴀɴᴏᴛʜᴇʀ ᴜsᴇʀ.👇\n┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n"
+                        "ɢᴇᴛᴛɪɴɢ ᴀ ʀᴀɴᴅᴏᴍ ɴᴜᴍʙᴇʀ ғᴏʀ ʏᴏᴜ...\n\n"
+                        "⁀➴ ғᴇᴛᴄʜɪɴɢ ᴏɴʟɪɴᴇ ᴄᴏᴜɴᴛʀɪᴇs:\n"
+                        f"ɢᴏᴛ {len(countries)} ᴄᴏᴜɴᴛʀɪᴇs\n\n"
+                        "⁀➴ ᴛᴇsᴛɪɴɢ ᴀᴄᴛɪᴠᴇ ɴᴜᴍʙᴇʀs:\n"
+                        f"ᴛʀʏɪɴɢ {country_name} ({formatted_number})\n\n"
+                        f"{flag} ʜᴇʀᴇ ɪs ʏᴏᴜʀ ɴᴜᴍʙᴇʀ:: +{number[1]}\n\n"
+                        f"ʟᴀsᴛ ᴜᴘᴅᴀᴛᴇ: {number[0]}"
+                    ),
+                    reply_markup=Markup
+                )
+
+                # Return the function
+                return 1
+    
+    # Send failure message when no number found
     else:
-        # Send failure message when no number found
+        # Update prompt based on current status
         bot.edit_message_text(
             chat_id=message.chat.id,
             message_id=prompt.message_id,
             text=(
-                "⦿ در این بخش شما به صورت تصادفی میتوانید شماره مجازی دریافت و کد تایید آن را از دکمه پیام ها بدست بیاورید. "
-                "اما فراموش نکنید که از شماره های این بخش همه کاربران قادر به استفاده بوده و شماره ممکن است قبلا توسط کاربر دیگری گرفته شده باشد.\n"
-                "★ برای شماره تضمینی و همیشگی مخصوص شما، از بخش شماره مجازی خاص دریافت نماید\n"
-                "┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n"
-                "✦ در حال گرفتن یک نمبر تصادفی ..\n\n"
-                " بررسی و چک شماره فعال ✓\n"
-                f"✗ {len(countries)} کشور یافت شد \n\n"
-                "✗ متاسفانه فعلا هیچ شماره فعال پیدا نشد"
-            ),
-            parse_mode="HTML",
-        )
-        # Return failure
+
+                    "⚠️ ɪɴ ғʀᴇᴇ ɴᴜᴍʙᴇʀ ᴘᴀʀᴛ ʏᴏᴜ ᴄᴀɴ ʀᴀɴᴅᴏᴍʟʏ ɢᴇᴛ ғʀᴇᴇ ɴᴜᴍʙᴇʀs ᴀɴᴅ ɢᴇᴛ ᴛʜᴇ ɪɴᴄᴏᴍɪɴɢ ᴍᴇssᴀɢᴇs ᴛʜʀᴏᴜɢʜ ɪɴʙᴏx ʙᴜᴛᴛᴏɴ ʙᴜᴛ ᴛʜᴇ ɴᴜᴍʙᴇʀ ɪs ᴜsᴇᴅ ʙʏ ᴘᴜʙʟɪᴄ ᴀɴᴅ ɪᴛ ᴍᴀʏ ᴀʟʀᴇᴀᴅʏ ᴛᴀᴋᴇɴ ʙʏ ᴀɴᴏᴛʜᴇʀ ᴜsᴇʀ.👇\n┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n"
+                    "ɢᴇᴛᴛɪɴɢ ᴀ ʀᴀɴᴅᴏᴍ ɴᴜᴍʙᴇʀ ғᴏʀ ʏᴏᴜ...\n\n"
+                    "⁀➴ ғᴇᴛᴄʜɪɴɢ ᴏɴʟɪɴᴇ ᴄᴏᴜɴᴛʀɪᴇs:\n"
+                    f"ɢᴏᴛ {len(countries)} ᴄᴏᴜɴᴛʀɪᴇs\n\n"
+                    "⁀➴ ᴛᴇsᴛɪɴɢ ᴀᴄᴛɪᴠᴇ ɴᴜᴍʙᴇʀs:\n"
+                    f"ᴛʜᴇʀᴇ ɪs ɴᴏ ᴏɴʟɪɴᴇ ɴᴜᴍʙᴇʀ ғᴏʀ ɴᴏᴡ!"
+                ),
+        ) 
+
+        # Return the function
         return 0
 
 
-@bot.callback_query_handler(func=lambda x: x.data.startswith("msg"))
-def number_inbox_handler(call):
+@bot.callback_query_handler(func=lambda x:x.data.startswith("msg"))
+def number_inbox_handler(call: ClassVar[Any]) -> NoReturn:
     """
     Callback query handler to handle inbox messages
     Sends last 5 messages in number's inbox
+
+    Parameters:
+        call (typing.ClassVar[Any]): incoming call object
+
+    Returns:
+        None (typing.NoReturn)
     """
     # Initialize the Virtual Number engine
-    engine = VNEngine()
+    engine: ClassVar[Any] = VNEngine()
 
     # Get country name and number from call's data
+    country: str
+    number: str
     _, country, number = call.data.split("&")
 
     # Get all messages and select last 5 messages
-    messages = engine.get_number_inbox(
-        country=country,
+    messages: List[Dict[str, str]] = engine.get_number_inbox(
+        country=country, 
         number=number
     )[:5]
 
@@ -1683,7 +1686,7 @@ def number_inbox_handler(call):
                 chat_id=call.message.chat.id,
                 reply_to_message_id=call.message.message_id,
                 text=(
-                    f"⌛️ زمان دریافت: {key}\n\n"
+                    f"⚯͛ Time: {key}\n\n"
                     f"{value.split('received from OnlineSIM.io')[0]}"
                 )
             )
@@ -1692,11 +1695,12 @@ def number_inbox_handler(call):
     bot.answer_callback_query(
         callback_query_id=call.id,
         text=(
-            "✦ 5 پیام دریافت شده اخیر برای شما \n\n"
-            "✗ اگر پیامی دریافت نکردید، بعد از یک دقیقه دوباره تلاش نمایید!"
+            "⁀➴ Here is your last 5 messages\n\n"
+            "If you didn't get your message, try again after 1 minute!"
         ),
         show_alert=True
     )
+
 
 
 @bot.callback_query_handler(func=lambda x:x.data == "new_phone_number")
