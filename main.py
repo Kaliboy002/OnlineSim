@@ -1599,11 +1599,11 @@ if engine.get_number_inbox(country['name'], number[1]):
     Markup: ClassVar[Any] = telebot.util.quick_markup(
         {
             "𖥸 Inbox": {
-                "callback_data": f"msgk{country['name']}&{number[1]}"
+                "callback_data": f"msg{country['name']}&{number[1]}"
             },
 
             "꩜ Renew": {
-                "callback_data": f"new_phone_numberf"
+                "callback_data": f"new_phone_number"
             },
 
             "Check phone number's profile": {
@@ -1653,7 +1653,7 @@ else:
     return 0
 
 
-@bot.callback_query_handler(func=lambda x:x.data.startswith("msgk"))
+@bot.callback_query_handler(func=lambda x:x.data.startswith("msg"))
 def number_inbox_handler(call: ClassVar[Any]) -> NoReturn:
     """
     Callback query handler to handle inbox messages
