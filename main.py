@@ -1591,69 +1591,68 @@ def number_command_handler(message: ClassVar[Any]) -> NoReturn:
                 parse_mode="HTML",
             )
              
-            # Check if number is valid and it's inbox is active
-            if engine.get_number_inbox(country['name'], number[1]):
-                # Make keyboard markup for number# Make keyboard markup for number
-                # Make keyboard markup for number
-               Markup: ClassVar[Any] = telebot.util.quick_markup(
-    {
-        "𖥸 پیـام های دریافتی": {
-            "callback_data": f"msg&{country['name']}&{number[1]}"
-        },
-        "꩜ تازه سازی شماره": {
-            "callback_data": "new_phone_number"
-        },
-        "بررسی پروفایل این شماره": {
-            "url": f"tg://resolve?phone=+{number[1]}"
-        }
-    },
-    row_width=2
-)
-
-# Update prompt with the keyboard attached
-bot.edit_message_text(
-    chat_id=message.chat.id,
-    message_id=prompt.message_id,
-    text=(
-        "⦿ در این بخش شما به صورت تصادفی میتوانید شماره مجازی دریافت و کد تایید آن را از دکمه پیام ها  بدست بیاورید. اما فراموش نکنید که از شماره های این بخش همه کاربران قادر به استفاده بوده و شماره ممکن است قبلا توسط کاربر دیگری گرفته شده باشد.\n"
-        "★ برای شماره تضمینی و همیشگی مخصوص شما، از بخش شماره مجازی خاص دریافت نماید\n"
-        "┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n"
-        "✦ در حال گرفتن یک نمبر تصادفی ..\n\n"
-        "⦿ بارگذاری کشور های آنلاین :\n"
-        f"✗ </b> {len(countries)} <b>کشور یافت شد\n\n"
-        " بررسی و چک شماره فعال ✓ \n"
-        f"بررسی {country_name} ({formatted_number})\n\n"
-        f"{flag} شماره با موفقیت ساخته شد ✦: +{number[1]}\n\n"
-        f"⏳ آخرین آپديت: {number[0]}"
-    ),
-    reply_markup=Markup,  # Attach the keyboard
-    parse_mode="HTML",
-)
-
-
-                # Return the function
-                return 1
-    
-    # Send failure message when no number found
-    else:
-        # Update prompt based on current status
-        bot.edit_message_text(
-            chat_id=message.chat.id,
-            message_id=prompt.message_id,
-            text=( 
-                  "⦿ در این بخش شما به صورت تصادفی میتوانید شماره مجازی دریافت و کد تایید آن را از دکمه پیام ها  بدست بیاورید. اما فراموش نکنید که از شماره های این بخش همه کاربران قادر به استفاده بوده و شماره ممکن است قبلا توسط کاربر دیگری گرفته شده باشد.\n★ برای شماره تضمینی و همیشگی مخصوص شما، از بخش شماره مجازی خاص دریافت نماید\n┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n" 
-                    "✦ در حال گرفتن یک نمبر تصادفی ..\n\n"
-                    "بررسی و چک شماره فعال ✓\n"
-                    f"✗ {len(countries)} کشور یافت شد \n\n"
-                    " بررسی و چک شماره فعال ✓\n"
-                    f"✗ متاسفانه فعلا هیچ شماره فعال پیدا نشد"
-                ),
+# Check if number is valid and its inbox is active
+if engine.get_number_inbox(country['name'], number[1]):
+    # Make keyboard markup for the number
+    Markup = telebot.types.InlineKeyboardMarkup(row_width=2)
+    Markup.add(
+        telebot.types.InlineKeyboardButton(
+            "𖥸 پیـام های دریافتی",
+            callback_data=f"msg&{country['name']}&{number[1]}"
+        ),
+        telebot.types.InlineKeyboardButton(
+            "꩜ تازه سازی شماره",
+            callback_data="new_phone_number"
+        ),
+        telebot.types.InlineKeyboardButton(
+            "بررسی پروفایل این شماره",
+            url=f"tg://resolve?phone=+{number[1]}"
         )
-           
-         
+    )
 
-        # Return the function
-        return 0
+    # Update prompt with the keyboard attached
+    bot.edit_message_text(
+        chat_id=message.chat.id,
+        message_id=prompt.message_id,
+        text=(
+            "⦿ در این بخش شما به صورت تصادفی میتوانید شماره مجازی دریافت و کد تایید آن را از دکمه پیام ها  بدست بیاورید. اما فراموش نکنید که از شماره های این بخش همه کاربران قادر به استفاده بوده و شماره ممکن است قبلا توسط کاربر دیگری گرفته شده باشد.\n"
+            "★ برای شماره تضمینی و همیشگی مخصوص شما، از بخش شماره مجازی خاص دریافت نماید\n"
+            "┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n"
+            "✦ در حال گرفتن یک نمبر تصادفی ..\n\n"
+            "⦿ بارگذاری کشور های آنلاین :\n"
+            f"✗ {len(countries)} کشور یافت شد\n\n"
+            " بررسی و چک شماره فعال ✓ \n"
+            f"بررسی {country_name} ({formatted_number})\n\n"
+            f"{flag} شماره با موفقیت ساخته شد ✦: +{number[1]}\n\n"
+            f"⏳ آخرین آپديت: {number[0]}"
+        ),
+        reply_markup=Markup,  # Attach the keyboard
+        parse_mode="HTML",
+    )
+
+    # Return success
+    return 1
+
+# Send failure message when no number is found
+else:
+    # Update prompt based on the current status
+    bot.edit_message_text(
+        chat_id=message.chat.id,
+        message_id=prompt.message_id,
+        text=(
+            "⦿ در این بخش شما به صورت تصادفی میتوانید شماره مجازی دریافت و کد تایید آن را از دکمه پیام ها  بدست بیاورید. اما فراموش نکنید که از شماره های این بخش همه کاربران قادر به استفاده بوده و شماره ممکن است قبلا توسط کاربر دیگری گرفته شده باشد.\n"
+            "★ برای شماره تضمینی و همیشگی مخصوص شما، از بخش شماره مجازی خاص دریافت نماید\n"
+            "┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n"
+            "✦ در حال گرفتن یک نمبر تصادفی ..\n\n"
+            " بررسی و چک شماره فعال ✓\n"
+            f"✗ {len(countries)} کشور یافت شد \n\n"
+            "✗ متاسفانه فعلا هیچ شماره فعال پیدا نشد"
+        ),
+        parse_mode="HTML",
+    )
+
+    # Return failure
+    return 0
 
 
 
