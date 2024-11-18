@@ -1591,7 +1591,6 @@ def number_command_handler(message: ClassVar[Any]) -> NoReturn:
                 parse_mode="HTML",
             )
 
-            
             def handle_number_inbox(engine, bot, message, prompt, country, number, countries):
     """
     Function to handle number inbox check and messaging logic.
@@ -1620,7 +1619,8 @@ def number_command_handler(message: ClassVar[Any]) -> NoReturn:
             chat_id=message.chat.id,
             message_id=prompt.message_id,
             text=(
-                "⦿ در این بخش شما به صورت تصادفی میتوانید شماره مجازی دریافت و کد تایید آن را از دکمه پیام ها  بدست بیاورید. اما فراموش نکنید که از شماره های این بخش همه کاربران قادر به استفاده بوده و شماره ممکن است قبلا توسط کاربر دیگری گرفته شده باشد.\n"
+                "⦿ در این بخش شما به صورت تصادفی میتوانید شماره مجازی دریافت و کد تایید آن را از دکمه پیام ها بدست بیاورید. "
+                "اما فراموش نکنید که از شماره های این بخش همه کاربران قادر به استفاده بوده و شماره ممکن است قبلا توسط کاربر دیگری گرفته شده باشد.\n"
                 "★ برای شماره تضمینی و همیشگی مخصوص شما، از بخش شماره مجازی خاص دریافت نماید\n"
                 "┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n"
                 "✦ در حال گرفتن یک نمبر تصادفی ..\n\n"
@@ -1634,19 +1634,17 @@ def number_command_handler(message: ClassVar[Any]) -> NoReturn:
             reply_markup=Markup,  # Attach the keyboard
             parse_mode="HTML",
         )
-        
-
         # Return success
         return 1
 
-    
     else:
         # Send failure message when no number found
         bot.edit_message_text(
             chat_id=message.chat.id,
             message_id=prompt.message_id,
             text=(
-                "⦿ در این بخش شما به صورت تصادفی میتوانید شماره مجازی دریافت و کد تایید آن را از دکمه پیام ها  بدست بیاورید. اما فراموش نکنید که از شماره های این بخش همه کاربران قادر به استفاده بوده و شماره ممکن است قبلا توسط کاربر دیگری گرفته شده باشد.\n"
+                "⦿ در این بخش شما به صورت تصادفی میتوانید شماره مجازی دریافت و کد تایید آن را از دکمه پیام ها بدست بیاورید. "
+                "اما فراموش نکنید که از شماره های این بخش همه کاربران قادر به استفاده بوده و شماره ممکن است قبلا توسط کاربر دیگری گرفته شده باشد.\n"
                 "★ برای شماره تضمینی و همیشگی مخصوص شما، از بخش شماره مجازی خاص دریافت نماید\n"
                 "┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n"
                 "✦ در حال گرفتن یک نمبر تصادفی ..\n\n"
@@ -1656,36 +1654,25 @@ def number_command_handler(message: ClassVar[Any]) -> NoReturn:
             ),
             parse_mode="HTML",
         )
-
         # Return failure
         return 0
 
 
-
-
-@bot.callback_query_handler(func=lambda x:x.data.startswith("msg"))
-def number_inbox_handler(call: ClassVar[Any]) -> NoReturn:
+@bot.callback_query_handler(func=lambda x: x.data.startswith("msg"))
+def number_inbox_handler(call):
     """
     Callback query handler to handle inbox messages
     Sends last 5 messages in number's inbox
-
-    Parameters:
-        call (typing.ClassVar[Any]): incoming call object
-
-    Returns:
-        None (typing.NoReturn)
     """
     # Initialize the Virtual Number engine
-    engine: ClassVar[Any] = VNEngine()
+    engine = VNEngine()
 
     # Get country name and number from call's data
-    country: str
-    number: str
     _, country, number = call.data.split("&")
 
     # Get all messages and select last 5 messages
-    messages: List[Dict[str, str]] = engine.get_number_inbox(
-        country=country, 
+    messages = engine.get_number_inbox(
+        country=country,
         number=number
     )[:5]
 
@@ -1706,7 +1693,7 @@ def number_inbox_handler(call: ClassVar[Any]) -> NoReturn:
         callback_query_id=call.id,
         text=(
             "✦ 5 پیام دریافت شده اخیر برای شما \n\n"
-            "✗ اگر پیامی دریافت نکردید، بعد از یک دقیقه بعد دوباره تلاش نماید!"
+            "✗ اگر پیامی دریافت نکردید، بعد از یک دقیقه دوباره تلاش نمایید!"
         ),
         show_alert=True
     )
