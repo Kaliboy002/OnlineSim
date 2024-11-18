@@ -1555,66 +1555,64 @@ def number_command_handler(message: ClassVar[Any]) -> NoReturn:
             )
 
 
+    # Check if number is valid and it's inbox is active
+if engine.get_number_inbox(country['name'], number[1]):
+    # Make keyboard markup for number
+    Markup: ClassVar[Any] = telebot.util.quick_markup(
+        {
+            "𖥸 Inbox": {
+                "callback_data": f"msg&{country['name']}&{number[1]}"
+            },
+
+            "꩜ Renew": {
+                "callback_data": f"new_phone_number"
+            },
+
+            "Check phone number's profile": {
+                "url": f"tg://resolve?phone=+{number[1]}"
+            }
+        }, 
+        row_width=2
+    )
     
-            # Check if number is valid and it's inbox is active
-            if engine.get_number_inbox(country['name'], number[1]):
-                # Make keyboard markup for number
-                Markup: ClassVar[Any] = telebot.util.quick_markup(
-                    {
-                        "𖥸 Inbox": {
-                            "callback_data": f"msg&{country['name']}&{number[1]}"
-                        },
+    # Update prompt based on current status
+    bot.edit_message_text(
+        chat_id=message.chat.id,
+        message_id=prompt.message_id,
+        text=(
+            "⚠️ در بخش شماره رایگان شما می‌توانید به صورت تصادفی شماره‌های رایگان دریافت کرده و پیام‌های دریافتی را از طریق دکمه صندوق ورودی دریافت کنید، اما ممکن است شماره توسط دیگران استفاده شده باشد👇\n┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n"
+            "در حال دریافت شماره تصادفی برای شما...\n\n"
+            "⁀➴ در حال جستجو برای کشور‌های آنلاین:\n"
+            f"تعداد {len(countries)} کشور پیدا شد\n\n"
+            "⁀➴ در حال آزمایش شماره‌های فعال:\n"
+            f"در حال تلاش برای شماره {country_name} ({formatted_number})\n\n"
+            f"{flag} این شماره شماست:: +{number[1]}\n\n"
+            f"آخرین به روز رسانی: {number[0]}"
+        ),
+        reply_markup=Markup
+    )
 
-                        "꩜ Renew": {
-                            "callback_data": f"new_phone_number"
-                        },
+    # Return the function
+    return 1
 
-                        "Check phone number's profile": {
-                            "url": f"tg://resolve?phone=+{number[1]}"
-                        }
-                    }, 
-                    row_width=2
-                )
-                
-                # Update prompt based on current status
-                bot.edit_message_text(
-                    chat_id=message.chat.id,
-                    message_id=prompt.message_id,
-                    text=(
-                        "⚠️ ɪɴ ғʀᴇᴇ ɴᴜᴍʙᴇʀ ᴘᴀʀᴛ ʏᴏᴜ ᴄᴀɴ ʀᴀɴᴅᴏᴍʟʏ ɢᴇᴛ ғʀᴇᴇ ɴᴜᴍʙᴇʀs ᴀɴᴅ ɢᴇᴛ ᴛʜᴇ ɪɴᴄᴏᴍɪɴɢ ᴍᴇssᴀɢᴇs ᴛʜʀᴏᴜɢʜ ɪɴʙᴏx ʙᴜᴛᴛᴏɴ ʙᴜᴛ ᴛʜᴇ ɴᴜᴍʙᴇʀ ɪs ᴜsᴇᴅ ʙʏ ᴘᴜʙʟɪᴄ ᴀɴᴅ ɪᴛ ᴍᴀʏ ᴀʟʀᴇᴀᴅʏ ᴛᴀᴋᴇɴ ʙʏ ᴀɴᴏᴛʜᴇʀ ᴜsᴇʀ.👇\n┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n"
-                        "ɢᴇᴛᴛɪɴɢ ᴀ ʀᴀɴᴅᴏᴍ ɴᴜᴍʙᴇʀ ғᴏʀ ʏᴏᴜ...\n\n"
-                        "⁀➴ ғᴇᴛᴄʜɪɴɢ ᴏɴʟɪɴᴇ ᴄᴏᴜɴᴛʀɪᴇs:\n"
-                        f"ɢᴏᴛ {len(countries)} ᴄᴏᴜɴᴛʀɪᴇs\n\n"
-                        "⁀➴ ᴛᴇsᴛɪɴɢ ᴀᴄᴛɪᴠᴇ ɴᴜᴍʙᴇʀs:\n"
-                        f"ᴛʀʏɪɴɢ {country_name} ({formatted_number})\n\n"
-                        f"{flag} ʜᴇʀᴇ ɪs ʏᴏᴜʀ ɴᴜᴍʙᴇʀ:: +{number[1]}\n\n"
-                        f"ʟᴀsᴛ ᴜᴘᴅᴀᴛᴇ: {number[0]}"
-                    ),
-                    reply_markup=Markup
-                )
+# Send failure message when no number found
+else:
+    # Update prompt based on current status
+    bot.edit_message_text(
+        chat_id=message.chat.id,
+        message_id=prompt.message_id,
+        text=(
+            "⚠️ در بخش شماره رایگان شما می‌توانید به صورت تصادفی شماره‌های رایگان دریافت کرده و پیام‌های دریافتی را از طریق دکمه صندوق ورودی دریافت کنید، اما ممکن است شماره توسط دیگران استفاده شده باشد👇\n┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n"
+            "در حال دریافت شماره تصادفی برای شما...\n\n"
+            "⁀➴ در حال جستجو برای کشور‌های آنلاین:\n"
+            f"تعداد {len(countries)} کشور پیدا شد\n\n"
+            "⁀➴ در حال آزمایش شماره‌های فعال:\n"
+            f"هیچ شماره آنلاین برای حالا پیدا نشد!"
+        ),
+    ) 
 
-                # Return the function
-                return 1
-    
-    # Send failure message when no number found
-    else:
-        # Update prompt based on current status
-        bot.edit_message_text(
-            chat_id=message.chat.id,
-            message_id=prompt.message_id,
-            text=(
-
-                    "⚠️ ɪɴ ғʀᴇᴇ ɴᴜᴍʙᴇʀ ᴘᴀʀᴛ ʏᴏᴜ ᴄᴀɴ ʀᴀɴᴅᴏᴍʟʏ ɢᴇᴛ ғʀᴇᴇ ɴᴜᴍʙᴇʀs ᴀɴᴅ ɢᴇᴛ ᴛʜᴇ ɪɴᴄᴏᴍɪɴɢ ᴍᴇssᴀɢᴇs ᴛʜʀᴏᴜɢʜ ɪɴʙᴏx ʙᴜᴛᴛᴏɴ ʙᴜᴛ ᴛʜᴇ ɴᴜᴍʙᴇʀ ɪs ᴜsᴇᴅ ʙʏ ᴘᴜʙʟɪᴄ ᴀɴᴅ ɪᴛ ᴍᴀʏ ᴀʟʀᴇᴀᴅʏ ᴛᴀᴋᴇɴ ʙʏ ᴀɴᴏᴛʜᴇʀ ᴜsᴇʀ.👇\n┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n\n"
-                    "ɢᴇᴛᴛɪɴɢ ᴀ ʀᴀɴᴅᴏᴍ ɴᴜᴍʙᴇʀ ғᴏʀ ʏᴏᴜ...\n\n"
-                    "⁀➴ ғᴇᴛᴄʜɪɴɢ ᴏɴʟɪɴᴇ ᴄᴏᴜɴᴛʀɪᴇs:\n"
-                    f"ɢᴏᴛ {len(countries)} ᴄᴏᴜɴᴛʀɪᴇs\n\n"
-                    "⁀➴ ᴛᴇsᴛɪɴɢ ᴀᴄᴛɪᴠᴇ ɴᴜᴍʙᴇʀs:\n"
-                    f"ᴛʜᴇʀᴇ ɪs ɴᴏ ᴏɴʟɪɴᴇ ɴᴜᴍʙᴇʀ ғᴏʀ ɴᴏᴡ!"
-                ),
-        ) 
-
-        # Return the function
-        return 0
+    # Return the function
+    return 0
 
 
 @bot.callback_query_handler(func=lambda x:x.data.startswith("msg"))
