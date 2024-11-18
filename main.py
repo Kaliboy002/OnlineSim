@@ -1519,8 +1519,6 @@ def number_command_handler(message: ClassVar[Any]) -> NoReturn:
             "<b>✦ در حال گرفتن یک نمبر تصادفی ...</b>\n\n"
             "⦿ بارگذاری کشور های آنلاین :"
         ),
-        parse_mode="HTML",
-        reply_markup=keyboard
     )
     
 
@@ -1543,7 +1541,6 @@ def number_command_handler(message: ClassVar[Any]) -> NoReturn:
             "بررسی و چک شماره فعال ✓\n"
         ),
         parse_mode="HTML",
-        reply_markup=keyboard
     )
     
 
@@ -1592,7 +1589,6 @@ def number_command_handler(message: ClassVar[Any]) -> NoReturn:
                     f"بررسی {country_name} ({formatted_number})"
                 ),
                 parse_mode="HTML",
-                reply_markup=keyboard
             )
              
 
