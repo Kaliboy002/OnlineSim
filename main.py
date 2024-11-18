@@ -1592,10 +1592,7 @@ def number_command_handler(message: ClassVar[Any]) -> NoReturn:
             )
 
             
-def handle_number_inbox(engine, bot, message, prompt, country, number, countries):
-    """
-    Function to handle number inbox check and messaging logic.
-    """
+
     # Check if the number is valid and its inbox is active
     if engine.get_number_inbox(country['name'], number[1]):
         # Create InlineKeyboardMarkup
