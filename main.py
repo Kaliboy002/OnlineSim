@@ -1188,7 +1188,7 @@ if engine.get_number_inbox(country['name'], number[1]):
     )
 
     # Return the function
-    return 1
+
 
 # Send failure message when no number found
 else:
