@@ -1179,10 +1179,10 @@ def number_command_handler(message: ClassVar[Any]) -> NoReturn:
                         f"Trying {country_name} ({formatted_number})\n\n"
                         f"{flag} <b>Here is your number</b>: +{number[1]}\n\n"
                         f"Last Update: {number[0]}"
-                    ),
-                       parse_mode="HTML"
-                       reply_markup=Markup
-                )
+                 ),
+            parse_mode="Markdown",
+            reply_markup=keyboard
+    )
 
                 # Return the function
                 return 1
