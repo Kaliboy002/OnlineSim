@@ -8,6 +8,9 @@ import telebot
 from telebot import types  # Correctly import types here
 import phonenumbers
 import countryflag
+import io
+import sys
+import logging
 # Local application module imports
 from src import utils
 from src.utils import User
@@ -1143,6 +1146,10 @@ def number_command_handler(message: ClassVar[Any]) -> NoReturn:
             )
 
 
+def handle_number_inbox(engine, bot, message, prompt, country, number, countries):
+    """
+    Function to handle number inbox check and messaging logic.
+    """
     # Check if number is valid and it's inbox is active
 if engine.get_number_inbox(country['name'], number[1]):
     # Make keyboard markup for number
