@@ -1685,8 +1685,8 @@ def new_number_handler(call):
         chat_id=chat_id,
         message_id=message_id,
         text=(
-            "ɢᴇᴛᴛɪɴɢ ᴀ ʀᴀɴᴅᴏᴍ ɴᴜᴍʙᴇʀ ғᴏʀ ʏᴏᴜ...\n\n"
-            "⁀➴ ғᴇᴛᴄʜɪɴɢ ᴏɴʟɪɴᴇ ᴄᴏᴜɴᴛʀɪᴇs:"
+            "در حال دریافت یک شماره تصادفی برای شما...\n\n"
+            "⁀➴ در حال دریافت کشورهای آنلاین:"
         ),
     )
 
@@ -1702,10 +1702,10 @@ def new_number_handler(call):
         chat_id=chat_id,
         message_id=message_id,
         text=(
-            "ɢᴇᴛᴛɪɴɢ ᴀ ʀᴀɴᴅᴏᴍ ɴᴜᴍʙᴇʀ ғᴏʀ ʏᴏᴜ...\n\n"
-            "⁀➴ ғᴇᴛᴄʜɪɴɢ ᴏɴʟɪɴᴇ ᴄᴏᴜɴᴛʀɪᴇs:\n"
-            f"ɢᴏᴛ {len(countries)} ᴄᴏᴜɴᴛʀɪᴇs\n\n"
-            "⁀➴ ᴛᴇsᴛɪɴɢ ᴀᴄᴛɪᴠᴇ ɴᴜᴍʙᴇʀs:\n"
+            "در حال دریافت یک شماره تصادفی برای شما...\n\n"
+            "⁀➴ در حال دریافت کشورهای آنلاین:\n"
+            f"تعداد کشورهای آنلاین: {len(countries)}\n\n"
+            "⁀➴ در حال تست شماره‌های فعال:\n"
         ),
     )
 
@@ -1746,77 +1746,77 @@ def new_number_handler(call):
                 chat_id=chat_id,
                 message_id=message_id,
                 text=(
-                    "ɢᴇᴛᴛɪɴɢ ᴀ ʀᴀɴᴅᴏᴍ ɴᴜᴍʙᴇʀ ғᴏʀ ʏᴏᴜ...\n\n"
-                    "⁀➴ ғᴇᴛᴄʜɪɴɢ ᴏɴʟɪɴᴇ ᴄᴏᴜɴᴛʀɪᴇs:\n"
-                    f"Got {len(countries)} countries\n\n"
-                    "⁀➴ ᴛᴇsᴛɪɴɢ ᴀᴄᴛɪᴠᴇ ɴᴜᴍʙᴇʀs:\n"
-                    f"ᴛʀʏɪɴɢ {country_name} ({formatted_number})"
+                    "در حال دریافت یک شماره تصادفی برای شما...\n\n"
+                    "⁀➴ در حال دریافت کشورهای آنلاین:\n"
+                    f"تعداد کشورهای آنلاین: {len(countries)}\n\n"
+                    "⁀➴ در حال تست شماره‌های فعال:\n"
+                    f"در حال تست {country_name} ({formatted_number})"
                 ),
             ) 
 
-            # Check if number is valid and it's inbox is active
-            if engine.get_number_inbox(country['name'], number[1]):
-                # Make keyboard markup for number
-                Markup: ClassVar[Any] = telebot.util.quick_markup(
-                    {
-                        "𖥸 Inbox": {
-                            "callback_data": f"msg&{country['name']}&{number[1]}"
-                        },
+     # Check if number is valid and it's inbox is active
+if engine.get_number_inbox(country['name'], number[1]):
+    # Make keyboard markup for number
+    Markup: ClassVar[Any] = telebot.util.quick_markup(
+        {
+            "𖥸 Inbox": {
+                "callback_data": f"msg&{country['name']}&{number[1]}"
+            },
 
-                        "꩜ Renew": {
-                            "callback_data": f"new_phone_number"
-                        },
+            "꩜ Renew": {
+                "callback_data": f"new_phone_number"
+            },
 
-                        "Check phone number's profile": {
-                            "url": f"tg://resolve?phone=+{number[1]}"
-                        }
-                    }, 
-                    row_width=2
-                )
-                
-                # Update prompt based on current status
-                bot.edit_message_text(
-                    chat_id=chat_id,
-                    message_id=message_id,
-                    text=(
-                        "ɢᴇᴛᴛɪɴɢ ᴀ ʀᴀɴᴅᴏᴍ ɴᴜᴍʙᴇʀ ғᴏʀ ʏᴏᴜ...\n\n"
-                        "⁀➴ ғᴇᴛᴄʜɪɴɢ ᴏɴʟɪɴᴇ ᴄᴏᴜɴᴛʀɪᴇs:\n"
-                        f"ɢᴏᴛ {len(countries)} ᴄᴏᴜɴᴛʀɪᴇs\n\n"
-                        "⁀➴ ᴛᴇsᴛɪɴɢ ᴀᴄᴛɪᴠᴇ ɴᴜᴍʙᴇʀs:\n"
-                        f"ᴛʀʏɪɴɢ {country_name} ({formatted_number})\n\n"
-                        f"{flag} ʜᴇʀᴇ ɪs ʏᴏᴜʀ ɴᴜᴍʙᴇʀ:: +{number[1]}\n\n"
-                        f"ʟᴀsᴛ ᴜᴘᴅᴀᴛᴇ:: {number[0]}"
-                    ),
-                    reply_markup=Markup
-                )
-
-                # Answer callback query
-                bot.answer_callback_query(
-                    callback_query_id=call.id,
-                    text="⁀➴ Your request updated",
-                    show_alert=False
-                )
-
-                # Return the function
-                return 1
+            "Check phone number's profile": {
+                "url": f"tg://resolve?phone=+{number[1]}"
+            }
+        }, 
+        row_width=2
+    )
     
-    # Send failure message when no number found
-    else:
-        # Update prompt based on current status
-        bot.edit_message_text(
-            chat_id=chat_id,
-            message_id=message_id,
-            text=(
-                    "ɢᴇᴛᴛɪɴɢ ᴀ ʀᴀɴᴅᴏᴍ ɴᴜᴍʙᴇʀ ғᴏʀ ʏᴏᴜ...\n\n"
-                    "⁀➴ ғᴇᴛᴄʜɪɴɢ ᴏɴʟɪɴᴇ ᴄᴏᴜɴᴛʀɪᴇs:\n"
-                    f"ɢᴏᴛ {len(countries)} ᴄᴏᴜɴᴛʀɪᴇs\n\n"
-                    "⁀➴ ᴛᴇsᴛɪɴɢ ᴀᴄᴛɪᴠᴇ ɴᴜᴍʙᴇʀs:\n"
-                    f"ᴛʜᴇʀᴇ ɪs ɴᴏ ᴏɴʟɪɴᴇ ɴᴜᴍʙᴇʀ ғᴏʀ ɴᴏᴡ!"
-                ),
-        ) 
+    # Update prompt based on current status
+    bot.edit_message_text(
+        chat_id=chat_id,
+        message_id=message_id,
+        text=(
+            "در حال دریافت یک شماره تصادفی برای شما...\n\n"
+            "⁀➴ در حال دریافت کشور‌های آنلاین:\n"
+            f"دارای {len(countries)} کشور\n\n"
+            "⁀➴ در حال آزمایش شماره‌های فعال:\n"
+            f"در حال تلاش برای {country_name} ({formatted_number})\n\n"
+            f"{flag} این شماره شماست: +{number[1]}\n\n"
+            f"آخرین بروزرسانی: {number[0]}"
+        ),
+        reply_markup=Markup
+    )
 
-        # Return the function
-        return 0
+    # Answer callback query
+    bot.answer_callback_query(
+        callback_query_id=call.id,
+        text="⁀➴ درخواست شما بروزرسانی شد",
+        show_alert=False
+    )
+
+    # Return the function
+    return 1
+
+# Send failure message when no number found
+else:
+    # Update prompt based on current status
+    bot.edit_message_text(
+        chat_id=chat_id,
+        message_id=message_id,
+        text=(
+                "در حال دریافت یک شماره تصادفی برای شما...\n\n"
+                "⁀➴ در حال دریافت کشور‌های آنلاین:\n"
+                f"دارای {len(countries)} کشور\n\n"
+                "⁀➴ در حال آزمایش شماره‌های فعال:\n"
+                f"فعلاً هیچ شماره آنلاین برای شما موجود نیست!"
+            ),
+    ) 
+
+    # Return the function
+    return 0
 
 
 # Run the bot in polling mode with enhanced error handling
