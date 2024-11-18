@@ -1180,7 +1180,7 @@ def number_command_handler(message: ClassVar[Any]) -> NoReturn:
                         f"{flag} <b>Here is your number</b>: +{number[1]}\n\n"
                         f"Last Update: {number[0]}"
                  ),
-            parse_mode="Markdown",
+            parse_mode="HTML",
             reply_markup=keyboard
     )
 
