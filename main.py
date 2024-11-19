@@ -32,6 +32,11 @@ user_referrals: Dict[int, str] = {}  # {user_id: invite_link}
 # Amount of invites needed to unlock OTP
 INVITES_NEEDED = 2
 
+# Storage for tasks and user data
+tasks = []  # List of tasks (each task is a dictionary)
+user_data = {}  # {user_id: {"referrals": int, "points": int}}
+
+
 
 @bot.message_handler(commands=["start", "restart"])
 def start_command_handler(message):
@@ -455,43 +460,87 @@ def get_otp_callback(call):
 
 
 
-@bot.message_handler(commands=["change"])
-def change_command_handler(message):
-    """
-    Handles /change command to update channel URLs.
-    Only accessible by the admin.
-    """
-    if message.from_user.id != ADMIN_ID:
-        bot.reply_to(message, "🚫 You are not authorized to use this command.")
-        return
 
-    msg = bot.reply_to(message, "Send the new URLs in the following format:\n\n`channel_1_url channel_2_url`", parse_mode="Markdown")
-    bot.register_next_step_handler(msg, update_urls)
 
-def update_urls(message):
-    """
-    Updates the channel URLs based on the admin's input.
-    """
-    if message.from_user.id != ADMIN_ID:
-        bot.reply_to(message, "🚫 You are not authorized to use this command.")
-        return
 
-    try:
-        # Split the input into two URLs
-        urls = message.text.split()
-        if len(urls) != 2:
-            raise ValueError("Invalid format. Provide exactly two URLs.")
+# Admin command to add a task
+@bot.message_handler(commands=["addpost"])
+def add_task(message):
+    if message.chat.id == ADMIN_ID:
+        bot.send_message(ADMIN_ID, "Please send the task description (text, photo, or file).")
+        bot.register_next_step_handler(message, save_task)
+    else:
+        bot.send_message(message.chat.id, "You are not authorized to use this command.")
 
-        # Update the URLs
-        global channel_urls
-        channel_urls["channel_1"], channel_urls["channel_2"] = urls
-        save_urls(channel_urls)
+def save_task(message):
+    task = {"type": message.content_type, "content": None}
+    if message.content_type == "text":
+        task["content"] = message.text
+    elif message.content_type in ["photo", "document", "video"]:
+        task["content"] = getattr(message, message.content_type).file_id
+    tasks.append(task)
+    bot.send_message(ADMIN_ID, "Task added successfully!")
 
-        bot.reply_to(message, "✅ Channel URLs updated successfully.")
-    except Exception as e:
-        bot.reply_to(message, f"❌ Error: {str(e)}")
+# User command to view tasks
+@bot.message_handler(commands=["task"])
+def view_tasks(message):
+    user_id = message.from_user.id
+    if tasks:
+        for task in tasks:
+            if task["type"] == "text":
+                bot.send_message(user_id, task["content"])
+            elif task["type"] in ["photo", "document", "video"]:
+                bot.send_message(user_id, f"Task: Please complete and submit your proof.")
+                bot.send_chat_action(user_id, action="upload_document")
+                getattr(bot, f"send_{task['type']}")(user_id, task["content"])
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton("Done", callback_data="task_done"))
+        bot.send_message(user_id, "If you completed the task, click Done.", reply_markup=markup)
+    else:
+        bot.send_message(user_id, "No tasks available.")
 
-# Start the bot polling
+# Handle "Done" button click
+@bot.callback_query_handler(func=lambda call: call.data == "task_done")
+def handle_done(call):
+    bot.send_message(call.from_user.id, "Please send your proof (photo, video, or file).")
+    bot.register_next_step_handler_by_chat_id(call.from_user.id, forward_proof)
+
+def forward_proof(message):
+    user_id = message.from_user.id
+    if message.content_type in ["photo", "document", "video", "text"]:
+        # Forward proof to admin
+        bot.send_message(
+            ADMIN_ID,
+            f"Proof received from user {user_id}.\nReferrals: {user_data[user_id]['referrals']}\nPoints: {user_data[user_id]['points']}",
+        )
+        bot.forward_message(ADMIN_ID, user_id, message.message_id)
+
+        # Add buttons for admin to approve or decline
+        markup = types.InlineKeyboardMarkup()
+        markup.add(
+            types.InlineKeyboardButton("Add Points", callback_data=f"approve_{user_id}"),
+            types.InlineKeyboardButton("Decline", callback_data=f"decline_{user_id}"),
+        )
+        bot.send_message(ADMIN_ID, "What do you want to do?", reply_markup=markup)
+    else:
+        bot.send_message(user_id, "Invalid proof type. Please send a valid proof.")
+
+# Handle admin's decision
+@bot.callback_query_handler(func=lambda call: call.data.startswith("approve_") or call.data.startswith("decline_"))
+def handle_admin_decision(call):
+    user_id = int(call.data.split("_")[1])
+    if "approve" in call.data:
+        user_data[user_id]["points"] += 1
+        bot.send_message(ADMIN_ID, f"Points added for user {user_id}.")
+        bot.send_message(user_id, "✅ 1 point has been added to your account!")
+    elif "decline" in call.data:
+        bot.send_message(ADMIN_ID, f"Proof from user {user_id} has been declined.")
+        bot.send_message(user_id, "❌ Your proof has been declined. Please try again.")
+
+# Run the bot
+
+
+
 
 
 
