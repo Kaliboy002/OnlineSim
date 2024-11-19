@@ -30,13 +30,8 @@ referral_data: Dict[int, int] = {}  # {referrer_id: referral_count}
 user_referrals: Dict[int, str] = {}  # {user_id: invite_link}
 
 # Amount of invites needed to unlock OTP
-INVITES_NEEDED = 2
+INVITES_NEEDED = 5
 
-# Storage for tasks and user data
-tasks = {}  # Dictionary to store tasks with task_id as key
-user_data = {}  # {user_id: {"referrals": int, "points": int, "completed_tasks": set}}
-submissions = {}  # Store user submissions for proof
-completed_tasks = {}  # Dictionary to store completed tasks by users
 
 
 
@@ -126,8 +121,8 @@ def language_selection_callback(call):
         # Create the channel join buttons for English
         keyboard = types.InlineKeyboardMarkup(row_width=1)
         keyboard.add(
-            types.InlineKeyboardButton("Jᴏɪɴ ᴄʜᴀɴɴᴇʟ 𝟷⚡️", url="https://t.me/your_channel_1"),
-            types.InlineKeyboardButton("Jᴏɪɴ ᴄʜᴀɴɴᴇʟ 2⚡️", url="https://t.me/your_channel_2"),
+            types.InlineKeyboardButton("Jᴏɪɴ ᴄʜᴀɴɴᴇʟ 𝟷⚡️", url="https://t.me/Kali_Linux_BOTS"),
+            types.InlineKeyboardButton("Jᴏɪɴ ᴄʜᴀɴɴᴇʟ 2⚡️", url="https://t.me/PAWSOG_bot/PAWS?startapp=vHumU732"),
             types.InlineKeyboardButton("🔐𝗝𝗼𝗶𝗻𝗲𝗱", callback_data="check_numb")
         )
 
@@ -146,8 +141,8 @@ def language_selection_callback(call):
         # Create the channel join buttons for Persian
         keyboard = types.InlineKeyboardMarkup(row_width=1)
         keyboard.add(
-            types.InlineKeyboardButton("عضو در کانال اول⚡️", url="https://t.me/your_channel_1"),
-            types.InlineKeyboardButton("عضو در کانال دوم⚡️", url="https://t.me/your_channel_2"),
+            types.InlineKeyboardButton("عضو در کانال اول⚡️", url="https://t.me/Kali_Linux_BOTS"),
+            types.InlineKeyboardButton("عضو در کانال دوم⚡️", url="https://t.me/PAWSOG_bot/PAWS?startapp=vHumU732"),
             types.InlineKeyboardButton("🔐 عضـو شـدم", callback_data="check_numbf")
         )
 
@@ -458,171 +453,6 @@ def get_otp_callback(call):
         parse_mode="HTML"
     )
 
-
-
-
-
-
-
-
-
-# /task command for users to see available tasks
-@bot.message_handler(commands=["task"])
-def send_tasks(message):
-    user_id = message.chat.id
-    if user_id not in user_data:
-        user_data[user_id] = {"referrals": 0, "points": 0, "completed_tasks": set()}
-
-    if tasks:
-        for task_id, task_info in tasks.items():
-            if task_id not in user_data[user_id]["completed_tasks"]:
-                task_description = task_info["description"]
-                task_type = task_info["type"]
-
-                if task_type == "text":
-                    bot.send_message(user_id, f"Task #{task_id}: {task_description}")
-                elif task_type == "photo":
-                    bot.send_photo(user_id, task_info["content"], caption=task_description)
-                elif task_type == "video":
-                    bot.send_video(user_id, task_info["content"], caption=task_description)
-                
-                # Add a button to mark task as done
-                markup = types.ReplyKeyboardMarkup(row_width=2)
-                markup.add(types.KeyboardButton(f"Complete Task #{task_id}"))
-                bot.send_message(user_id, f"Click to complete Task #{task_id}.", reply_markup=markup)
-            else:
-                bot.send_message(user_id, f"Task #{task_id} is already completed.")
-    else:
-        bot.send_message(user_id, "No tasks available at the moment.")
-
-# Handle user task completion
-@bot.message_handler(func=lambda message: message.text.startswith("Complete Task") and message.chat.id != ADMIN_ID)
-def complete_task(message):
-    user_id = message.chat.id
-    task_id = int(message.text.split()[-1])
-    
-    if task_id in tasks and task_id not in user_data[user_id]["completed_tasks"]:
-        user_data[user_id]["completed_tasks"].add(task_id)
-        user_data[user_id]["points"] += 1  # Add points for completing the task
-        bot.send_message(user_id, f"Task #{task_id} completed! You've earned 1 point. Your total points: {user_data[user_id]['points']}.")
-        
-        # Notify admin of task completion
-        bot.send_message(ADMIN_ID, f"User {user_id} completed Task #{task_id}.")
-    else:
-        bot.send_message(user_id, "This task is either already completed or does not exist.")
-
-# /addpost command to allow admin to add tasks
-@bot.message_handler(commands=["addpost"])
-def add_post_command(message):
-    if message.chat.id == ADMIN_ID:
-        markup = types.ReplyKeyboardMarkup(row_width=2)
-        markup.add(
-            types.KeyboardButton("Add Text Task"),
-            types.KeyboardButton("Add Media Task"),
-            types.KeyboardButton("Remove Task")
-        )
-        bot.send_message(ADMIN_ID, "Choose an option:", reply_markup=markup)
-    else:
-        bot.send_message(message.chat.id, "You are not authorized to use this command.")
-
-# Add Text Task
-@bot.message_handler(func=lambda message: message.text == "Add Text Task" and message.chat.id == ADMIN_ID)
-def add_text_task(message):
-    bot.send_message(ADMIN_ID, "Please send the task description (supporting HTML/Markdown for text).")
-    bot.register_next_step_handler(message, save_text_task)
-
-def save_text_task(message):
-    task_id = len(tasks) + 1
-    tasks[task_id] = {"type": "text", "content": message.text, "description": message.text}
-    bot.send_message(ADMIN_ID, f"Text Task #{task_id} added successfully.")
-    show_task_management_options(message)
-
-# Add Media Task
-@bot.message_handler(func=lambda message: message.text == "Add Media Task" and message.chat.id == ADMIN_ID)
-def add_media_task(message):
-    bot.send_message(ADMIN_ID, "Please send the media file (photo or video) for the task.")
-    bot.register_next_step_handler(message, save_media_task)
-
-def save_media_task(message):
-    task_id = len(tasks) + 1
-    if message.content_type == "photo":
-        tasks[task_id] = {"type": "photo", "content": message.photo[-1].file_id, "description": "Media task"}
-    elif message.content_type == "video":
-        tasks[task_id] = {"type": "video", "content": message.video.file_id, "description": "Media task"}
-    
-    bot.send_message(ADMIN_ID, f"Media Task #{task_id} added successfully.")
-    show_task_management_options(message)
-
-def show_task_management_options(message):
-    markup = types.ReplyKeyboardMarkup(row_width=2)
-    markup.add(
-        types.KeyboardButton("Add Text Task"),
-        types.KeyboardButton("Add Media Task"),
-        types.KeyboardButton("Remove Task")
-    )
-    bot.send_message(ADMIN_ID, "Task management options:", reply_markup=markup)
-
-# Remove Task
-@bot.message_handler(func=lambda message: message.text == "Remove Task" and message.chat.id == ADMIN_ID)
-def remove_task(message):
-    bot.send_message(ADMIN_ID, "Please send the number of the task you want to remove (e.g., 3 for Task 3).")
-    bot.register_next_step_handler(message, delete_task)
-
-def delete_task(message):
-    task_id = int(message.text)
-    if task_id in tasks:
-        del tasks[task_id]
-        bot.send_message(ADMIN_ID, f"Task #{task_id} has been removed successfully.")
-    else:
-        bot.send_message(ADMIN_ID, f"Task #{task_id} does not exist.")
-    show_task_management_options(message)
-
-# /admin command for admin to view all tasks and user stats
-@bot.message_handler(commands=["admin"])
-def admin_dashboard(message):
-    if message.chat.id == ADMIN_ID:
-        task_count = len(tasks)
-        user_count = len(user_data)
-        admin_stats = f"Total tasks: {task_count}\nTotal users: {user_count}\n"
-        bot.send_message(ADMIN_ID, admin_stats)
-    else:
-        bot.send_message(message.chat.id, "You are not authorized to use this command.")
-
-# /points command for users to check their points
-@bot.message_handler(commands=["points"])
-def show_points(message):
-    user_id = message.chat.id
-    if user_id in user_data:
-        points = user_data[user_id]["points"]
-        bot.send_message(user_id, f"Your current points: {points}")
-    else:
-        bot.send_message(user_id, "You haven't completed any tasks yet.")
-
-# /referrals command for users to check referral stats
-@bot.message_handler(commands=["referrals"])
-def show_referrals(message):
-    user_id = message.chat.id
-    if user_id in user_data:
-        referrals = user_data[user_id]["referrals"]
-        bot.send_message(user_id, f"Your referrals count: {referrals}")
-    else:
-        bot.send_message(user_id, "You haven't referred anyone yet.")
-
-# Handle user referrals and points
-@bot.message_handler(commands=["refer"])
-def handle_referral(message):
-    user_id = message.chat.id
-    referral_code = message.text.split(" ")[1]  # Expected format: /refer <referral_code>
-    
-    if referral_code in user_data:
-        user_data[referral_code]["referrals"] += 1
-        user_data[user_id]["points"] += 5  # Give 5 points for referral
-        bot.send_message(user_id, f"You have been referred successfully! You've earned 5 points.")
-        bot.send_message(referral_code, f"Your referral code was used! You gained 1 referral.")
-    else:
-        bot.send_message(user_id, "Invalid referral code.")
-
-# Start the bot
 
 
 
