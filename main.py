@@ -462,30 +462,71 @@ def get_otp_callback(call):
 
 
 
-
-
-
-
-
 # /addpost command to allow admin to add tasks
 @bot.message_handler(commands=["addpost"])
 def add_post_command(message):
     if message.chat.id == ADMIN_ID:
-        bot.send_message(ADMIN_ID, "Send the task details (text, photo, or video).")
-        bot.register_next_step_handler(message, save_task)
+        markup = types.ReplyKeyboardMarkup(row_width=2)
+        markup.add(
+            types.KeyboardButton("Add Text Task"),
+            types.KeyboardButton("Add Photo/Video Task"),
+            types.KeyboardButton("Remove Task")
+        )
+        bot.send_message(ADMIN_ID, "Choose an option:", reply_markup=markup)
     else:
         bot.send_message(message.chat.id, "You are not authorized to use this command.")
 
-def save_task(message):
-    task_id = len(tasks) + 1
-    if message.content_type == "text":
-        tasks[task_id] = {"type": "text", "content": message.text}
-    elif message.content_type == "photo":
-        tasks[task_id] = {"type": "photo", "content": message.photo[-1].file_id}
-    elif message.content_type == "video":
-        tasks[task_id] = {"type": "video", "content": message.video.file_id}
+# Add Text Task
+@bot.message_handler(func=lambda message: message.text == "Add Text Task" and message.chat.id == ADMIN_ID)
+def add_text_task(message):
+    bot.send_message(ADMIN_ID, "Please send the task description (supporting HTML/Markdown for text).")
+    bot.register_next_step_handler(message, save_text_task)
 
-    bot.send_message(ADMIN_ID, f"Task #{task_id} added successfully!")
+def save_text_task(message):
+    task_id = len(tasks) + 1
+    tasks[task_id] = {"type": "text", "content": message.text, "description": message.text}
+    bot.send_message(ADMIN_ID, f"Task #{task_id} added successfully with description.")
+    show_task_management_options(message)
+
+# Add Photo/Video Task
+@bot.message_handler(func=lambda message: message.text == "Add Photo/Video Task" and message.chat.id == ADMIN_ID)
+def add_photo_video_task(message):
+    bot.send_message(ADMIN_ID, "Please send the media file (photo or video) for the task.")
+    bot.register_next_step_handler(message, save_photo_video_task)
+
+def save_photo_video_task(message):
+    task_id = len(tasks) + 1
+    if message.content_type == "photo":
+        tasks[task_id] = {"type": "photo", "content": message.photo[-1].file_id, "description": "Media task"}
+    elif message.content_type == "video":
+        tasks[task_id] = {"type": "video", "content": message.video.file_id, "description": "Media task"}
+    
+    bot.send_message(ADMIN_ID, f"Task #{task_id} added successfully with media.")
+    show_task_management_options(message)
+
+def show_task_management_options(message):
+    markup = types.ReplyKeyboardMarkup(row_width=2)
+    markup.add(
+        types.KeyboardButton("Add Text Task"),
+        types.KeyboardButton("Add Photo/Video Task"),
+        types.KeyboardButton("Remove Task")
+    )
+    bot.send_message(ADMIN_ID, "Task management options:", reply_markup=markup)
+
+# Remove Task
+@bot.message_handler(func=lambda message: message.text == "Remove Task" and message.chat.id == ADMIN_ID)
+def remove_task(message):
+    bot.send_message(ADMIN_ID, "Please send the number of the task you want to remove (e.g., 3 for Task 3).")
+    bot.register_next_step_handler(message, delete_task)
+
+def delete_task(message):
+    task_id = int(message.text)
+    if task_id in tasks:
+        del tasks[task_id]
+        bot.send_message(ADMIN_ID, f"Task #{task_id} has been removed successfully.")
+    else:
+        bot.send_message(ADMIN_ID, f"Task #{task_id} does not exist.")
+    show_task_management_options(message)
 
 # /task command for users to see available tasks
 @bot.message_handler(commands=["task"])
@@ -493,13 +534,14 @@ def send_tasks(message):
     user_id = message.chat.id
     if tasks:
         for task_id, task_info in tasks.items():
+            task_description = task_info["description"]
             if task_info["type"] == "text":
-                bot.send_message(user_id, f"Task #{task_id}: {task_info['content']}")
+                bot.send_message(user_id, f"<b>Task #{task_id}:</b> {task_description}", parse_mode="HTML")
             elif task_info["type"] == "photo":
-                bot.send_photo(user_id, task_info["content"], caption=f"Task #{task_id}")
+                bot.send_photo(user_id, task_info["content"], caption=f"<b>Task #{task_id}:</b> {task_description}", parse_mode="HTML")
             elif task_info["type"] == "video":
-                bot.send_video(user_id, task_info["content"], caption=f"Task #{task_id}")
-        
+                bot.send_video(user_id, task_info["content"], caption=f"<b>Task #{task_id}:</b> {task_description}", parse_mode="HTML")
+
         # Add a "Done" button for the user to click when they finish the task
         markup = types.InlineKeyboardMarkup()
         markup.add(types.InlineKeyboardButton("Done", callback_data="submit_proof"))
@@ -551,7 +593,11 @@ def review_proof(call):
         bot.send_message(user_id, "Your proof was declined.")
         bot.send_message(ADMIN_ID, f"Proof from user {user_id} was declined.")
 
-# Start the bot (Do not include in the part you wanted removed)
+# Start the bot
+bot.polling(none_stop=True)
+
+
+
 
 
 
