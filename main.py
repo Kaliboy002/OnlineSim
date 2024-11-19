@@ -9,6 +9,7 @@ from telebot import types  # Correctly import types here
 import phonenumbers
 import countryflag
 import io
+import re
 import sys
 import logging
 # Local application module imports
@@ -236,6 +237,30 @@ def check_numbf_callback(call):
 
 
 
+
+
+# The post link you want to forward
+POST_LINK = "https://t.me/Kali_Linux_BOTS/160"
+
+# Extract channel username and message ID from the link
+match = re.match(r"https://t\.me/([^/]+)/(\d+)", POST_LINK)
+if match:
+    CHANNEL_USERNAME = match.group(1)  # Extracted channel username
+    MESSAGE_ID = int(match.group(2))   # Extracted message ID
+else:
+    raise ValueError("Invalid post link format")
+
+# Handle /help command
+@bot.message_handler(commands=["help"])
+def send_help(message):
+    user_id = message.chat.id
+    try:
+        # Forward the message from the channel to the user
+        bot.forward_message(chat_id=user_id, from_chat_id=f"@{CHANNEL_USERNAME}", message_id=MESSAGE_ID)
+    except Exception as e:
+        bot.send_message(user_id, f"An error occurred while forwarding the message: {e}")
+
+# Start the bot
 
 
 
