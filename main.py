@@ -33,8 +33,9 @@ user_referrals: Dict[int, str] = {}  # {user_id: invite_link}
 INVITES_NEEDED = 2
 
 # Storage for tasks and user data
-tasks = []  # List of tasks (each task is a dictionary)
+tasks = {}  # Dictionary to store tasks with task_id as key
 user_data = {}  # {user_id: {"referrals": int, "points": int}}
+submissions = {}  # Store user submissions for proof
 
 
 
@@ -463,7 +464,9 @@ def get_otp_callback(call):
 
 
 
-# Handle /addpost command for admin
+
+
+# /addpost command to allow admin to add tasks
 @bot.message_handler(commands=["addpost"])
 def add_post_command(message):
     if message.chat.id == ADMIN_ID:
@@ -474,29 +477,36 @@ def add_post_command(message):
 
 def save_task(message):
     task_id = len(tasks) + 1
-    tasks[task_id] = message  # Store the message object as the task
+    if message.content_type == "text":
+        tasks[task_id] = {"type": "text", "content": message.text}
+    elif message.content_type == "photo":
+        tasks[task_id] = {"type": "photo", "content": message.photo[-1].file_id}
+    elif message.content_type == "video":
+        tasks[task_id] = {"type": "video", "content": message.video.file_id}
+
     bot.send_message(ADMIN_ID, f"Task #{task_id} added successfully!")
 
-# Handle /task command for users
+# /task command for users to see available tasks
 @bot.message_handler(commands=["task"])
 def send_tasks(message):
     user_id = message.chat.id
     if tasks:
-        for task_id, task_message in tasks.items():
-            if task_message.content_type == "text":
-                bot.send_message(user_id, f"Task #{task_id}: {task_message.text}")
-            elif task_message.content_type == "photo":
-                bot.send_photo(user_id, task_message.photo[-1].file_id, caption=f"Task #{task_id}: {task_message.caption}")
-            elif task_message.content_type == "video":
-                bot.send_video(user_id, task_message.video.file_id, caption=f"Task #{task_id}: {task_message.caption}")
-        # Add a "Done" button
+        for task_id, task_info in tasks.items():
+            if task_info["type"] == "text":
+                bot.send_message(user_id, f"Task #{task_id}: {task_info['content']}")
+            elif task_info["type"] == "photo":
+                bot.send_photo(user_id, task_info["content"], caption=f"Task #{task_id}")
+            elif task_info["type"] == "video":
+                bot.send_video(user_id, task_info["content"], caption=f"Task #{task_id}")
+        
+        # Add a "Done" button for the user to click when they finish the task
         markup = types.InlineKeyboardMarkup()
         markup.add(types.InlineKeyboardButton("Done", callback_data="submit_proof"))
         bot.send_message(user_id, "Click 'Done' when you complete the task.", reply_markup=markup)
     else:
         bot.send_message(user_id, "No tasks available.")
 
-# Handle "Done" button
+# Handle the "Done" button click
 @bot.callback_query_handler(func=lambda call: call.data == "submit_proof")
 def ask_for_proof(call):
     user_id = call.message.chat.id
@@ -519,7 +529,7 @@ def receive_proof(message):
     else:
         bot.send_message(user_id, "Invalid proof type. Please send a valid file or message.")
 
-# Handle admin review
+# Handle admin review and actions (approve or decline)
 @bot.callback_query_handler(func=lambda call: call.data.startswith("add_points_") or call.data.startswith("decline_"))
 def review_proof(call):
     action, user_id = call.data.split("_")
@@ -527,6 +537,9 @@ def review_proof(call):
 
     if action == "add_points":
         # Add points to the user
+        if user_id not in user_data:
+            user_data[user_id] = {"referrals": 0, "points": 0}
+        user_data[user_id]["points"] += 1
         bot.send_message(user_id, "Your proof was approved. 1 point added!")
         bot.send_message(ADMIN_ID, f"1 point added to user {user_id}.")
     elif action == "decline":
@@ -534,9 +547,7 @@ def review_proof(call):
         bot.send_message(user_id, "Your proof was declined.")
         bot.send_message(ADMIN_ID, f"Proof from user {user_id} was declined.")
 
-
-
-
+# Start the bot (Do not include in the part you wanted removed)
 
 
 
