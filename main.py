@@ -34,8 +34,10 @@ INVITES_NEEDED = 2
 
 # Storage for tasks and user data
 tasks = {}  # Dictionary to store tasks with task_id as key
-user_data = {}  # {user_id: {"referrals": int, "points": int}}
+user_data = {}  # {user_id: {"referrals": int, "points": int, "completed_tasks": set}}
 submissions = {}  # Store user submissions for proof
+completed_tasks = {}  # Dictionary to store completed tasks by users
+
 
 
 @bot.message_handler(commands=["start", "restart"])
@@ -462,6 +464,53 @@ def get_otp_callback(call):
 
 
 
+
+
+# /task command for users to see available tasks
+@bot.message_handler(commands=["task"])
+def send_tasks(message):
+    user_id = message.chat.id
+    if user_id not in user_data:
+        user_data[user_id] = {"referrals": 0, "points": 0, "completed_tasks": set()}
+
+    if tasks:
+        for task_id, task_info in tasks.items():
+            if task_id not in user_data[user_id]["completed_tasks"]:
+                task_description = task_info["description"]
+                task_type = task_info["type"]
+
+                if task_type == "text":
+                    bot.send_message(user_id, f"Task #{task_id}: {task_description}")
+                elif task_type == "photo":
+                    bot.send_photo(user_id, task_info["content"], caption=task_description)
+                elif task_type == "video":
+                    bot.send_video(user_id, task_info["content"], caption=task_description)
+                
+                # Add a button to mark task as done
+                markup = types.ReplyKeyboardMarkup(row_width=2)
+                markup.add(types.KeyboardButton(f"Complete Task #{task_id}"))
+                bot.send_message(user_id, f"Click to complete Task #{task_id}.", reply_markup=markup)
+            else:
+                bot.send_message(user_id, f"Task #{task_id} is already completed.")
+    else:
+        bot.send_message(user_id, "No tasks available at the moment.")
+
+# Handle user task completion
+@bot.message_handler(func=lambda message: message.text.startswith("Complete Task") and message.chat.id != ADMIN_ID)
+def complete_task(message):
+    user_id = message.chat.id
+    task_id = int(message.text.split()[-1])
+    
+    if task_id in tasks and task_id not in user_data[user_id]["completed_tasks"]:
+        user_data[user_id]["completed_tasks"].add(task_id)
+        user_data[user_id]["points"] += 1  # Add points for completing the task
+        bot.send_message(user_id, f"Task #{task_id} completed! You've earned 1 point. Your total points: {user_data[user_id]['points']}.")
+        
+        # Notify admin of task completion
+        bot.send_message(ADMIN_ID, f"User {user_id} completed Task #{task_id}.")
+    else:
+        bot.send_message(user_id, "This task is either already completed or does not exist.")
+
 # /addpost command to allow admin to add tasks
 @bot.message_handler(commands=["addpost"])
 def add_post_command(message):
@@ -469,7 +518,7 @@ def add_post_command(message):
         markup = types.ReplyKeyboardMarkup(row_width=2)
         markup.add(
             types.KeyboardButton("Add Text Task"),
-            types.KeyboardButton("Add Photo/Video Task"),
+            types.KeyboardButton("Add Media Task"),
             types.KeyboardButton("Remove Task")
         )
         bot.send_message(ADMIN_ID, "Choose an option:", reply_markup=markup)
@@ -485,30 +534,30 @@ def add_text_task(message):
 def save_text_task(message):
     task_id = len(tasks) + 1
     tasks[task_id] = {"type": "text", "content": message.text, "description": message.text}
-    bot.send_message(ADMIN_ID, f"Task #{task_id} added successfully with description.")
+    bot.send_message(ADMIN_ID, f"Text Task #{task_id} added successfully.")
     show_task_management_options(message)
 
-# Add Photo/Video Task
-@bot.message_handler(func=lambda message: message.text == "Add Photo/Video Task" and message.chat.id == ADMIN_ID)
-def add_photo_video_task(message):
+# Add Media Task
+@bot.message_handler(func=lambda message: message.text == "Add Media Task" and message.chat.id == ADMIN_ID)
+def add_media_task(message):
     bot.send_message(ADMIN_ID, "Please send the media file (photo or video) for the task.")
-    bot.register_next_step_handler(message, save_photo_video_task)
+    bot.register_next_step_handler(message, save_media_task)
 
-def save_photo_video_task(message):
+def save_media_task(message):
     task_id = len(tasks) + 1
     if message.content_type == "photo":
         tasks[task_id] = {"type": "photo", "content": message.photo[-1].file_id, "description": "Media task"}
     elif message.content_type == "video":
         tasks[task_id] = {"type": "video", "content": message.video.file_id, "description": "Media task"}
     
-    bot.send_message(ADMIN_ID, f"Task #{task_id} added successfully with media.")
+    bot.send_message(ADMIN_ID, f"Media Task #{task_id} added successfully.")
     show_task_management_options(message)
 
 def show_task_management_options(message):
     markup = types.ReplyKeyboardMarkup(row_width=2)
     markup.add(
         types.KeyboardButton("Add Text Task"),
-        types.KeyboardButton("Add Photo/Video Task"),
+        types.KeyboardButton("Add Media Task"),
         types.KeyboardButton("Remove Task")
     )
     bot.send_message(ADMIN_ID, "Task management options:", reply_markup=markup)
@@ -528,74 +577,52 @@ def delete_task(message):
         bot.send_message(ADMIN_ID, f"Task #{task_id} does not exist.")
     show_task_management_options(message)
 
-# /task command for users to see available tasks
-@bot.message_handler(commands=["task"])
-def send_tasks(message):
-    user_id = message.chat.id
-    if tasks:
-        for task_id, task_info in tasks.items():
-            task_description = task_info["description"]
-            if task_info["type"] == "text":
-                bot.send_message(user_id, f"<b>Task #{task_id}:</b> {task_description}", parse_mode="HTML")
-            elif task_info["type"] == "photo":
-                bot.send_photo(user_id, task_info["content"], caption=f"<b>Task #{task_id}:</b> {task_description}", parse_mode="HTML")
-            elif task_info["type"] == "video":
-                bot.send_video(user_id, task_info["content"], caption=f"<b>Task #{task_id}:</b> {task_description}", parse_mode="HTML")
-
-        # Add a "Done" button for the user to click when they finish the task
-        markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton("Done", callback_data="submit_proof"))
-        bot.send_message(user_id, "Click 'Done' when you complete the task.", reply_markup=markup)
+# /admin command for admin to view all tasks and user stats
+@bot.message_handler(commands=["admin"])
+def admin_dashboard(message):
+    if message.chat.id == ADMIN_ID:
+        task_count = len(tasks)
+        user_count = len(user_data)
+        admin_stats = f"Total tasks: {task_count}\nTotal users: {user_count}\n"
+        bot.send_message(ADMIN_ID, admin_stats)
     else:
-        bot.send_message(user_id, "No tasks available.")
+        bot.send_message(message.chat.id, "You are not authorized to use this command.")
 
-# Handle the "Done" button click
-@bot.callback_query_handler(func=lambda call: call.data == "submit_proof")
-def ask_for_proof(call):
-    user_id = call.message.chat.id
-    bot.send_message(user_id, "Please send your proof (screenshot, photo, or video).")
-    bot.register_next_step_handler(call.message, receive_proof)
-
-def receive_proof(message):
+# /points command for users to check their points
+@bot.message_handler(commands=["points"])
+def show_points(message):
     user_id = message.chat.id
-    if message.content_type in ["photo", "video", "text"]:
-        submissions[user_id] = message
-        # Notify admin
-        markup = types.InlineKeyboardMarkup()
-        markup.add(
-            types.InlineKeyboardButton("Add Points", callback_data=f"add_points_{user_id}"),
-            types.InlineKeyboardButton("Decline", callback_data=f"decline_{user_id}")
-        )
-        bot.forward_message(ADMIN_ID, user_id, message.message_id)
-        bot.send_message(ADMIN_ID, f"User {user_id} submitted proof.", reply_markup=markup)
-        bot.send_message(user_id, "Proof submitted successfully. Waiting for admin review.")
+    if user_id in user_data:
+        points = user_data[user_id]["points"]
+        bot.send_message(user_id, f"Your current points: {points}")
     else:
-        bot.send_message(user_id, "Invalid proof type. Please send a valid file or message.")
+        bot.send_message(user_id, "You haven't completed any tasks yet.")
 
-# Handle admin review and actions (approve or decline)
-@bot.callback_query_handler(func=lambda call: call.data.startswith("add_points_") or call.data.startswith("decline_"))
-def review_proof(call):
-    action, user_id = call.data.split("_")
-    user_id = int(user_id)
+# /referrals command for users to check referral stats
+@bot.message_handler(commands=["referrals"])
+def show_referrals(message):
+    user_id = message.chat.id
+    if user_id in user_data:
+        referrals = user_data[user_id]["referrals"]
+        bot.send_message(user_id, f"Your referrals count: {referrals}")
+    else:
+        bot.send_message(user_id, "You haven't referred anyone yet.")
 
-    if action == "add_points":
-        # Ensure user data exists for the user
-        if user_id not in user_data:
-            user_data[user_id] = {"referrals": 0, "points": 0}
-
-        # Add points to the user
-        user_data[user_id]["points"] += 1
-        bot.send_message(user_id, "Your proof was approved. 1 point added!")
-        bot.send_message(ADMIN_ID, f"1 point added to user {user_id}. Current points: {user_data[user_id]['points']}.")
-
-    elif action == "decline":
-        # Decline the submission
-        bot.send_message(user_id, "Your proof was declined.")
-        bot.send_message(ADMIN_ID, f"Proof from user {user_id} was declined.")
+# Handle user referrals and points
+@bot.message_handler(commands=["refer"])
+def handle_referral(message):
+    user_id = message.chat.id
+    referral_code = message.text.split(" ")[1]  # Expected format: /refer <referral_code>
+    
+    if referral_code in user_data:
+        user_data[referral_code]["referrals"] += 1
+        user_data[user_id]["points"] += 5  # Give 5 points for referral
+        bot.send_message(user_id, f"You have been referred successfully! You've earned 5 points.")
+        bot.send_message(referral_code, f"Your referral code was used! You gained 1 referral.")
+    else:
+        bot.send_message(user_id, "Invalid referral code.")
 
 # Start the bot
-bot.polling(none_stop=True)
-
 
 
 
