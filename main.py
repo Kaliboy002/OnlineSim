@@ -18,7 +18,7 @@ from src.vneng import VNEngine
 from pymongo import MongoClient
 
 # Initialize MongoDB client
-MONGO_URL = "your_mongodb_connection_string"  # Replace with your MongoDB URL
+MONGO_URL = "mongodb+srv://Kali:SHM14002022SHM@cluster0.bxsct.mongodb.net/myDatabase?retryWrites=true&w=majority"  # Replace with your MongoDB URL
 mongo_client = MongoClient(MONGO_URL)
 
 # Access the database and collections
