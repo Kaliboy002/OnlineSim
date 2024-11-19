@@ -28,8 +28,9 @@ referrals_collection = db["referrals"]
 stats_collection = db["stats"]
 
 # Initialize the bot token
-bot: ClassVar[Any] = telebot.TeleBot("your_bot_token")  # Replace with your bot token
+bot: ClassVar[Any] = telebot.TeleBot(utils.get_token())
 print(f":: Bot is running with ID: {bot.get_me().id}")
+
 
 # Admin ID
 ADMIN_ID = 7046488481  # Replace with your admin ID
