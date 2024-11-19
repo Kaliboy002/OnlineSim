@@ -38,7 +38,6 @@ user_data = {}  # {user_id: {"referrals": int, "points": int}}
 submissions = {}  # Store user submissions for proof
 
 
-
 @bot.message_handler(commands=["start", "restart"])
 def start_command_handler(message):
     """
@@ -466,6 +465,8 @@ def get_otp_callback(call):
 
 
 
+
+
 # /addpost command to allow admin to add tasks
 @bot.message_handler(commands=["addpost"])
 def add_post_command(message):
@@ -536,12 +537,15 @@ def review_proof(call):
     user_id = int(user_id)
 
     if action == "add_points":
-        # Add points to the user
+        # Ensure user data exists for the user
         if user_id not in user_data:
             user_data[user_id] = {"referrals": 0, "points": 0}
+
+        # Add points to the user
         user_data[user_id]["points"] += 1
         bot.send_message(user_id, "Your proof was approved. 1 point added!")
-        bot.send_message(ADMIN_ID, f"1 point added to user {user_id}.")
+        bot.send_message(ADMIN_ID, f"1 point added to user {user_id}. Current points: {user_data[user_id]['points']}.")
+
     elif action == "decline":
         # Decline the submission
         bot.send_message(user_id, "Your proof was declined.")
