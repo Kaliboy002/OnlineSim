@@ -23,6 +23,26 @@ print(f":: Bot is running with ID: {bot.get_me().id}")
 # Define admin ID (replace with the actual admin user ID)
 ADMIN_ID = 7046488481  # Replace with your admin's Telegram ID
 
+# File to store URLs
+URL_FILE = "channel_urls.json"
+
+# Load channel URLs from a file or use defaults
+def load_urls():
+    try:
+        with open(URL_FILE, "r") as file:
+            return json.load(file)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {"channel_1": "https://t.me/your_channel_1", "channel_2": "https://t.me/your_channel_2"}
+
+# Save channel URLs to a file
+def save_urls(urls):
+    with open(URL_FILE, "w") as file:
+        json.dump(urls, file)
+
+# Current URLs
+channel_urls = load_urls()
+
+
 # Initialize user storage
 user_ids: Set[int] = set()
 blocked_users: Set[int] = set()
@@ -456,94 +476,41 @@ def get_otp_callback(call):
 
 
 
-# Store channel URLs
-channel_urls = {
-    "channel_1": "https://t.me/your_channel_1",
-    "channel_2": "https://t.me/your_channel_2"  # Default value
-}
-
 @bot.message_handler(commands=["change"])
-def change_channel_url(message):
+def change_command_handler(message):
     """
-    Handles the /change command to update the second channel's URL.
+    Handles /change command to update channel URLs.
+    Only accessible by the admin.
     """
-    if message.from_user.id == ADMIN_ID:  # Ensure only the admin can execute
-        bot.send_message(
-            chat_id=ADMIN_ID,
-            text="Please send the new name or URL for Channel 2:"
-        )
-        bot.register_next_step_handler(message, process_new_channel_url)
-    else:
-        bot.send_message(
-            chat_id=message.chat.id,
-            text="❌ You are not authorized to use this command."
-        )
+    if message.from_user.id != ADMIN_ID:
+        bot.reply_to(message, "🚫 You are not authorized to use this command.")
+        return
 
-def process_new_channel_url(message):
+    msg = bot.reply_to(message, "Send the new URLs in the following format:\n\n`channel_1_url channel_2_url`", parse_mode="Markdown")
+    bot.register_next_step_handler(msg, update_urls)
+
+def update_urls(message):
     """
-    Processes the new URL for Channel 2 and updates it.
+    Updates the channel URLs based on the admin's input.
     """
-    global channel_urls
-    new_url = message.text.strip()
+    if message.from_user.id != ADMIN_ID:
+        bot.reply_to(message, "🚫 You are not authorized to use this command.")
+        return
 
-    # Validate the input (basic validation for a URL)
-    if new_url.startswith("https://t.me/"):
-        channel_urls["channel_2"] = new_url
-        bot.send_message(
-            chat_id=ADMIN_ID,
-            text=f"✅ Channel 2's URL has been successfully updated to:\n{new_url}"
-        )
-    else:
-        bot.send_message(
-            chat_id=ADMIN_ID,
-            text="❌ Invalid URL. Please ensure the URL starts with 'https://t.me/'."
-        )
+    try:
+        # Split the input into two URLs
+        urls = message.text.split()
+        if len(urls) != 2:
+            raise ValueError("Invalid format. Provide exactly two URLs.")
 
-@bot.callback_query_handler(func=lambda call: call.data in ["select_english", "select_persian"])
-def language_selection_callback(call):
-    """
-    Handles language selection and sends the corresponding welcome message.
-    """
-    user_id = call.message.chat.id
+        # Update the URLs
+        global channel_urls
+        channel_urls["channel_1"], channel_urls["channel_2"] = urls
+        save_urls(channel_urls)
 
-    # Determine the selected language
-    if call.data == "select_english":
-        # Create the channel join buttons for English
-        keyboard = types.InlineKeyboardMarkup(row_width=1)
-        keyboard.add(
-            types.InlineKeyboardButton("Jᴏɪɴ ᴄʜᴀɴɴᴇʟ 𝟷⚡️", url=channel_urls["channel_1"]),
-            types.InlineKeyboardButton("Jᴏɪɴ ᴄʜᴀɴɴᴇʟ 2⚡️", url=channel_urls["channel_2"]),
-            types.InlineKeyboardButton("🔐𝗝𝗼𝗶𝗻𝗲𝗱", callback_data="check_numb")
-        )
-
-        # Send the English welcome message
-        bot.send_message(
-            chat_id=user_id,
-            text=(
-                "⚠️ 𝙄𝙣 𝙪𝙨𝙚 𝙩𝙝𝙞𝙨 𝙗𝙤𝙩 𝙮𝙤𝙪 𝙝𝙖𝙫𝙚 𝙩𝙤 𝙟𝙤𝙞𝙣 𝙤𝙪𝙧 𝙩𝙚𝙡𝙚𝙜𝙧𝙖𝙢 𝙘𝙝𝙖𝙣𝙣𝙚𝙡𝙨.\n\n"
-                "ᴏᴛʜᴇʀᴡɪsᴇ, ᴛʜɪs ʙᴏᴛ ᴡɪʟʟ ɴᴏᴛ ᴡᴏʀᴋ. Iғ ʏᴏᴜ ʜᴀᴠᴇ Jᴏɪɴᴇᴅ ᴛʜᴇ ᴄʜᴀɴɴᴇʟs, "
-                "ᴛʜᴇɴ ᴄʟɪᴄᴋ ᴛʜᴇ 🔐𝗝𝗼𝗶𝗻𝗲𝗱 ʙᴜᴛᴛᴏɴ ᴛᴏ ᴄᴏɴғɪʀᴍ ʏᴏᴜʀ ʙᴏᴛ ᴍᴇᴍʙᴇʀsʜɪᴘ.\n\n"
-            ),
-            parse_mode="Markdown",
-            reply_markup=keyboard
-        )
-    elif call.data == "select_persian":
-        # Create the channel join buttons for Persian
-        keyboard = types.InlineKeyboardMarkup(row_width=1)
-        keyboard.add(
-            types.InlineKeyboardButton("عضو در کانال اول⚡️", url=channel_urls["channel_1"]),
-            types.InlineKeyboardButton("عضو در کانال دوم⚡️", url=channel_urls["channel_2"]),
-            types.InlineKeyboardButton("🔐 عضـو شـدم", callback_data="check_numbf")
-        )
-
-        # Send the Persian welcome message
-        bot.send_message(
-            chat_id=user_id,
-            text=("<b>⚠️ برای استفاده از این ربات، نخست شما باید به هردو کانال‌ های زیر عضو گردید</b>.\n\nدر غیر اینصورت این ربات برای شما کار نخواهد کرد. سپس روی دکمه | <b>عضـو شـدم 🔐 | </b>کلیک کنید تا عضویت ربات خود را تأیید کنید"
-            ),
-            parse_mode="HTML",
-            reply_markup=keyboard
-        )
+        bot.reply_to(message, "✅ Channel URLs updated successfully.")
+    except Exception as e:
+        bot.reply_to(message, f"❌ Error: {str(e)}")
 
 # Start the bot polling
 
