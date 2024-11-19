@@ -463,81 +463,76 @@ def get_otp_callback(call):
 
 
 
-# Admin command to add a task
+# Handle /addpost command for admin
 @bot.message_handler(commands=["addpost"])
-def add_task(message):
+def add_post_command(message):
     if message.chat.id == ADMIN_ID:
-        bot.send_message(ADMIN_ID, "Please send the task description (text, photo, or file).")
+        bot.send_message(ADMIN_ID, "Send the task details (text, photo, or video).")
         bot.register_next_step_handler(message, save_task)
     else:
         bot.send_message(message.chat.id, "You are not authorized to use this command.")
 
 def save_task(message):
-    task = {"type": message.content_type, "content": None}
-    if message.content_type == "text":
-        task["content"] = message.text
-    elif message.content_type in ["photo", "document", "video"]:
-        task["content"] = getattr(message, message.content_type).file_id
-    tasks.append(task)
-    bot.send_message(ADMIN_ID, "Task added successfully!")
+    task_id = len(tasks) + 1
+    tasks[task_id] = message  # Store the message object as the task
+    bot.send_message(ADMIN_ID, f"Task #{task_id} added successfully!")
 
-# User command to view tasks
+# Handle /task command for users
 @bot.message_handler(commands=["task"])
-def view_tasks(message):
-    user_id = message.from_user.id
+def send_tasks(message):
+    user_id = message.chat.id
     if tasks:
-        for task in tasks:
-            if task["type"] == "text":
-                bot.send_message(user_id, task["content"])
-            elif task["type"] in ["photo", "document", "video"]:
-                bot.send_message(user_id, f"Task: Please complete and submit your proof.")
-                bot.send_chat_action(user_id, action="upload_document")
-                getattr(bot, f"send_{task['type']}")(user_id, task["content"])
+        for task_id, task_message in tasks.items():
+            if task_message.content_type == "text":
+                bot.send_message(user_id, f"Task #{task_id}: {task_message.text}")
+            elif task_message.content_type == "photo":
+                bot.send_photo(user_id, task_message.photo[-1].file_id, caption=f"Task #{task_id}: {task_message.caption}")
+            elif task_message.content_type == "video":
+                bot.send_video(user_id, task_message.video.file_id, caption=f"Task #{task_id}: {task_message.caption}")
+        # Add a "Done" button
         markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton("Done", callback_data="task_done"))
-        bot.send_message(user_id, "If you completed the task, click Done.", reply_markup=markup)
+        markup.add(types.InlineKeyboardButton("Done", callback_data="submit_proof"))
+        bot.send_message(user_id, "Click 'Done' when you complete the task.", reply_markup=markup)
     else:
         bot.send_message(user_id, "No tasks available.")
 
-# Handle "Done" button click
-@bot.callback_query_handler(func=lambda call: call.data == "task_done")
-def handle_done(call):
-    bot.send_message(call.from_user.id, "Please send your proof (photo, video, or file).")
-    bot.register_next_step_handler_by_chat_id(call.from_user.id, forward_proof)
+# Handle "Done" button
+@bot.callback_query_handler(func=lambda call: call.data == "submit_proof")
+def ask_for_proof(call):
+    user_id = call.message.chat.id
+    bot.send_message(user_id, "Please send your proof (screenshot, photo, or video).")
+    bot.register_next_step_handler(call.message, receive_proof)
 
-def forward_proof(message):
-    user_id = message.from_user.id
-    if message.content_type in ["photo", "document", "video", "text"]:
-        # Forward proof to admin
-        bot.send_message(
-            ADMIN_ID,
-            f"Proof received from user {user_id}.\nReferrals: {user_data[user_id]['referrals']}\nPoints: {user_data[user_id]['points']}",
-        )
-        bot.forward_message(ADMIN_ID, user_id, message.message_id)
-
-        # Add buttons for admin to approve or decline
+def receive_proof(message):
+    user_id = message.chat.id
+    if message.content_type in ["photo", "video", "text"]:
+        submissions[user_id] = message
+        # Notify admin
         markup = types.InlineKeyboardMarkup()
         markup.add(
-            types.InlineKeyboardButton("Add Points", callback_data=f"approve_{user_id}"),
-            types.InlineKeyboardButton("Decline", callback_data=f"decline_{user_id}"),
+            types.InlineKeyboardButton("Add Points", callback_data=f"add_points_{user_id}"),
+            types.InlineKeyboardButton("Decline", callback_data=f"decline_{user_id}")
         )
-        bot.send_message(ADMIN_ID, "What do you want to do?", reply_markup=markup)
+        bot.forward_message(ADMIN_ID, user_id, message.message_id)
+        bot.send_message(ADMIN_ID, f"User {user_id} submitted proof.", reply_markup=markup)
+        bot.send_message(user_id, "Proof submitted successfully. Waiting for admin review.")
     else:
-        bot.send_message(user_id, "Invalid proof type. Please send a valid proof.")
+        bot.send_message(user_id, "Invalid proof type. Please send a valid file or message.")
 
-# Handle admin's decision
-@bot.callback_query_handler(func=lambda call: call.data.startswith("approve_") or call.data.startswith("decline_"))
-def handle_admin_decision(call):
-    user_id = int(call.data.split("_")[1])
-    if "approve" in call.data:
-        user_data[user_id]["points"] += 1
-        bot.send_message(ADMIN_ID, f"Points added for user {user_id}.")
-        bot.send_message(user_id, "✅ 1 point has been added to your account!")
-    elif "decline" in call.data:
-        bot.send_message(ADMIN_ID, f"Proof from user {user_id} has been declined.")
-        bot.send_message(user_id, "❌ Your proof has been declined. Please try again.")
+# Handle admin review
+@bot.callback_query_handler(func=lambda call: call.data.startswith("add_points_") or call.data.startswith("decline_"))
+def review_proof(call):
+    action, user_id = call.data.split("_")
+    user_id = int(user_id)
 
-# Run the bot
+    if action == "add_points":
+        # Add points to the user
+        bot.send_message(user_id, "Your proof was approved. 1 point added!")
+        bot.send_message(ADMIN_ID, f"1 point added to user {user_id}.")
+    elif action == "decline":
+        # Decline the submission
+        bot.send_message(user_id, "Your proof was declined.")
+        bot.send_message(ADMIN_ID, f"Proof from user {user_id} was declined.")
 
 
 
