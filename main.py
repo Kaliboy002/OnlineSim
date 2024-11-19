@@ -171,10 +171,6 @@ def stats_command_handler(message):
         )
 
 
-# Polling
-bot.polling()
-
-
 
 
 
