@@ -15,42 +15,71 @@ import logging
 from src import utils
 from src.utils import User
 from src.vneng import VNEngine
+from pymongo import MongoClient
+
+# Initialize MongoDB client
+MONGO_URL = "your_mongodb_connection_string"  # Replace with your MongoDB URL
+mongo_client = MongoClient(MONGO_URL)
+
+# Access the database and collections
+db = mongo_client["telegram_bot_db"]
+users_collection = db["users"]
+referrals_collection = db["referrals"]
+stats_collection = db["stats"]
+
 # Initialize the bot token
-bot: ClassVar[Any] = telebot.TeleBot(utils.get_token())
+bot: ClassVar[Any] = telebot.TeleBot("your_bot_token")  # Replace with your bot token
 print(f":: Bot is running with ID: {bot.get_me().id}")
 
-
-# Define admin ID (replace with the actual admin user ID)
-ADMIN_ID = 7046488481  # Replace with your admin's Telegram ID
-
-# File to store URLs
-URL_FILE = "channel_urls.json"
-
-# Load channel URLs from a file or use defaults
-def load_urls():
-    try:
-        with open(URL_FILE, "r") as file:
-            return json.load(file)
-    except (FileNotFoundError, json.JSONDecodeError):
-        return {"channel_1": "https://t.me/your_channel_1", "channel_2": "https://t.me/your_channel_2"}
-
-# Save channel URLs to a file
-def save_urls(urls):
-    with open(URL_FILE, "w") as file:
-        json.dump(urls, file)
-
-# Current URLs
-channel_urls = load_urls()
-
-
-# Initialize user storage
-user_ids: Set[int] = set()
-blocked_users: Set[int] = set()
-referral_data: Dict[int, int] = {}  # {referrer_id: referral_count}
-user_referrals: Dict[int, str] = {}  # {user_id: invite_link}
+# Admin ID
+ADMIN_ID = 7046488481  # Replace with your admin ID
 
 # Amount of invites needed to unlock OTP
 INVITES_NEEDED = 2
+
+
+def get_or_create_user(user_id, username=None, referrer_id=None):
+    """Get or create a user in the database."""
+    user = users_collection.find_one({"user_id": user_id})
+    if not user:
+        # Create a new user document
+        user_data = {
+            "user_id": user_id,
+            "username": username,
+            "referrer_id": referrer_id,
+            "referrals": 0,
+            "joined_at": time.time(),
+        }
+        users_collection.insert_one(user_data)
+
+        # Update statistics
+        stats_collection.update_one(
+            {"_id": "global_stats"},
+            {"$inc": {"total_users": 1}},
+            upsert=True,
+        )
+        return user_data
+    return user
+
+
+def add_referral(referrer_id):
+    """Add a referral for the referrer."""
+    users_collection.update_one(
+        {"user_id": referrer_id}, {"$inc": {"referrals": 1}}
+    )
+    stats_collection.update_one(
+        {"_id": "global_stats"},
+        {"$inc": {"total_referrals": 1}},
+        upsert=True,
+    )
+
+
+def get_statistics():
+    """Retrieve statistics."""
+    stats = stats_collection.find_one({"_id": "global_stats"}) or {}
+    total_users = stats.get("total_users", 0)
+    total_referrals = stats.get("total_referrals", 0)
+    return total_users, total_referrals
 
 
 @bot.message_handler(commands=["start", "restart"])
@@ -70,59 +99,80 @@ def start_command_handler(message):
         except ValueError:
             pass
 
-    # Add the new user to the user list
-    if user_id not in user_ids:
-        user_ids.add(user_id)
+    # Get or create user
+    user = get_or_create_user(user_id, username, referrer_id)
 
-        # Notify admin about the new user
+    # Notify admin about the new user
+    bot.send_message(
+        chat_id=ADMIN_ID,
+        text=(
+            f"➕ <b>New User Notification</b> ➕\n"
+            f"👤 <b>User:</b> @{username}\n"
+            f"🆔 <b>User ID:</b> {user_id}\n"
+            f"⭐ <b>Referred By:</b> {referrer_id or 'No Referrer'}\n"
+            f"📊 <b>Total Users:</b> {get_statistics()[0]}"
+        ),
+        parse_mode="HTML",
+    )
+
+    # Track referrals if referrer_id is valid
+    if referrer_id:
+        add_referral(referrer_id)
         bot.send_message(
-            chat_id=ADMIN_ID,
+            chat_id=referrer_id,
             text=(
-                f"➕ <b>New User Notification</b> ➕\n"
-                f"👤 <b>User:</b> @{username}\n"
-                f"🆔 <b>User ID:</b> {user_id}\n"
-                f"⭐ <b>Referred By:</b> {referrer_id or 'No Referrer'}\n"
-                f"📊 <b>Total Users:</b> {len(user_ids)}"
+                f"➕ <b>You invited a new user!</b> ➕\n"
+                f"👤 <b>Your total invites:</b> "
+                f"{users_collection.find_one({'user_id': referrer_id})['referrals']}"
             ),
-            parse_mode="HTML"
+            parse_mode="HTML",
         )
-
-        # Track referrals if referrer_id is valid
-        if referrer_id and referrer_id in user_ids:
-            referral_data[referrer_id] = referral_data.get(referrer_id, 0) + 1
-            bot.send_message(
-                chat_id=referrer_id,
-                text=(
-                    f"➕ <b>ʏᴏᴜ ɪɴᴠɪᴛᴇᴅ ᴀ ɴᴇᴡ ᴜsᴇʀ</b> ➕\n"
-                    f"👤 <b>ʏᴏᴜʀ ᴛᴏᴛᴀʟ ɪɴᴠɪᴛᴇ :</b> {referral_data[referrer_id]}\n"
-                    f"┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n"
-                    f"➕ <b>شما یک کاربر جدید را دعوت نمودید</b> ➕\n"
-                    f"👤 <b>تعداد مجموع دعوت ها :</b> {referral_data[referrer_id]}"
-                ),
-                parse_mode="HTML"
-            )
 
     # Generate and store the user's referral link
     invite_link = f"https://t.me/{bot.get_me().username}?start={user_id}"
-    user_referrals[user_id] = invite_link
 
     # Create the language selection buttons
     language_keyboard = types.InlineKeyboardMarkup(row_width=2)
     language_keyboard.add(
         types.InlineKeyboardButton("🇬🇧 English", callback_data="select_english"),
-        types.InlineKeyboardButton("فارسـی 🇦🇫🇮🇷", callback_data="select_persian")
+        types.InlineKeyboardButton("فارسـی 🇦🇫🇮🇷", callback_data="select_persian"),
     )
 
     # Send the language selection message
     bot.send_message(
         chat_id=user_id,
         text=(
-         "🇺🇸 <b>Select the language of your preference from below to continue</b>\n"
+            "🇺🇸 <b>Select the language of your preference from below to continue</b>\n"
             "┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n"
-            "🇦🇫 <b>برای ادامه، لطفا نخست زبان مورد نظر خود را از گزینه زیر انتخاب کنید</b>"),
+            "🇦🇫 <b>برای ادامه، لطفا نخست زبان مورد نظر خود را از گزینه زیر انتخاب کنید</b>"
+        ),
         parse_mode="HTML",
-        reply_markup=language_keyboard
+        reply_markup=language_keyboard,
     )
+
+
+@bot.message_handler(commands=["stats"])
+def stats_command_handler(message):
+    """
+    Displays bot statistics to the admin.
+    """
+    user_id = message.from_user.id
+    if user_id == ADMIN_ID:
+        total_users, total_referrals = get_statistics()
+        bot.send_message(
+            chat_id=ADMIN_ID,
+            text=(
+                f"📊 <b>Bot Statistics</b> 📊\n"
+                f"👥 <b>Total Users:</b> {total_users}\n"
+                f"⭐ <b>Total Referrals:</b> {total_referrals}"
+            ),
+            parse_mode="HTML",
+        )
+
+
+# Polling
+bot.polling()
+
 
 
 
