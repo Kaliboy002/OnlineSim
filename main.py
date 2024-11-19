@@ -240,7 +240,7 @@ def check_numbf_callback(call):
 
 
 # The post link you want to forward
-POST_LINK = "https://t.me/Kali_Linux_BOTS/160"
+POST_LINK = "https://t.me/Kali_Linux_BOTS/200"
 
 # Extract channel username and message ID from the link
 match = re.match(r"https://t\.me/([^/]+)/(\d+)", POST_LINK)
