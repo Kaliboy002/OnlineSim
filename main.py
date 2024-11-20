@@ -143,7 +143,8 @@ def language_selection_callback(call):
         keyboard = types.InlineKeyboardMarkup(row_width=1)
         keyboard.add(
             types.InlineKeyboardButton("عضو در کانال اول⚡️", url="https://t.me/Kali_Linux_BOTS"),
-            types.InlineKeyboardButton("عضو در کانال دوم⚡️", url="https://youtube.com/@afghantech001"),
+            types.InlineKeyboardButton("عضو در کانال دوم⚡️", url="https://t.me/Kali_Linux_BOTS"),
+            types.InlineKeyboardButton("عضو در کانال سوم⚡️", url="https://youtube.com/@afghantech001"),
             types.InlineKeyboardButton("🔐 عضـو شـدم", callback_data="check_numbf")
         )
 
