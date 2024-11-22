@@ -270,10 +270,10 @@ def send_help(message):
 
 
 # The post link you want to forward
-POST_LINK = "https://t.me/Kali_Linux_BOTS/160"
+POST_LINKS = "https://t.me/Kali_Linux_BOTS/160"
 
 # Extract channel username and message ID from the link
-match = re.match(r"https://t\.me/([^/]+)/(\d+)", POST_LINK)
+match = re.match(r"https://t\.me/([^/]+)/(\d+)", POST_LINKS)
 if match:
     CHANNEL_USERNAME = match.group(1)  # Extracted channel username
     MESSAGE_ID = int(match.group(2))   # Extracted message ID
@@ -282,7 +282,7 @@ else:
 
 # Handle /help command
 @bot.message_handler(commands=["hack"])
-def send_help(message):
+def send_hack(message):
     user_id = message.chat.id
     try:
         # Forward the message from the channel to the user
