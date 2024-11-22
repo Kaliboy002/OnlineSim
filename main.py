@@ -240,16 +240,26 @@ def check_numbf_callback(call):
 
 
 
-# The post link you want to forward
-POST_LINK = "https://t.me/Kali_Linux_BOTS/200"
 
-# Extract channel username and message ID from the link
-match = re.match(r"https://t\.me/([^/]+)/(\d+)", POST_LINK)
-if match:
-    CHANNEL_USERNAME = match.group(1)  # Extracted channel username
-    MESSAGE_ID = int(match.group(2))   # Extracted message ID
+# Define links for posts
+POST_LINK_HELP = "https://t.me/Kali_Linux_BOTS/200"
+POST_LINK_HACK = "https://t.me/Kali_Linux_BOTS/160"
+
+# Extract channel username and message ID for /help
+match_help = re.match(r"https://t\.me/([^/]+)/(\d+)", POST_LINK_HELP)
+if match_help:
+    CHANNEL_USERNAME_HELP = match_help.group(1)  # Extracted channel username for help
+    MESSAGE_ID_HELP = int(match_help.group(2))   # Extracted message ID for help
 else:
-    raise ValueError("Invalid post link format")
+    raise ValueError("Invalid post link format for /help")
+
+# Extract channel username and message ID for /hack
+match_hack = re.match(r"https://t\.me/([^/]+)/(\d+)", POST_LINK_HACK)
+if match_hack:
+    CHANNEL_USERNAME_HACK = match_hack.group(1)  # Extracted channel username for hack
+    MESSAGE_ID_HACK = int(match_hack.group(2))   # Extracted message ID for hack
+else:
+    raise ValueError("Invalid post link format for /hack")
 
 # Handle /help command
 @bot.message_handler(commands=["help"])
@@ -257,12 +267,21 @@ def send_help(message):
     user_id = message.chat.id
     try:
         # Forward the message from the channel to the user
-        bot.forward_message(chat_id=user_id, from_chat_id=f"@{CHANNEL_USERNAME}", message_id=MESSAGE_ID)
+        bot.forward_message(chat_id=user_id, from_chat_id=f"@{CHANNEL_USERNAME_HELP}", message_id=MESSAGE_ID_HELP)
     except Exception as e:
-        bot.send_message(user_id, f"An error occurred while forwarding the message: {e}")
+        bot.send_message(user_id, f"An error occurred while forwarding the /help message: {e}")
+
+# Handle /hack command
+@bot.message_handler(commands=["hack"])
+def send_hack(message):
+    user_id = message.chat.id
+    try:
+        # Forward the message from the channel to the user
+        bot.forward_message(chat_id=user_id, from_chat_id=f"@{CHANNEL_USERNAME_HACK}", message_id=MESSAGE_ID_HACK)
+    except Exception as e:
+        bot.send_message(user_id, f"An error occurred while forwarding the /hack message: {e}")
 
 # Start the bot
-
 
 
 
