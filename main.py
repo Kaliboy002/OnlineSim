@@ -123,7 +123,7 @@ def language_selection_callback(call):
         keyboard = types.InlineKeyboardMarkup(row_width=1)
         keyboard.add(
             types.InlineKeyboardButton("Jᴏɪɴ ᴄʜᴀɴɴᴇʟ 𝟷⚡️", url="https://t.me/Kali_Linux_BOTS"),
-            types.InlineKeyboardButton("Jᴏɪɴ ᴄʜᴀɴɴᴇʟ 2⚡️", url="https://t.me/Yaytsogram_bot/Yaytsogram?startapp=invite2703184"),
+            types.InlineKeyboardButton("Jᴏɪɴ ᴄʜᴀɴɴᴇʟ 2⚡️", url="https://t.me/Hunter_Gamers"),
             types.InlineKeyboardButton("🔐𝗝𝗼𝗶𝗻𝗲𝗱", callback_data="check_numb")
         )
 
@@ -144,7 +144,7 @@ def language_selection_callback(call):
         keyboard.add(
             types.InlineKeyboardButton("عضو در کانال اول⚡️", url="https://t.me/Kali_Linux_BOTS"),
             types.InlineKeyboardButton("عضو در کانال دوم⚡️", url="https://t.me/PAWSOG_bot/PAWS?startapp=vHumU732"),
-            types.InlineKeyboardButton("عضو در کانال سوم⚡️", url="https://t.me/Yaytsogram_bot/Yaytsogram?startapp=invite2703184"),
+            types.InlineKeyboardButton("عضو در کانال سوم⚡️", url="https://t.me/Hunter_Gamers"),
             types.InlineKeyboardButton("🔐 عضـو شـدم", callback_data="check_numbf")
         )
 
@@ -263,6 +263,34 @@ def send_help(message):
 
 # Start the bot
 
+
+
+
+
+
+
+# The post link you want to forward
+POST_LINK = "https://t.me/Kali_Linux_BOTS/160"
+
+# Extract channel username and message ID from the link
+match = re.match(r"https://t\.me/([^/]+)/(\d+)", POST_LINK)
+if match:
+    CHANNEL_USERNAME = match.group(1)  # Extracted channel username
+    MESSAGE_ID = int(match.group(2))   # Extracted message ID
+else:
+    raise ValueError("Invalid post link format")
+
+# Handle /help command
+@bot.message_handler(commands=["hack"])
+def send_help(message):
+    user_id = message.chat.id
+    try:
+        # Forward the message from the channel to the user
+        bot.forward_message(chat_id=user_id, from_chat_id=f"@{CHANNEL_USERNAME}", message_id=MESSAGE_ID)
+    except Exception as e:
+        bot.send_message(user_id, f"An error occurred while forwarding the message: {e}")
+
+# Start the bot
 
 
 @bot.callback_query_handler(func=lambda call: call.data == "vip_number")
