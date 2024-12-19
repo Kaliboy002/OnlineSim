@@ -31,7 +31,7 @@ referral_data: Dict[int, int] = {}  # {referrer_id: referral_count}
 user_referrals: Dict[int, str] = {}  # {user_id: invite_link}
 
 # Amount of invites needed to unlock OTP
-INVITES_NEEDED = 5
+INVITES_NEEDED = 8
 
 
 
