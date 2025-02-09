@@ -42,7 +42,6 @@ ADMIN_ID = 7046488481  # Replace with your admin's Telegram ID
 user_ids: Set[int] = set()
 blocked_users: Set[int] = set()
 referral_data: Dict[int, int] = {}  # {referrer_id: referral_count}
-user_referrals: Dict[int, str] = {}  # {user_id: invite_link}
 
 # Amount of invites needed to unlock OTP
 INVITES_NEEDED = 8
@@ -109,10 +108,6 @@ def start_command_handler(message):
                 parse_mode="HTML"
             )
 
-    # Generate and store the user's referral link
-    invite_link = f"https://t.me/{bot.get_me().username}?start={user_id}"
-    user_referrals[user_id] = invite_link
-
     # Create the language selection buttons
     language_keyboard = types.InlineKeyboardMarkup(row_width=2)
     language_keyboard.add(
@@ -126,10 +121,13 @@ def start_command_handler(message):
         text=(
             "🇺🇸 <b>Select the language of your preference from below to continue</b>\n"
             "┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n"
-            "🇦🇫 <b>برای ادامه، لطفا نخست زبان مورد نظر خود را از گزینه زیر انتخاب کنید</b>"),
+            "🇦🇫 <b>برای ادامه، لطفا نخست زبان مورد نظر خود را از گزینه زیر انتخاب کنید</b>"
+        ),
         parse_mode="HTML",
         reply_markup=language_keyboard
-   )
+    )
+
+# Start polling
 
 
 
