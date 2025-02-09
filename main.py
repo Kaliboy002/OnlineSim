@@ -3,6 +3,7 @@ import json
 import random
 import time
 from typing import ClassVar, NoReturn, Any, Union, Set, Dict  # Add Dict for type hints
+
 # Related third-party module imports
 import telebot
 from telebot import types  # Correctly import types here
@@ -12,10 +13,13 @@ import io
 import re
 import sys
 import logging
+from pymongo import MongoClient  # Add this import
+
 # Local application module imports
 from src import utils
 from src.utils import User
 from src.vneng import VNEngine
+
 # Initialize the bot token
 bot: ClassVar[Any] = telebot.TeleBot(utils.get_token())
 print(f":: Bot is running with ID: {bot.get_me().id}")
@@ -126,7 +130,7 @@ def start_command_handler(message):
             "🇦🇫 <b>برای ادامه، لطفا نخست زبان مورد نظر خود را از گزینه زیر انتخاب کنید</b>"),
         parse_mode="HTML",
         reply_markup=language_keyboard
-)
+)⌨
 
 
 
