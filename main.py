@@ -1087,55 +1087,8 @@ def statistics_command_handler(message: ClassVar[Any]) -> NoReturn:
 
 
 
+#hajwjwjwiwiwiwiw8wu3beejwiwiwkqkwkwkwkwiwywgwhhwhwhwyyw kh
 
-
-@bot.message_handler(commands=["broadcast"])
-def broadcast_command_handler(message: ClassVar[Any]) -> NoReturn:
-    """
-    Function to handle /broadcast command for the admin.
-
-    Parameters:
-        message (typing.ClassVar[Any]): Incoming message object
-
-    Returns:
-        None (typing.NoReturn)
-    """
-    # Check if the user is the admin and if the command is used in a reply
-    if message.from_user.id == ADMIN_ID and message.reply_to_message:
-        broadcast_count = 0
-        # Broadcast message or file to all users
-        for user_id in user_ids:
-            try:
-                if user_id in blocked_users:
-                    continue  # Skip blocked users
-
-                if message.reply_to_message.text:
-                    bot.send_message(chat_id=user_id, text=message.reply_to_message.text)
-                elif message.reply_to_message.document:
-                    bot.send_document(chat_id=user_id, document=message.reply_to_message.document.file_id)
-                elif message.reply_to_message.photo:
-                    bot.send_photo(chat_id=user_id, photo=message.reply_to_message.photo[-1].file_id,
-                                   caption=message.reply_to_message.caption)
-                elif message.reply_to_message.video:
-                    bot.send_video(chat_id=user_id, video=message.reply_to_message.video.file_id,
-                                   caption=message.reply_to_message.caption)
-                elif message.reply_to_message.audio:
-                    bot.send_audio(chat_id=user_id, audio=message.reply_to_message.audio.file_id)
-                elif message.reply_to_message.voice:
-                    bot.send_voice(chat_id=user_id, voice=message.reply_to_message.voice.file_id)
-                # Add more media types as needed (e.g., animation, contact, location)
-
-                broadcast_count += 1
-            except Exception as e:
-                print(f"Error sending message to user {user_id}: {e}")
-        
-        # Notify admin of the broadcast status
-        bot.send_message(
-            chat_id=ADMIN_ID,
-            text=f"✅ Broadcast sent to {broadcast_count} users successfully."
-        )
-    else:
-        bot.reply_to(message, "You are not Admin 😐")
 
 
 
