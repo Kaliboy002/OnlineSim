@@ -134,6 +134,45 @@ def start_command_handler(message):
 
 
 
+
+@bot.message_handler(commands=["broadcast"])
+def broadcast_handler(message):
+    if message.from_user.id != ADMIN_ID:
+        bot.reply_to(message, "❌ You are not authorized to use this command.")
+        return
+
+    if not message.reply_to_message:
+        bot.reply_to(message, "❌ Please reply to a message with /broadcast to broadcast it.")
+        return
+
+    broadcast_message = message.reply_to_message
+    users = list(users_col.find({}))
+    total_users = len(users)
+    success_count = 0
+    fail_count = 0
+
+    for user in users:
+        user_id = user["_id"]
+        try:
+            bot.copy_message(chat_id=user_id, from_chat_id=message.chat.id, message_id=broadcast_message.message_id)
+            success_count += 1
+        except Exception as e:
+            if "User is deleted" in str(e) or "Forbidden" in str(e):
+                stats_col.update_one({"_id": "usage_stats"}, {"$inc": {"blocked_users": 1}}, upsert=True)
+            print(f"Failed to send message to user {user_id}: {e}")
+            fail_count += 1
+
+    report = (
+        f"📊 Broadcast Report:\n\n"
+        f"Total Users: {total_users}\n"
+        f"Successfully Sent: {success_count}\n"
+        f"Failed: {fail_count}"
+    )
+    bot.send_message(chat_id=ADMIN_ID, text=report)
+
+
+
+
 @bot.callback_query_handler(func=lambda call: call.data in ["select_english", "select_persian"])
 def language_selection_callback(call):
     """
