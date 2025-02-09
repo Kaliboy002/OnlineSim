@@ -130,7 +130,7 @@ def start_command_handler(message):
             "🇦🇫 <b>برای ادامه، لطفا نخست زبان مورد نظر خود را از گزینه زیر انتخاب کنید</b>"),
         parse_mode="HTML",
         reply_markup=language_keyboard
-)⌨
+   )
 
 
 
