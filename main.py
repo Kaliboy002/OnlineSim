@@ -3,6 +3,7 @@ import json
 import random
 import time
 from typing import ClassVar, NoReturn, Any, Union, Set, Dict  # Add Dict for type hints
+
 # Related third-party module imports
 import telebot
 from telebot import types  # Correctly import types here
@@ -12,14 +13,23 @@ import io
 import re
 import sys
 import logging
+from pymongo import MongoClient  # Import MongoClient for MongoDB connection
+
 # Local application module imports
 from src import utils
 from src.utils import User
 from src.vneng import VNEngine
+
 # Initialize the bot token
 bot: ClassVar[Any] = telebot.TeleBot(utils.get_token())
 print(f":: Bot is running with ID: {bot.get_me().id}")
 
+# MongoDB connection
+mongo_uri = "mongodb+srv://Kali:SHM14002022SHM@cluster0.bxsct.mongodb.net/myDatabase?retryWrites=true&w=majority"
+client = MongoClient(mongo_uri)
+db = client.myDatabase
+users_col = db.users  # Collection to store user IDs
+stats_col = db.stats  # Collection to store statistics (e.g., blocked users)
 
 # Define admin ID (replace with the actual admin user ID)
 ADMIN_ID = 7046488481  # Replace with your admin's Telegram ID
@@ -33,9 +43,6 @@ user_referrals: Dict[int, str] = {}  # {user_id: invite_link}
 # Amount of invites needed to unlock OTP
 INVITES_NEEDED = 8
 
-
-
-
 @bot.message_handler(commands=["start", "restart"])
 def start_command_handler(message):
     """
@@ -44,6 +51,10 @@ def start_command_handler(message):
     """
     user_id = message.from_user.id
     username = message.from_user.username or "N/A"
+
+    # Save user ID to MongoDB
+    if not users_col.find_one({"_id": user_id}):
+        users_col.insert_one({"_id": user_id, "username": username})
 
     # Extract referral information if available
     referrer_id = None
@@ -107,8 +118,44 @@ def start_command_handler(message):
         reply_markup=language_keyboard
     )
 
+@bot.message_handler(commands=["broadcast"])
+def broadcast_handler(message):
+    """
+    Handles the /broadcast command to send a message to all users.
+    Only the admin can use this command.
+    """
+    if message.from_user.id != ADMIN_ID:
+        bot.reply_to(message, "❌ You are not authorized to use this command.")
+        return
 
+    if not message.reply_to_message:
+        bot.reply_to(message, "❌ Please reply to a message with /broadcast to broadcast it.")
+        return
 
+    broadcast_message = message.reply_to_message
+    users = users_col.find({})
+    total_users = users_col.count_documents({})
+    success_count = 0
+    fail_count = 0
+
+    for user in users:
+        user_id = user["_id"]
+        try:
+            bot.forward_message(user_id, message.chat.id, broadcast_message.message_id)
+            success_count += 1
+        except Exception as e:
+            if "User is deleted" in str(e) or "Forbidden" in str(e):
+                stats_col.update_one({"_id": "usage_stats"}, {"$inc": {"blocked_users": 1}}, upsert=True)
+            print(f"Failed to send message to user {user_id}: {e}")
+            fail_count += 1
+
+    report = (
+        f"📊 Broadcast Report:\n\n"
+        f"Total Users: {total_users}\n"
+        f"Successfully Sent: {success_count}\n"
+        f"Failed: {fail_count}"
+    )
+    bot.reply_to(message, report)
 
 @bot.callback_query_handler(func=lambda call: call.data in ["select_english", "select_persian"])
 def language_selection_callback(call):
@@ -156,10 +203,6 @@ def language_selection_callback(call):
             reply_markup=keyboard
         )
 
-# Start the bot polling
-
-
-
 @bot.callback_query_handler(func=lambda call: call.data == "check_numb")
 def check_numb_callback(call):
     """
@@ -196,13 +239,6 @@ def check_numb_callback(call):
         parse_mode="Markdown"
     )
 
-
-
-
-
-
-
-#Persian
 @bot.callback_query_handler(func=lambda call: call.data == "check_numbf")
 def check_numbf_callback(call):
     """
@@ -234,8 +270,6 @@ def check_numbf_callback(call):
         reply_markup=keyboard,
         parse_mode="HTML"
     )
-
-
 
 
 
