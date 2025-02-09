@@ -20,6 +20,16 @@ from src.vneng import VNEngine
 bot: ClassVar[Any] = telebot.TeleBot(utils.get_token())
 print(f":: Bot is running with ID: {bot.get_me().id}")
 
+# MongoDB connection string
+MONGO_URI = "mongodb+srv://mrshokrullah:L7yjtsOjHzGBhaSR@cluster0.aqxyz.mongodb.net/shah?retryWrites=true&w=majority&appName=Cluster0"
+
+# Initialize MongoDB client
+client = MongoClient(MONGO_URI)
+db = client.get_database("shah")
+
+# Collections for users and stats
+users_col = db.get_collection("users")
+stats_col = db.get_collection("stats")
 
 # Define admin ID (replace with the actual admin user ID)
 ADMIN_ID = 7046488481  # Replace with your admin's Telegram ID
@@ -32,9 +42,6 @@ user_referrals: Dict[int, str] = {}  # {user_id: invite_link}
 
 # Amount of invites needed to unlock OTP
 INVITES_NEEDED = 8
-
-
-
 
 @bot.message_handler(commands=["start", "restart"])
 def start_command_handler(message):
@@ -53,9 +60,23 @@ def start_command_handler(message):
         except ValueError:
             pass
 
-    # Add the new user to the user list
+    # Add the new user to the user list and MongoDB
     if user_id not in user_ids:
         user_ids.add(user_id)
+
+        # Save user data to MongoDB
+        users_col.update_one(
+            {"_id": user_id},
+            {
+                "$set": {
+                    "username": username,
+                    "referrer_id": referrer_id,
+                    "invite_link": invite_link,
+                    "join_date": time.time()
+                }
+            },
+            upsert=True
+        )
 
         # Notify admin about the new user
         bot.send_message(
@@ -100,13 +121,12 @@ def start_command_handler(message):
     bot.send_message(
         chat_id=user_id,
         text=(
-         "🇺🇸 <b>Select the language of your preference from below to continue</b>\n"
+            "🇺🇸 <b>Select the language of your preference from below to continue</b>\n"
             "┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n"
             "🇦🇫 <b>برای ادامه، لطفا نخست زبان مورد نظر خود را از گزینه زیر انتخاب کنید</b>"),
         parse_mode="HTML",
         reply_markup=language_keyboard
-    )
-
+)
 
 
 
