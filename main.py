@@ -75,7 +75,6 @@ def start_command_handler(message):
                 "$set": {
                     "username": username,
                     "referrer_id": referrer_id,
-                    "invite_link": invite_link,
                     "join_date": time.time()
                 }
             },
