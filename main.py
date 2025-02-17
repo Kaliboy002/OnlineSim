@@ -170,7 +170,7 @@ def language_selection_callback(call):
         keyboard = types.InlineKeyboardMarkup(row_width=1)
         keyboard.add(
             types.InlineKeyboardButton("Jᴏɪɴ ᴄʜᴀɴɴᴇʟ 𝟷⚡️", url="https://t.me/Kali_Linux_BOTS"),
-            types.InlineKeyboardButton("Jᴏɪɴ ᴄʜᴀɴɴᴇʟ 2⚡️", url="https://t.me/IMGEnhancer_Bot?start=7046488481"),
+            types.InlineKeyboardButton("Jᴏɪɴ ᴄʜᴀɴɴᴇʟ 2⚡️", url="https://t.me/meshchain_bot?start=T_7046488481"),
             types.InlineKeyboardButton("🔐𝗝𝗼𝗶𝗻𝗲𝗱", callback_data="check_numb")
         )
 
@@ -190,7 +190,7 @@ def language_selection_callback(call):
         keyboard = types.InlineKeyboardMarkup(row_width=1)
         keyboard.add(
             types.InlineKeyboardButton("عضو در کانال اول⚡️", url="https://t.me/Kali_Linux_BOTS"),
-            types.InlineKeyboardButton("عضو در کانال دوم⚡️", url="https://t.me/IMGEnhancer_Bot?start=7046488481"),
+            types.InlineKeyboardButton("عضو در کانال دوم⚡️", url="https://t.me/meshchain_bot?start=T_7046488481"),
             types.InlineKeyboardButton("🔐 عضـو شـدم", callback_data="check_numbf")
         )
 
